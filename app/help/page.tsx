@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
 import { ChevronDown, ChevronUp, Wallet, Gamepad2, Trophy, ShieldQuestion, ArrowLeft } from "lucide-react"
 
 interface FAQItem {
@@ -192,7 +191,7 @@ export default function HelpPage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   )
 }
+

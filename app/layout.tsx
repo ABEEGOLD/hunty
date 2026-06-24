@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 
 import "./globals.css"
 import { hankenGrotesk } from "@/lib/font"
 import { TxToaster } from "@/components/TxToaster"
 import { EnvironmentIndicator } from "@/components/EnvironmentIndicator"
+import { Footer } from "@/components/Footer"
+import { PageSkeleton } from "@/components/PageSkeleton"
+import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 import Providers from "./providers"
 import PWAInstallPrompt from "@/components/PWAInstallPrompt"
 
@@ -97,6 +101,7 @@ export default function RootLayout({
           </a>
           <TxToaster />
           <PWAInstallPrompt />
+          <EnvironmentIndicator />
           <main id="main-content">
             <Suspense fallback={<PageSkeleton />}>
               <PageTransitionWrapper>
@@ -104,6 +109,7 @@ export default function RootLayout({
               </PageTransitionWrapper>
             </Suspense>
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>

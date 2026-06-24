@@ -19,7 +19,6 @@ import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
 import { hankenGrotesk } from "@/lib/font"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
-import { Footer } from "@/components/Footer"
 import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
@@ -805,7 +804,6 @@ export default function GameArcade() {
         </DialogContent>
       </Dialog>
 
-      <Footer />
     </div>
   )
 }
