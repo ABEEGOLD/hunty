@@ -257,7 +257,6 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             accept="image/*"
             aria-label="Upload cover image"
             className="hidden"
-            aria-label="Upload hunt cover image"
           />
           {hunt.image && (
             <div className="absolute -right-2 -top-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">

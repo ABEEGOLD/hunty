@@ -12,6 +12,9 @@ const meta = {
       options: ['primary', 'success', 'warning', 'error', 'gray'],
     },
   },
+  parameters: {
+    backgrounds: { default: 'light' },
+  },
 } satisfies Meta<typeof Badge>
 
 export default meta
@@ -23,3 +26,7 @@ export const Warning: Story = { args: { variant: 'warning', label: 'In Progress'
 export const Error: Story = { args: { variant: 'error', label: 'Failed' } }
 export const Gray: Story = { args: { variant: 'gray', label: 'Draft' } }
 export const Trending: Story = { args: { variant: 'primary', label: '🔥 Trending' } }
+
+export const PrimaryDark: Story = { args: { variant: 'primary', label: 'Primary' }, parameters: { backgrounds: { default: 'dark' } } }
+export const SuccessDark: Story = { args: { variant: 'success', label: 'Completed' }, parameters: { backgrounds: { default: 'dark' } } }
+export const ErrorDark: Story = { args: { variant: 'error', label: 'Failed' }, parameters: { backgrounds: { default: 'dark' } } }

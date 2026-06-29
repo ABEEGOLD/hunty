@@ -16,7 +16,6 @@ import { logger } from "@/lib/logger"
 import {
   connectWalletConnect,
   disconnectWalletConnect,
-  getWalletConnectDeepLink,
   openWalletDeepLink,
   subscribeWalletConnect,
   type WalletConnectState,
@@ -216,7 +215,7 @@ export function WalletConnectModal({
 
             <div className="mt-4 border-t pt-4">
               <p className="text-xs text-muted-foreground">
-                Don't see your wallet?{" "}
+                Don&apos;t see your wallet?{" "}
                 <button
                   onClick={() => handleWalletSelect("generic")}
                   className="text-primary underline hover:text-primary/80"

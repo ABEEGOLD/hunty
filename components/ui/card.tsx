@@ -9,7 +9,7 @@ const cardVariants = cva(
     variants: {
       variant: {
         /** Default — translucent white with border + shadow (original style) */
-        default: "bg-[#FAFAFAD9] border shadow-sm",
+        default: "bg-[#FAFAFAD9] border shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200",
         /** Flat — solid background, no shadow */
         flat: "bg-card border",
         /** Ghost — no background or border, blends into page */

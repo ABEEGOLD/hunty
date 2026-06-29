@@ -5,7 +5,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import KeyboardShortcutsModal from './KeyboardShortcuts';
-import SearchBar from './SearchBar';
 import {
   createDefaultShortcuts,
   createKeyboardHandler,
@@ -23,31 +22,12 @@ export default function KeyboardShortcutsProvider({
   const router = useRouter();
   const searchBarRef = useRef<SearchBarHandle>(null);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [modalStack, setModalStack] = useState<(() => void)[]>([]);
-
-  // Register a modal's close function so Escape can close the topmost modal
-  const registerModal = useCallback((closeFn: () => void) => {
-    setModalStack((prev) => [...prev, closeFn]);
-    return () => {
-      setModalStack((prev) => prev.filter((fn) => fn !== closeFn));
-    };
-  }, []);
 
   // Close the topmost modal
   const closeTopModal = useCallback(() => {
-    setModalStack((prev) => {
-      if (prev.length === 0) {
-        // If no modals are open, close help if it's open
-        if (helpOpen) {
-          setHelpOpen(false);
-        }
-        return prev;
-      }
-      const newStack = [...prev];
-      const closeFn = newStack.pop();
-      closeFn?.();
-      return newStack;
-    });
+    if (helpOpen) {
+      setHelpOpen(false);
+    }
   }, [helpOpen]);
 
   // Toggle help modal

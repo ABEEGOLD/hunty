@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import SignClient from '@walletconnect/sign-client';
 import Constants from 'expo-constants';
+import { useWalletSecurity } from '@providers/WalletSecurityProvider';
 import { useWalletStore } from '@store/useStore';
 import { saveSession, loadSession, clearSession } from '@services/walletSession';
 import { registerPushToken, unregisterPushToken } from '@services/notifications/tokenRegistry';
@@ -42,6 +43,7 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
   const mountedRef = useRef(true);
 
   const { setWallet, setNetwork, clearWallet, isConnected, walletAddress } = useWalletStore();
+  const { authenticate } = useWalletSecurity();
 
   useEffect(() => {
     mountedRef.current = true;
@@ -227,6 +229,11 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('No active wallet session. Connect a wallet first.');
       }
 
+      const auth = await authenticate('Authorize transaction');
+      if (!auth.authenticated) {
+        throw new Error('Transaction authorization failed.');
+      }
+
       const result = await client.request<{ signedXDR: string }>({
         topic: session.topic,
         chainId: STELLAR_CHAIN,
@@ -238,7 +245,7 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return result.signedXDR;
     },
-    [session],
+    [authenticate, session],
   );
 
   const value: Web3ContextValue = {

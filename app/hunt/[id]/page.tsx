@@ -9,6 +9,7 @@ import HuntDetailClient from "./share";
 import { HuntCountdown } from "./HuntCountdown";
 import { FastestPlayersStrip } from "@/components/FastestPlayersStrip";
 import HuntPageSkeleton from "./loading";
+import { StructuredData, huntStructuredData } from "@/components/StructuredData";
 
 export async function generateMetadata({
   params,

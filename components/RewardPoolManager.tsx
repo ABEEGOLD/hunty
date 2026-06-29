@@ -62,7 +62,7 @@ export function RewardPoolManager({ huntId, isOpen, onClose }: { huntId: number;
       toast.success("Distribution plan saved")
       setHunt(getHuntById(huntId) ?? null)
       setLow(isPoolLow(huntId))
-    } catch (err) {
+    } catch {
       toast.error("Invalid distribution JSON")
     }
   }
@@ -93,7 +93,7 @@ export function RewardPoolManager({ huntId, isOpen, onClose }: { huntId: number;
 
           <div>
             <p className="text-sm font-medium">Distribution Plan (JSON)</p>
-            <textarea value={distributionJson} onChange={(e) => setDistributionJson(e.target.value)} className="w-full h-36 rounded-md border p-2 font-mono text-sm" />
+            <textarea aria-label="Distribution Plan (JSON)" value={distributionJson} onChange={(e) => setDistributionJson(e.target.value)} className="w-full h-36 rounded-md border p-2 font-mono text-sm" />
             <div className="flex gap-2 mt-2">
               <Button onClick={handleSaveDistribution}>Save Plan</Button>
               <Button variant="outline" onClick={() => setDistributionJson(JSON.stringify(pool?.distribution ?? [], null, 2))}>Reset</Button>

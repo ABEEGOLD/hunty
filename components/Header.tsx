@@ -181,7 +181,6 @@ export function Header({ balance = "0" }: { balance?: string }) {
             Connect Wallet
           </Button>
         )}
-      >
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4 h-16 md:h-18">
 
           {/* Logo */}
@@ -258,6 +257,7 @@ export function Header({ balance = "0" }: { balance?: string }) {
               <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
             </div>
 
+            <LanguageSelector />
             <ThemeToggle />
 
             {/* Wallet */}

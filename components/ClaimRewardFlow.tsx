@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
-import { CheckCircle2, Loader2, ExternalLink, AlertCircle, RefreshCw, Wallet } from "lucide-react"
+import { Loader2, ExternalLink, AlertCircle, RefreshCw, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AnimatedCheckmark } from "@/components/AnimatedCheckmark"
 import Coin from "@/components/icons/Coin"
 import { claimReward, ClaimTimeoutError, ClaimRejectedError } from "@/lib/contracts/rewardManager"
 import { getStellarExplorerUrl } from "@/lib/constants"
@@ -96,7 +97,7 @@ export function ClaimRewardFlow({ huntId, rewardAmount, rewardType = "XLM", onCl
     return (
       <div className="flex flex-col items-center gap-4 py-6">
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <AnimatedCheckmark asCircle className="text-green-600 dark:text-green-400" size={32} />
         </div>
 
         <div className="text-center">

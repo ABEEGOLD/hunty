@@ -10,5 +10,8 @@ module.exports = {
   addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
   getLastNotificationResponseAsync: jest.fn(() => Promise.resolve(null)),
   setNotificationChannelAsync: jest.fn(),
+  setBadgeCountAsync: jest.fn(() => Promise.resolve(true)),
+  getBadgeCountAsync: jest.fn(() => Promise.resolve(0)),
+  registerTaskAsync: jest.fn(() => Promise.resolve()),
   AndroidImportance: { HIGH: 'HIGH', DEFAULT: 'DEFAULT', LOW: 'LOW' },
 };

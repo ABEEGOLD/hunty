@@ -51,6 +51,7 @@ describe("validateNftMetadata", () => {
   // ── name ──────────────────────────────────────────────────────────────────
 
   it("rejects missing name", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { name, ...withoutName } = VALID_METADATA
     const result = validateNftMetadata(withoutName)
     expect(result.valid).toBe(false)
@@ -72,6 +73,7 @@ describe("validateNftMetadata", () => {
   // ── description ───────────────────────────────────────────────────────────
 
   it("rejects missing description", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { description, ...withoutDesc } = VALID_METADATA
     const result = validateNftMetadata(withoutDesc)
     expect(result.valid).toBe(false)
@@ -87,6 +89,7 @@ describe("validateNftMetadata", () => {
   // ── image ─────────────────────────────────────────────────────────────────
 
   it("rejects missing image", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { image, ...withoutImage } = VALID_METADATA
     const result = validateNftMetadata(withoutImage)
     expect(result.valid).toBe(false)
@@ -111,6 +114,7 @@ describe("validateNftMetadata", () => {
   // ── attributes ────────────────────────────────────────────────────────────
 
   it("rejects missing attributes", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { attributes, ...withoutAttrs } = VALID_METADATA
     const result = validateNftMetadata(withoutAttrs)
     expect(result.valid).toBe(false)

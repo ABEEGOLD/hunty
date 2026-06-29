@@ -3,8 +3,9 @@
 import { HuntControls } from "@/components/HuntControls";
 import { Button } from "@/components/ui/button";
 import { QrCode, Trophy } from "lucide-react";
-import dynamic from "next/dynamic";
 import { QrCodeModal } from "@/components/QrCodeModal";
+import { PlayGame } from "@/components/PlayGame";
+import { GameCompleteModal } from "@/components/GameCompleteModal";
 import type { StoredHunt } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter } from "next/navigation";

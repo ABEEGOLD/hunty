@@ -37,6 +37,7 @@ function writeCache<T>(key: string, value: T, ttlMs = DEFAULT_CACHE_TTL_MS): T {
 
 function logSlowQuery(queryName: string, durationMs: number, meta: Record<string, unknown>) {
   if (durationMs <= SLOW_QUERY_THRESHOLD_MS) return
+  // eslint-disable-next-line no-console
   console.warn(`[slow-query] ${queryName} took ${durationMs.toFixed(1)}ms`, meta)
 }
 
@@ -47,6 +48,7 @@ function trackPotentialNPlusOne(queryName: string, requestId?: string) {
   queryCounter.set(key, count)
 
   if (count === 8) {
+    // eslint-disable-next-line no-console
     console.warn(`[n+1-detected] Query ${queryName} was called repeatedly in request ${requestId}.`)
   }
 }
@@ -95,29 +97,87 @@ export function getPublicHuntByIdOptimized(huntId: number, requestId?: string): 
 export function listPublicActiveHuntsByCursorOptimized(params: {
   cursor: number | null
   limit: number
+  status?: string | null
+  reward?: string | null
+  search?: string | null
+  sortBy?: string | null
   requestId?: string
 }) {
-  const { cursor, limit, requestId } = params
+  const {
+    cursor,
+    limit,
+    status = "Active",
+    reward = "all",
+    search = "",
+    sortBy = "newest",
+    requestId,
+  } = params
   trackPotentialNPlusOne("listPublicActiveHuntsByCursorOptimized", requestId)
 
   return withTimedQuery(
     "listPublicActiveHuntsByCursorOptimized",
-    { cursor, limit },
+    { cursor, limit, status, reward, search, sortBy },
     () => {
-      const cacheKey = `active:${cursor ?? "start"}:${limit}`
+      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}`
       const cached = readCache<{ data: StoredHunt[]; nextCursor: number | null; total: number }>(cacheKey)
       if (cached) return cached
 
-      const { activePublicHunts } = buildHuntIndexes()
-      const startIndex = cursor == null ? 0 : activePublicHunts.findIndex((hunt) => hunt.id < cursor)
-      const pageStart = startIndex < 0 ? activePublicHunts.length : startIndex
-      const page = activePublicHunts.slice(pageStart, pageStart + limit)
+      // Get all hunts (which already filters out private hunts)
+      const allHunts = getAllHunts()
+
+      // Filter hunts based on parameters
+      const filteredHunts = allHunts.filter((hunt) => {
+        // Status filter:
+        // "all" -> match both Active and Completed
+        // "Active" -> match only Active
+        // "Completed" -> match only Completed
+        const matchesStatus =
+          status === "all" || !status
+            ? (hunt.status === "Active" || hunt.status === "Completed")
+            : hunt.status === status
+
+        // Reward filter:
+        const matchesReward =
+          reward === "all" || !reward
+            ? true
+            : hunt.rewardType === reward ||
+              (reward !== "Both" && hunt.rewardType === "Both") ||
+              (reward === "Both" && hunt.rewardType === "Both")
+
+        // Search filter:
+        const matchesSearch =
+          !search ||
+          hunt.title.toLowerCase().includes(search.toLowerCase()) ||
+          hunt.description.toLowerCase().includes(search.toLowerCase())
+
+        return matchesStatus && matchesReward && matchesSearch
+      })
+
+      // Sort hunts
+      filteredHunts.sort((a, b) => {
+        if (sortBy === "newest") return (b.startTime ?? 0) - (a.startTime ?? 0)
+        if (sortBy === "oldest") return (a.startTime ?? 0) - (b.startTime ?? 0)
+        if (sortBy === "clues-high") return b.cluesCount - a.cluesCount
+        if (sortBy === "clues-low") return a.cluesCount - b.cluesCount
+        return 0
+      })
+
+      // Apply cursor pagination
+      let startIndex = 0
+      if (cursor !== null) {
+        const index = filteredHunts.findIndex((hunt) => hunt.id === cursor)
+        if (index !== -1) {
+          startIndex = index + 1
+        }
+      }
+
+      const page = filteredHunts.slice(startIndex, startIndex + limit)
       const nextCursor = page.length === limit ? page[page.length - 1]?.id ?? null : null
 
       return writeCache(cacheKey, {
         data: page,
         nextCursor,
-        total: activePublicHunts.length,
+        total: filteredHunts.length,
       })
     }
   )

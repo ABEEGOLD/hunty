@@ -13,6 +13,9 @@ const meta = {
     },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
+  parameters: {
+    backgrounds: { default: 'light' },
+  },
 } satisfies Meta<typeof Button>
 
 export default meta
@@ -27,3 +30,7 @@ export const Small: Story = { args: { size: 'sm' } }
 export const Large: Story = { args: { size: 'lg' } }
 export const Loading: Story = { args: { loading: true } }
 export const Disabled: Story = { args: { disabled: true } }
+
+export const PrimaryDark: Story = { args: { variant: 'primary' }, parameters: { backgrounds: { default: 'dark' } } }
+export const SecondaryDark: Story = { args: { variant: 'secondary' }, parameters: { backgrounds: { default: 'dark' } } }
+export const DestructiveDark: Story = { args: { variant: 'destructive' }, parameters: { backgrounds: { default: 'dark' } } }

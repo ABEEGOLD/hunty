@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: pnpm lint
+        run: npm run lint
 
       - name: Type check with TypeScript
         run: npx tsc --noEmit
@@ -47,8 +47,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+  mutation:
       - name: Run Vitest with coverage
-        run: npm test -- --coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vitest-coverage-report
+          path: coverage/
+          retention-days: 30
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -74,9 +83,59 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+      - name: Run mutation testing
+        run: npm run test:mutation
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, mutation]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build Next.js app
 
       - name: Build Next.js application
         run: npm run build
+
+  # Visual Regression Tests - runs on PR and push
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Visual Regression Tests
+        run: npx playwright test visual-regression --reporter=github
+        continue-on-error: true
+
+      - name: Upload Visual Diff Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-regression-diffs
+          path: |
+            e2e/screenshots/**/*.png
+            test-results/
+          retention-days: 30
 
   # E2E tests - runs on PR and push
   e2e:
@@ -114,7 +173,7 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, build, e2e]
+    needs: [lint, test, build, e2e, visual-regression]
     if: always()
     steps:
       - name: Check CI status
@@ -122,7 +181,8 @@ jobs:
           if [ "${{ needs.lint.result }}" = "failure" ] || \
              [ "${{ needs.test.result }}" = "failure" ] || \
              [ "${{ needs.build.result }}" = "failure" ] || \
-             [ "${{ needs.e2e.result }}" = "failure" ]; then
+             [ "${{ needs.e2e.result }}" = "failure" ] || \
+             [ "${{ needs.visual-regression.result }}" = "failure" ]; then
             echo "❌ CI Pipeline Failed"
             exit 1
           fi

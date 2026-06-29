@@ -97,8 +97,61 @@ export default function HuntsScreen() {
           ))}
         </View>
 
-        <ThemedCustomText variant="h3" color="text" weight="700" style={styles.sectionTitle}>
-          Featured Hunts
+        <SettingsSection title="Appearance">
+          <SettingsRow
+            icon="color-palette-outline"
+            label="Theme"
+            description="Light, Dark, or System default"
+            type="navigate"
+            onPress={() => router.push('/settings/theme')}
+          />
+        </SettingsSection>
+
+        <SettingsSection title="Notifications">
+          <SettingsRow
+            icon="notifications-outline"
+            label="Push Notifications"
+            description="Job alerts, messages, and updates"
+            type="toggle"
+            value={notificationsEnabled}
+            onToggle={toggleNotifications}
+          />
+        </SettingsSection>
+
+        <SettingsSection title="Wallet">
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label="Wallet Security"
+            description="Protect wallet actions with biometrics and PIN fallback"
+            type="navigate"
+            onPress={() => router.push('/settings/wallet')}
+          />
+          <SettingsRow
+            icon="log-out-outline"
+            label="Disconnect Wallet"
+            description="Sign out and unlink this device"
+            type="destructive"
+            onPress={() => setShowDisconnect(true)}
+          />
+        </SettingsSection>
+
+        <SettingsSection title="Support">
+          <SettingsRow
+            icon="document-text-outline"
+            label="Documentation"
+            type="link"
+            onPress={() => Linking.openURL('https://docs.hunty.com')}
+          />
+          <SettingsRow
+            icon="help-circle-outline"
+            label="Help Center"
+            type="link"
+            onPress={() => Linking.openURL('https://support.hunty.com')}
+          />
+        </SettingsSection>
+
+        <ThemedCustomText variant="caption" style={[styles.version, { color: colors.border }]}>
+          Hunty v1.0.0 development build
         </ThemedCustomText>
 
         <View style={styles.listContainer}>

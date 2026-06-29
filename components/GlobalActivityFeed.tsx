@@ -10,7 +10,7 @@ import {
   type ActivityEvent,
   anonymizeAddress,
   getRecentActivity,
-} from "@/lib/contracts/activityFeed";
+} from "@/lib/contracts/activityFeed"
 
 // ---------------------------------------------------------------------------
 // Helpers

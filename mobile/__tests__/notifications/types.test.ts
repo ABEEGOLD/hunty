@@ -8,6 +8,8 @@ import type {
   CorrectAnswerPayload,
   LeaderboardOutrankedPayload,
   HuntEndingSoonPayload,
+  RewardPayload,
+  AchievementPayload,
 } from '../../services/notifications/types';
 
 describe('resolveNavTarget', () => {
@@ -49,5 +51,44 @@ describe('resolveNavTarget', () => {
       minutesRemaining: 30,
     };
     expect(resolveNavTarget(payload)).toEqual({ path: '/hunt/42' });
+  });
+
+  it('routes reward to /hunt/:id', () => {
+    const payload: RewardPayload = {
+      type: 'reward',
+      huntId: 7,
+      huntTitle: 'Treasure Trail',
+      rewardAmount: '50',
+      rewardType: 'XLM',
+    };
+    expect(resolveNavTarget(payload)).toEqual({ path: '/hunt/7' });
+  });
+
+  it('routes reward without optional fields to /hunt/:id', () => {
+    const payload: RewardPayload = {
+      type: 'reward',
+      huntId: 15,
+      huntTitle: 'Quick Run',
+    };
+    expect(resolveNavTarget(payload)).toEqual({ path: '/hunt/15' });
+  });
+
+  it('routes achievement to /(tabs)/profile', () => {
+    const payload: AchievementPayload = {
+      type: 'achievement',
+      achievementId: 'first_hunt',
+      achievementTitle: 'First Steps',
+      description: 'Complete your first hunt',
+    };
+    expect(resolveNavTarget(payload)).toEqual({ path: '/(tabs)/profile' });
+  });
+
+  it('routes achievement without description to /(tabs)/profile', () => {
+    const payload: AchievementPayload = {
+      type: 'achievement',
+      achievementId: 'speed_demon',
+      achievementTitle: 'Speed Demon',
+    };
+    expect(resolveNavTarget(payload)).toEqual({ path: '/(tabs)/profile' });
   });
 });

@@ -10,6 +10,9 @@ const meta = {
     title: 'No hunts found',
     description: 'There are no active hunts right now. Check back soon or create your own!',
   },
+  parameters: {
+    backgrounds: { default: 'light' },
+  },
 } satisfies Meta<typeof EmptyState>
 
 export default meta
@@ -27,4 +30,14 @@ export const NoResults: Story = {
     title: 'No results',
     description: 'Your search did not match any hunts.',
   },
+}
+
+export const DefaultDark: Story = { parameters: { backgrounds: { default: 'dark' } } }
+export const NoResultsDark: Story = {
+  args: {
+    icon: '🔍',
+    title: 'No results',
+    description: 'Your search did not match any hunts.',
+  },
+  parameters: { backgrounds: { default: 'dark' } },
 }

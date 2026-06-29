@@ -7,8 +7,48 @@
  */
 
 import * as Notifications from 'expo-notifications';
+import * as TaskManager from 'expo-task-manager';
 import * as Device from 'expo-device';
 import type { NotificationPayload } from './types';
+import { incrementBadge } from './badgeService';
+
+// ─── Background task ─────────────────────────────────────────────────────────
+
+export const BACKGROUND_NOTIFICATION_TASK = 'hunty-background-notification';
+
+/**
+ * Define the background notification task. This runs when a push notification
+ * arrives while the app is killed or in the background.
+ *
+ * Must be called at module scope (outside of a component) so the task is
+ * registered before any notification arrives.
+ */
+TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({ data, error }) => {
+  if (error) {
+    if (__DEV__) console.warn('[BackgroundNotification] Task error:', error);
+    return;
+  }
+
+  if (data) {
+    // Increment the badge count for every background notification
+    await incrementBadge();
+  }
+});
+
+/**
+ * Register the background notification task with expo-notifications.
+ * Safe to call multiple times — subsequent calls are no-ops if already registered.
+ */
+export async function registerBackgroundNotificationTask(): Promise<void> {
+  try {
+    const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_NOTIFICATION_TASK);
+    if (!isRegistered) {
+      await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
+    }
+  } catch (err) {
+    if (__DEV__) console.warn('[BackgroundNotification] Task registration failed:', err);
+  }
+}
 
 // ─── Handler configuration ────────────────────────────────────────────────────
 

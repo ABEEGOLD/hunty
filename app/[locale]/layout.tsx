@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
@@ -92,10 +93,14 @@ export default async function LocaleLayout({
 
   const dir = RTL_LOCALES.includes(locale) ? "rtl" : "ltr"
 
+  const headersList = await headers()
+  const nonce = headersList.get("x-nonce") || undefined
+
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               try {

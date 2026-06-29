@@ -1,5 +1,4 @@
 import Server from "@stellar/stellar-sdk";
-import { getEnvironmentConfig } from "@/lib/config/environment";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SorobanServer = Server as any;
@@ -72,6 +71,7 @@ export function getSorobanNetworkType(): "testnet" | "mainnet" {
  * Creates a Soroban Server instance for the configured RPC URL.
  * Uses the same Server API as soroban-client (stellar-sdk is the maintained package).
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sharedServer: any | null = null;
 let sharedServerRpcUrl: string | null = null;
 
