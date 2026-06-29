@@ -20,7 +20,7 @@
     "test:mutation:validation": "stryker run --testRunner vitest stryker.validation.conf.json",
     "test:mutation:scoring": "stryker run --testRunner vitest stryker.scoring.conf.json",
     "test:mutation:registration": "stryker run --testRunner vitest stryker.registration.conf.json",
-    "test:mutation": "npm run test:mutation:validation && npm run test:mutation:scoring && npm run test:mutation:registration"
+    "test:mutation": "npm run test:mutation:validation && npm run test:mutation:scoring && npm run test:mutation:registration",
     "perf:budget": "node scripts/check-performance-budgets.mjs"
   },
   "dependencies": {
@@ -101,7 +101,7 @@
     "typescript": "^5",
     "vitest": "^4.0.18",
     "@stryker-mutator/core": "^9.6.1",
-    "@stryker-mutator/vitest-runner": "^9.6.1"
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "storybook": "^10.4.6",
     "@storybook/nextjs-vite": "^10.4.6",
     "@chromatic-com/storybook": "^5.2.1",

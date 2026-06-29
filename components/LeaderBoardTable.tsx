@@ -4,10 +4,12 @@ import React, { useEffect, useState, useCallback, memo } from "react"
 import { LeaderboardTableSkeleton } from "@/components/LoadingSkeletons"
 import { cn } from "@/lib/utils"
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt"
+import { getActiveSeason } from "@/lib/seasonStore"
 import { logger } from "@/lib/logger"
 import Medal from "@/components/icons/Medal"
 import { EmptyState } from "@/components/EmptyState"
 import { Trophy } from "lucide-react"
+import { SeasonInfo } from "@/components/SeasonInfo"
 import type { LeaderboardDisplayEntry } from "@/lib/types"
 
 interface LeaderboardTableProps {
@@ -20,6 +22,7 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
   const [data, setData] = useState<LeaderboardDisplayEntry[]>(initialData || [])
   const [isLoading, setIsLoading] = useState(initialLoading)
   const [error, setError] = useState<string | null>(null)
+  const [activeSeason, setActiveSeason] = useState<ReturnType<typeof getActiveSeason>>(null)
 
   const truncateAddress = (address: string) => {
     if (address.length <= 8) return address
@@ -64,6 +67,10 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
     }
   }, [huntId, fetchLeaderboard])
 
+  useEffect(() => {
+    setActiveSeason(getActiveSeason())
+  }, [])
+
   const containerClass = "rounded-none max-w-2xl mx-auto";
 
   if (error) {
@@ -95,6 +102,11 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
 
   return (
     <div className={containerClass}>
+      {activeSeason && (
+        <div className="mb-4">
+          <SeasonInfo season={activeSeason} showRewards={false} />
+        </div>
+      )}
       <table className="w-full rounded-none border-l border-[#808080] dark:border-slate-700 border-collapse">
         <thead>
           <tr className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white">
