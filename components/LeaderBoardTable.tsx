@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useCallback, memo } from "react"
+import React, { useEffect, useState, useCallback, memo, useRef } from "react"
 import { LeaderboardTableSkeleton } from "@/components/LoadingSkeletons"
 import { cn } from "@/lib/utils"
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt"
@@ -8,18 +8,25 @@ import { logger } from "@/lib/logger"
 import Medal from "@/components/icons/Medal"
 import { EmptyState } from "@/components/EmptyState"
 import { Trophy } from "lucide-react"
+import { useWalletStore } from "@/store/useStore"
+import { detectRankChanges } from "@/lib/notifications/rankTracker"
+import { handleRankNotifications } from "@/lib/notifications/notificationService"
 import type { LeaderboardDisplayEntry } from "@/lib/types"
+import type { LeaderboardEntry } from "@/lib/types"
 
 interface LeaderboardTableProps {
   huntId?: number
   data?: LeaderboardDisplayEntry[]
   isLoading?: boolean
+  huntTitle?: string
 }
 
-function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initialLoading = false }: LeaderboardTableProps) {
+function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initialLoading = false, huntTitle }: LeaderboardTableProps) {
   const [data, setData] = useState<LeaderboardDisplayEntry[]>(initialData || [])
   const [isLoading, setIsLoading] = useState(initialLoading)
   const [error, setError] = useState<string | null>(null)
+  const walletAddress = useWalletStore((s) => s.walletAddress)
+  const prevEntriesRef = useRef<LeaderboardEntry[] | null>(null)
 
   const truncateAddress = (address: string) => {
     if (address.length <= 8) return address
@@ -34,6 +41,18 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
       if (data.length === 0) setIsLoading(true)
 
       const rawData = await get_hunt_leaderboard(huntId)
+
+      // Detect rank changes and fire notifications
+      if (walletAddress && huntTitle) {
+        try {
+          const rankChanges = detectRankChanges(huntId, huntTitle, walletAddress, rawData)
+          if (rankChanges.length > 0) {
+            handleRankNotifications(rankChanges)
+          }
+        } catch (err) {
+          logger.error("Failed to detect rank changes:", err)
+        }
+      }
 
       // Sort by points descending (Requirement: Do not assume contract returns pre-sorted)
       const sortedData = [...rawData].sort((a, b) => b.points - a.points)
@@ -54,7 +73,7 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
     } finally {
       setIsLoading(false)
     }
-  }, [huntId, data.length])
+  }, [huntId, data.length, walletAddress, huntTitle])
 
   useEffect(() => {
     if (huntId !== undefined) {
