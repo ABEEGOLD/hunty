@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
@@ -29,18 +30,7 @@ const trackVariants = cva(
   }
 );
 
-const thumbVariants = cva(
-  "absolute top-0.5 left-0.5 h-7 w-7 bg-white rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out",
-  {
-    variants: {
-      checked: {
-        true: "translate-x-8",
-        false: "translate-x-0",
-      },
-    },
-    defaultVariants: { checked: false },
-  }
-);
+const springConfig = { type: "spring" as const, stiffness: 500, damping: 30 };
 
 const CustomToggle = ({
   initialValue = false,
@@ -63,13 +53,17 @@ const CustomToggle = ({
       className={cn(trackVariants({ checked: isToggled, disabled }))}
     >
       {/* Sliding thumb */}
-      <div className={cn(thumbVariants({ checked: isToggled }))}>
+      <motion.div
+        animate={{ x: isToggled ? 32 : 0 }}
+        transition={springConfig}
+        className="absolute top-0.5 left-0.5 h-7 w-7 bg-white rounded-full shadow-md flex items-center justify-center"
+      >
         {isToggled ? (
           <Check className="h-4 w-4 text-green-600" strokeWidth={3} />
         ) : (
           <X className="h-4 w-4 text-red-600" strokeWidth={3} />
         )}
-      </div>
+      </motion.div>
 
       {/* Background icon hints */}
       <div className="absolute inset-0 flex items-center justify-between px-2">

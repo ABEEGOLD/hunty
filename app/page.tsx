@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient, useInfiniteQuery } from "@tanstack/react-query"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import Image from "next/image"
 import Link from "next/link"
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { X, ArrowRight, Trophy, Search } from "lucide-react"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
 import { Header } from "@/components/Header"
 import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
@@ -228,6 +229,7 @@ function VirtualizedActiveHuntsGrid({
                 gap: `${ACTIVE_GRID_GAP}px`,
                 gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
                 transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+                willChange: "transform",
               }}
             >
               {rowHunts.map((hunt) => (
@@ -236,6 +238,110 @@ function VirtualizedActiveHuntsGrid({
                   hunt={hunt}
                   playerCount={playerCounts.get(String(hunt.id))}
                 />
+              ))}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+const INACTIVE_CARD_ESTIMATED_HEIGHT = 200
+const INACTIVE_GRID_GAP = 24
+
+function getInactiveGridColumnCount(width: number): number {
+  if (width >= 1280) return 4
+  if (width >= 1024) return 3
+  if (width >= 640) return 2
+  return 1
+}
+
+function VirtualizedInactiveHuntsGrid({
+  hunts,
+}: {
+  hunts: StoredHunt[]
+}) {
+  const parentRef = useRef<HTMLDivElement | null>(null)
+  const [columnCount, setColumnCount] = useState(1)
+  const [scrollMargin, setScrollMargin] = useState(0)
+  const rowCount = Math.ceil(hunts.length / columnCount)
+
+  useEffect(() => {
+    const parent = parentRef.current
+    if (!parent) return
+
+    const updateGridMetrics = () => {
+      setColumnCount(getInactiveGridColumnCount(parent.getBoundingClientRect().width))
+      setScrollMargin(window.scrollY + parent.getBoundingClientRect().top)
+    }
+
+    updateGridMetrics()
+    const resizeObserver = new ResizeObserver(updateGridMetrics)
+    resizeObserver.observe(parent)
+    window.addEventListener("resize", updateGridMetrics)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", updateGridMetrics)
+    }
+  }, [])
+
+  const rowVirtualizer = useWindowVirtualizer({
+    count: rowCount,
+    estimateSize: () => INACTIVE_CARD_ESTIMATED_HEIGHT,
+    gap: INACTIVE_GRID_GAP,
+    overscan: 5,
+    scrollMargin,
+  })
+
+  return (
+    <div ref={parentRef} className="relative w-full">
+      <div
+        className="relative w-full"
+        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const startIndex = virtualRow.index * columnCount
+          const rowHunts = hunts.slice(startIndex, startIndex + columnCount)
+
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
+              className="absolute left-0 top-0 grid w-full"
+              style={{
+                gap: `${INACTIVE_GRID_GAP}px`,
+                gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+                transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+                willChange: "transform",
+              }}
+            >
+              {rowHunts.map((hunt) => (
+                <Card
+                  key={`inactive-${hunt.id}`}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm h-full"
+                >
+                  <div className="p-5 flex flex-col justify-between h-full">
+                    <div>
+                      <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
+                        {hunt.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-600 mb-4 line-clamp-3">
+                        {hunt.description}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-700">
+                        {hunt.status}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
           )
@@ -304,38 +410,81 @@ export default function GameArcade() {
     }
   }, [statusFilter])
 
-  const { data: hunts = [], isLoading: isLoadingHunts } = useQuery({
-    queryKey: queryKeys.hunts.active(),
-    queryFn: async () => fetchAllHunts(),
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+
+  // Load hunts using Infinite Query with cursor-based pagination
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingHunts,
+  } = useInfiniteQuery({
+    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy],
+    queryFn: async ({ pageParam }) => {
+      const cursorVal = pageParam !== null ? pageParam : "";
+      const res = await fetch(
+        `/api/v1/hunts?limit=12&cursor=${cursorVal}&status=${statusFilter}&reward=${rewardFilter}&search=${encodeURIComponent(
+          searchQuery
+        )}&sortBy=${sortBy}`
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch hunts");
+      }
+      return res.json() as Promise<{
+        data: StoredHunt[];
+        pagination: {
+          total: number;
+          limit: number;
+          cursor: number | null;
+          nextCursor: number | null;
+        };
+      }>;
+    },
+    initialPageParam: null as number | null,
+    getNextPageParam: (lastPage) => lastPage.pagination.nextCursor,
     staleTime: queryCachePolicy.hunts.staleTime,
     gcTime: queryCachePolicy.hunts.gcTime,
-    refetchInterval: queryCachePolicy.hunts.refetchInterval,
-    refetchIntervalInBackground: true,
-  })
+  });
 
+  // Flatten infinite scroll pages into a single flat array
+  const filteredHunts = useMemo(() => {
+    if (!infiniteData) return [];
+    return infiniteData.pages.flatMap((page) => page.data);
+  }, [infiniteData]);
+
+  // Retrieve total results count matching current filters
+  const totalResults = useMemo(() => {
+    return infiniteData?.pages[0]?.pagination.total ?? 0;
+  }, [infiniteData]);
+
+  // Pre-fetch hunt details when active list updates
   useEffect(() => {
-    hunts.slice(0, 6).forEach((hunt) => {
+    filteredHunts.slice(0, 6).forEach((hunt) => {
       queryClient.prefetchQuery({
         queryKey: queryKeys.hunts.detail(hunt.id),
         queryFn: () => getHunt(String(hunt.id)),
         staleTime: queryCachePolicy.hunts.staleTime,
       })
     })
-  }, [hunts, queryClient])
+  }, [filteredHunts, queryClient])
 
-  // Fetch player counts for all visible hunts. refetch is called on mount via
-  // useEffect below to ensure counts are fresh on each arcade page load.
-  const allHuntIds = hunts.map((h) => String(h.id))
+  // Get player counts for all active/visible hunts
+  const allHuntIds = useMemo(() => filteredHunts.map((h) => String(h.id)), [filteredHunts]);
   const { counts: playerCounts, refetch: refetchPlayerCounts } = usePlayerCounts(allHuntIds)
-
-  // Derive recently completed hunts from the same list — no extra fetch.
-  const recentlyCompleted = useRecentlyCompleted(hunts)
 
   // Refresh player counts whenever the hunt list loads/changes.
   useEffect(() => {
-    if (hunts.length > 0) refetchPlayerCounts()
+    if (filteredHunts.length > 0) refetchPlayerCounts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hunts.length])
+  }, [filteredHunts.length])
+
+  // Derive recently completed hunts from the local store (not limited by pagination)
+  const allHuntsList = useMemo(() => {
+    return fetchAllHunts();
+  }, [infiniteData]);
+
+  const recentlyCompleted = useRecentlyCompleted(allHuntsList);
 
   const visibleInactiveHunts = useMemo(
     () => inactiveHunts.slice(0, visibleInactiveCount),
@@ -352,10 +501,11 @@ export default function GameArcade() {
     }
   }, [])
 
+  // Sync/update inactive hunts when infiniteData changes (indicating new hunt modifications or state refresh)
   useEffect(() => {
     setInactiveHunts(fetchInactiveHunts())
     setVisibleInactiveCount(INACTIVE_PAGE_SIZE)
-  }, [hunts])
+  }, [infiniteData])
 
   const loadMoreInactiveHunts = useCallback(() => {
     if (!hasMoreInactiveHunts || isLoadingMoreInactive) return
@@ -366,6 +516,7 @@ export default function GameArcade() {
     }, 250)
   }, [hasMoreInactiveHunts, inactiveHunts.length, isLoadingMoreInactive])
 
+  // Intersection Observer for Inactive Hunts
   useEffect(() => {
     const target = inactiveEndReachedRef.current
     if (!target || !hasMoreInactiveHunts) return
@@ -382,6 +533,62 @@ export default function GameArcade() {
     observer.observe(target)
     return () => observer.disconnect()
   }, [hasMoreInactiveHunts, loadMoreInactiveHunts, visibleInactiveHunts.length])
+
+  // Intersection Observer for Active Hunts
+  useEffect(() => {
+    const target = loadMoreRef.current
+    if (!target || !hasNextPage || isFetchingNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          fetchNextPage()
+        }
+      },
+      { rootMargin: "250px" }
+    )
+
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  // Save scroll position on scroll
+  useEffect(() => {
+    let timeoutId: number
+    const handleScroll = () => {
+      if (timeoutId) window.clearTimeout(timeoutId)
+      timeoutId = window.setTimeout(() => {
+        sessionStorage.setItem("arcade_scroll_y", String(window.scrollY))
+      }, 100)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      if (timeoutId) window.clearTimeout(timeoutId)
+    }
+  }, [])
+
+  // Restore scroll position
+  useEffect(() => {
+    if (!isLoadingHunts && filteredHunts.length > 0) {
+      const savedScrollY = sessionStorage.getItem("arcade_scroll_y")
+      if (savedScrollY) {
+        const targetY = parseInt(savedScrollY, 10)
+        if (!isNaN(targetY) && targetY > 0) {
+          const timeoutId = setTimeout(() => {
+            window.scrollTo({ top: targetY, behavior: "instant" })
+          }, 150)
+          return () => clearTimeout(timeoutId)
+        }
+      }
+    }
+  }, [isLoadingHunts, filteredHunts.length])
+
+  // Clear scroll position when filter state changes
+  useEffect(() => {
+    sessionStorage.removeItem("arcade_scroll_y")
+  }, [statusFilter, rewardFilter, searchQuery, sortBy])
 
   const handleWalletSelect = () => {
     setIsConnectingWallet(true)
@@ -400,30 +607,6 @@ export default function GameArcade() {
     window.location.href = "/hunty"
   }
 
-  const filteredHunts = hunts
-    .filter((hunt) => {
-      const matchesSearch =
-        hunt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        hunt.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesReward =
-        rewardFilter === "all" ||
-        hunt.rewardType === rewardFilter ||
-        (rewardFilter !== "Both" && hunt.rewardType === "Both") ||
-        (rewardFilter === "Both" && hunt.rewardType === "Both");
-  
-      const matchesStatus =
-        statusFilter === "all" || hunt.status === statusFilter;
-  
-      return matchesSearch && matchesReward && matchesStatus;
-    })
-    .sort((a, b) => {
-      if (sortBy === "newest") return (b.startTime || 0) - (a.startTime || 0);
-      if (sortBy === "oldest") return (a.startTime || 0) - (b.startTime || 0);
-      if (sortBy === "clues-high") return b.cluesCount - a.cluesCount;
-      if (sortBy === "clues-low") return a.cluesCount - b.cluesCount;
-      return 0;
-    });
 
   return (
     <div
@@ -645,7 +828,7 @@ export default function GameArcade() {
                 <div className="skeleton-shimmer h-4 w-24 rounded-md bg-slate-200 dark:bg-slate-700" />
               ) : (
                 <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider hidden xl:block">
-                  {filteredHunts.length} result{filteredHunts.length === 1 ? "" : "s"}
+                  {totalResults} result{totalResults === 1 ? "" : "s"}
                 </p>
               )}
             </div>
@@ -670,7 +853,14 @@ export default function GameArcade() {
               />
             </div>
           ) : (
-            <VirtualizedActiveHuntsGrid hunts={filteredHunts} playerCounts={playerCounts} />
+            <>
+              <VirtualizedActiveHuntsGrid hunts={filteredHunts} playerCounts={playerCounts} />
+              <div ref={loadMoreRef} className="h-10 w-full flex items-center justify-center mt-4">
+                {isFetchingNextPage && (
+                  <div className="skeleton-shimmer h-4 w-24 rounded-md bg-slate-200 dark:bg-slate-700" />
+                )}
+              </div>
+            </>
           )}
         </div>
 
@@ -695,32 +885,7 @@ export default function GameArcade() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {visibleInactiveHunts.map((hunt) => (
-                  <Card
-                    key={`inactive-${hunt.id}`}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm"
-                  >
-                    <div className="p-5">
-                      <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
-                        {hunt.title}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-slate-600 mb-4 line-clamp-3">
-                        {hunt.description}
-                      </CardDescription>
-                      <div className="flex items-center justify-between mt-4">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-700">
-                          {hunt.status}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
+              <VirtualizedInactiveHuntsGrid hunts={visibleInactiveHunts} />
               <div ref={inactiveEndReachedRef} className="h-1 w-full" />
 
               {isLoadingMoreInactive && (

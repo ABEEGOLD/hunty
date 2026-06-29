@@ -16,17 +16,25 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const cursorParam = searchParams.get("cursor");
-  const cursor = cursorParam ? parseInt(cursorParam, 10) : null;
+  const cursor = cursorParam && cursorParam !== "null" && cursorParam !== "" ? parseInt(cursorParam, 10) : null;
   const limit = Math.max(1, Math.min(100, parseInt(searchParams.get("limit") || "10", 10)));
+  const status = searchParams.get("status") || "Active";
+  const reward = searchParams.get("reward") || "all";
+  const search = searchParams.get("search") || "";
+  const sortBy = searchParams.get("sortBy") || "newest";
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
-  if (cursorParam && (cursor == null || Number.isNaN(cursor))) {
+  if (cursorParam && cursorParam !== "null" && cursorParam !== "" && (cursor == null || Number.isNaN(cursor))) {
     return NextResponse.json({ error: "Invalid cursor" }, { status: 400 });
   }
 
   const { data, nextCursor, total } = listPublicActiveHuntsByCursorOptimized({
     cursor,
     limit,
+    status,
+    reward,
+    search,
+    sortBy,
     requestId,
   });
 

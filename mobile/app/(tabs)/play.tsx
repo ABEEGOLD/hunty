@@ -297,6 +297,7 @@ export default function PlayScreen() {
             />
             <ThemedButton text="Abandon hunt" variant="ghost" fullWidth onPress={clearProgress} />
           </View>
+        </>
         ) : null}
       </ScrollView>
 

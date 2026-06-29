@@ -26,6 +26,7 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+        run: npm run lint
 
       - name: Type check with TypeScript
         run: npx tsc --noEmit
@@ -47,7 +48,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+  mutation:
       - name: Run Vitest with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vitest-coverage-report
+          path: coverage/
+          retention-days: 30
         run: npm run test:coverage
 
       - name: Upload coverage report artifact
@@ -78,6 +89,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Run mutation testing
+        run: npm run test:mutation
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, mutation]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -163,6 +191,7 @@ jobs:
     name: CI Summary
     runs-on: ubuntu-latest
     needs: [lint, test, build, e2e, visual-regression]
+    needs: [lint, test, build, e2e, visual-regression]
     if: always()
     steps:
       - name: Check CI status
@@ -170,6 +199,8 @@ jobs:
           if [ "${{ needs.lint.result }}" = "failure" ] || \
              [ "${{ needs.test.result }}" = "failure" ] || \
              [ "${{ needs.build.result }}" = "failure" ] || \
+             [ "${{ needs.e2e.result }}" = "failure" ] || \
+             [ "${{ needs.visual-regression.result }}" = "failure" ]; then
              [ "${{ needs.e2e.result }}" = "failure" ] || \
              [ "${{ needs.visual-regression.result }}" = "failure" ]; then
             echo "❌ CI Pipeline Failed"

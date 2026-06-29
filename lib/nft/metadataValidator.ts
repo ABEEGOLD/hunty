@@ -13,8 +13,7 @@ import type { NftMetadata, ValidationResult, ValidationFieldError } from "./type
 /** Maximum allowed serialised metadata size in bytes (64 KB). */
 const MAX_METADATA_BYTES = 64 * 1024
 
-/** Required hunt-specific attribute trait_types */
-const REQUIRED_HUNT_TRAITS = ["difficulty", "completion_time", "rank"] as const
+
 
 /**
  * Validates `metadata` against the SEP-0039 schema.
@@ -110,7 +109,7 @@ export function validateNftMetadata(metadata: unknown): ValidationResult {
         .map((a) => a.trait_type as string)
     )
 
-    const requiredNow: Array<(typeof REQUIRED_HUNT_TRAITS)[number]> = ["difficulty", "rank"]
+    const requiredNow: Array<"difficulty" | "completion_time" | "rank"> = ["difficulty", "rank"]
     for (const trait of requiredNow) {
       if (!presentTraits.has(trait)) {
         errors.push({

@@ -7,19 +7,16 @@ import * as Linking from 'expo-linking';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
-import { hideSplashScreen } from '@utils/splashScreenManager';
-import { useTheme } from '@providers/ThemeProvider';
-import { ThemedCustomText, ThemedButton } from '@components/themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { hideSplashScreen, initializeSplashScreen } from '@utils/splashScreenManager';
-import { ThemeProvider, useTheme } from '@providers/ThemeProvider';
+import { useTheme } from '@providers/ThemeProvider';
+import { ThemedCustomText, ThemedButton } from '@components/themed';
 import ReactQueryProvider from '@providers/ReactQueryProvider';
 import { ToastProvider, useToast } from '@providers/ToastProvider';
 import { Web3Provider } from '@providers/Web3Provider';
+import { WalletSecurityProvider } from '@providers/WalletSecurityProvider';
 import { ModalProvider } from '@providers/ModalProvider';
 import { NotificationsProvider } from '@providers/NotificationsProvider';
-import { ThemedButton, ThemedCustomText } from '@components/themed';
-import { useFonts } from '@app/hooks/useFonts';
 import { useBackHandler } from '@hooks/useBackHandler';
 import { MemoryDiagnosticsOverlay } from '@components/MemoryDiagnosticsOverlay';
 import { StackHeader } from '@components/navigation/StackHeader';
@@ -42,8 +39,6 @@ export const unstable_settings = {
 };
 initializeSplashScreen();
 initializeSentry();
-
-export const unstable_settings = { initialRouteName: '(tabs)' };
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   useEffect(() => {
@@ -82,15 +77,17 @@ export default function RootLayout() {
     <ReactQueryProvider>
       <ThemeProvider>
         <SafeAreaProvider>
-          <Web3Provider>
-            <ToastProvider>
-              <ModalProvider>
-                <NotificationsProvider>
-                  <RootLayoutNav />
-                </NotificationsProvider>
-              </ModalProvider>
-            </ToastProvider>
-          </Web3Provider>
+          <ToastProvider>
+            <WalletSecurityProvider>
+              <Web3Provider>
+                <ModalProvider>
+                  <NotificationsProvider>
+                    <RootLayoutNav />
+                  </NotificationsProvider>
+                </ModalProvider>
+              </Web3Provider>
+            </WalletSecurityProvider>
+          </ToastProvider>
         </SafeAreaProvider>
       </ThemeProvider>
     </ReactQueryProvider>
@@ -116,10 +113,6 @@ function RootLayoutNav() {
   }, []);
 
   useEffect(() => {
-    const backAction = () => {
-      if (router.canGoBack()) {
-        router.back();
-        return true;
     if (!fontsLoaded && !fontError) return;
 
     let isMounted = true;
@@ -230,6 +223,7 @@ function RootLayoutNav() {
         <Stack.Screen name="transaction/pending" options={{ title: 'Transaction Pending', animation: 'none' }} />
         <Stack.Screen name="details" options={{ title: 'Details', animation: 'none' }} />
         <Stack.Screen name="nested" options={{ title: 'Nested', animation: 'none' }} />
+        <Stack.Screen name="settings/notifications" options={{ title: 'Notification Preferences', animation: 'none' }} />
       </Stack>
       <MemoryDiagnosticsOverlay />
     </SafeAreaView>

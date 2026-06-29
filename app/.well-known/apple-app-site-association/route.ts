@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 const APPLE_TEAM_ID = process.env.APPLE_TEAM_ID
+const IOS_BUNDLE_ID = process.env.IOS_BUNDLE_ID || "com.yourorg.hunty"
 
 export function GET() {
   if (!APPLE_TEAM_ID) {
@@ -19,7 +20,7 @@ export function GET() {
         apps: [],
         details: [
           {
-            appID: `${APPLE_TEAM_ID}.com.hunty.app`,
+            appID: `${APPLE_TEAM_ID}.${IOS_BUNDLE_ID}`,
             paths: ["/hunt", "/hunt/*"],
           },
         ],

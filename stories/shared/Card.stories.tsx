@@ -8,6 +8,9 @@ const meta = {
   argTypes: {
     variant: { control: 'select', options: ['default', 'flat', 'ghost'] },
   },
+  parameters: {
+    backgrounds: { default: 'light' },
+  },
 } satisfies Meta<typeof Card>
 
 export default meta
@@ -35,3 +38,6 @@ export const Clickable: Story = {
   render: (args) => <CardExample {...args} />,
   args: { variant: 'default', onPress: () => alert('clicked') },
 }
+
+export const DefaultDark: Story = { render: (args) => <CardExample {...args} />, args: { variant: 'default' }, parameters: { backgrounds: { default: 'dark' } } }
+export const FlatDark: Story = { render: (args) => <CardExample {...args} />, args: { variant: 'flat' }, parameters: { backgrounds: { default: 'dark' } } }

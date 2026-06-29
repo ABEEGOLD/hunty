@@ -3,6 +3,9 @@
     "name": "Hunty",
     "slug": "hunty-mobile",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +21,7 @@
       "bundleIdentifier": "io.hunty.mobile",
       "buildNumber": "1",
       "associatedDomains": [
-        "applinks:hunty.io"
+        "applinks:hunty.app"
       ]
     },
     "android": {
@@ -53,7 +56,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "hunty.io",
+              "host": "hunty.app",
               "pathPrefix": "/hunt"
             }
           ]

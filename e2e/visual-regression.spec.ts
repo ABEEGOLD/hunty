@@ -124,24 +124,24 @@ test.describe("Visual regression — Home (Game Arcade)", () => {
     await seedHuntData(page);
   });
 
-  test("light mode matches snapshot", async ({ page }) => {
+  test("@desktop light mode matches snapshot", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/");
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("home-light.png", {
+    await expect(page).toHaveScreenshot("home-desktop-light.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
   });
 
-  test("dark mode matches snapshot", async ({ page }) => {
+  test("@desktop dark mode matches snapshot", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/");
     await waitForPageReady(page);
 
     await expect(page.locator("html")).toHaveClass(/dark/);
-    await expect(page).toHaveScreenshot("home-dark.png", {
+    await expect(page).toHaveScreenshot("home-desktop-dark.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
@@ -156,24 +156,24 @@ test.describe("Visual regression — Hunt Detail", () => {
     await seedHuntData(page);
   });
 
-  test("light mode matches snapshot", async ({ page }) => {
+  test("@desktop light mode matches snapshot", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto(`/hunt/${SEED_HUNT_ID}`);
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("hunt-detail-light.png", {
+    await expect(page).toHaveScreenshot("hunt-detail-desktop-light.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
   });
 
-  test("dark mode matches snapshot", async ({ page }) => {
+  test("@desktop dark mode matches snapshot", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto(`/hunt/${SEED_HUNT_ID}`);
     await waitForPageReady(page);
 
     await expect(page.locator("html")).toHaveClass(/dark/);
-    await expect(page).toHaveScreenshot("hunt-detail-dark.png", {
+    await expect(page).toHaveScreenshot("hunt-detail-desktop-dark.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
@@ -188,23 +188,23 @@ test.describe("Visual regression — Create Hunt", () => {
     await seedHuntData(page);
   });
 
-  test("light mode matches snapshot", async ({ page }) => {
+  test("@desktop light mode matches snapshot", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/hunty");
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("create-hunt-light.png", {
+    await expect(page).toHaveScreenshot("create-hunt-desktop-light.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
   });
 
-  test("dark mode matches snapshot", async ({ page }) => {
+  test("@desktop dark mode matches snapshot", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/hunty");
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("create-hunt-dark.png", {
+    await expect(page).toHaveScreenshot("create-hunt-desktop-dark.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
@@ -219,23 +219,146 @@ test.describe("Visual regression — Creator Dashboard", () => {
     await seedHuntData(page);
   });
 
-  test("light mode matches snapshot", async ({ page }) => {
+  test("@desktop light mode matches snapshot", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/dashboard");
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("creator-dashboard-light.png", {
+    await expect(page).toHaveScreenshot("creator-dashboard-desktop-light.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
   });
 
-  test("dark mode matches snapshot", async ({ page }) => {
+  test("@desktop dark mode matches snapshot", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/dashboard");
     await waitForPageReady(page);
 
-    await expect(page).toHaveScreenshot("creator-dashboard-dark.png", {
+    await expect(page).toHaveScreenshot("creator-dashboard-desktop-dark.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+});
+
+// ─── Mobile Viewport Tests (iPhone 13) ────────────────────────────────────────────
+// These tests run only on mobile projects due to the @mobile tag
+
+test.describe("Visual regression — Home Mobile (iPhone 13)", () => {
+  test.beforeEach(async ({ page }) => {
+    await injectMockWallet(page);
+    await seedHuntData(page);
+  });
+
+  test("@mobile mobile light mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "light");
+    await page.goto("/");
+    await waitForPageReady(page);
+
+    await expect(page).toHaveScreenshot("home-mobile-light.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+
+  test("@mobile mobile dark mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "dark");
+    await page.goto("/");
+    await waitForPageReady(page);
+
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(page).toHaveScreenshot("home-mobile-dark.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+});
+
+test.describe("Visual regression — Hunt Detail Mobile (iPhone 13)", () => {
+  test.beforeEach(async ({ page }) => {
+    await injectMockWallet(page);
+    await seedHuntData(page);
+  });
+
+  test("@mobile mobile light mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "light");
+    await page.goto(`/hunt/${SEED_HUNT_ID}`);
+    await waitForPageReady(page);
+
+    await expect(page).toHaveScreenshot("hunt-detail-mobile-light.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+
+  test("@mobile mobile dark mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "dark");
+    await page.goto(`/hunt/${SEED_HUNT_ID}`);
+    await waitForPageReady(page);
+
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(page).toHaveScreenshot("hunt-detail-mobile-dark.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+});
+
+test.describe("Visual regression — Create Hunt Mobile (iPhone 13)", () => {
+  test.beforeEach(async ({ page }) => {
+    await injectMockWallet(page);
+    await seedHuntData(page);
+  });
+
+  test("@mobile mobile light mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "light");
+    await page.goto("/hunty");
+    await waitForPageReady(page);
+
+    await expect(page).toHaveScreenshot("create-hunt-mobile-light.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+
+  test("@mobile mobile dark mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "dark");
+    await page.goto("/hunty");
+    await waitForPageReady(page);
+
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(page).toHaveScreenshot("create-hunt-mobile-dark.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+});
+
+test.describe("Visual regression — Dashboard Mobile (iPhone 13)", () => {
+  test.beforeEach(async ({ page }) => {
+    await injectMockWallet(page);
+    await seedHuntData(page);
+  });
+
+  test("@mobile mobile light mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "light");
+    await page.goto("/dashboard");
+    await waitForPageReady(page);
+
+    await expect(page).toHaveScreenshot("dashboard-mobile-light.png", {
+      ...SCREENSHOT_OPTS,
+      mask: dynamicMasks(page),
+    });
+  });
+
+  test("@mobile mobile dark mode matches snapshot", async ({ page }) => {
+    await setTheme(page, "dark");
+    await page.goto("/dashboard");
+    await waitForPageReady(page);
+
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(page).toHaveScreenshot("dashboard-mobile-dark.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
@@ -247,6 +370,7 @@ test.describe("Visual regression — Creator Dashboard", () => {
 // ═════════════════════════════════════════════════════════════════════════════
 
 // ─── Header — connected state ─────────────────────────────────────────────────
+// Component tests run on all viewports for comprehensive coverage
 
 test.describe("Visual regression — Header component", () => {
   test.beforeEach(async ({ page }) => {
@@ -254,7 +378,7 @@ test.describe("Visual regression — Header component", () => {
     await seedHuntData(page);
   });
 
-  test("connected wallet — light mode", async ({ page }) => {
+  test("@desktop connected wallet — light mode", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/");
     await waitForPageReady(page);
@@ -266,7 +390,7 @@ test.describe("Visual regression — Header component", () => {
     });
   });
 
-  test("connected wallet — dark mode", async ({ page }) => {
+  test("@desktop connected wallet — dark mode", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/");
     await waitForPageReady(page);
@@ -278,8 +402,7 @@ test.describe("Visual regression — Header component", () => {
     });
   });
 
-  test("disconnected — light mode", async ({ page }) => {
-    // No mock wallet injection — wallet remains disconnected.
+  test("@desktop disconnected — light mode", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/");
     await waitForPageReady(page);
@@ -288,7 +411,7 @@ test.describe("Visual regression — Header component", () => {
     await expect(header).toHaveScreenshot("header-disconnected-light.png", SCREENSHOT_OPTS);
   });
 
-  test("disconnected — dark mode", async ({ page }) => {
+  test("@desktop disconnected — dark mode", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/");
     await waitForPageReady(page);
@@ -306,16 +429,14 @@ test.describe("Visual regression — HuntCard component", () => {
     await seedHuntData(page);
   });
 
-  test("first card — light mode", async ({ page }) => {
+  test("@desktop first card — light mode", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/");
     await waitForPageReady(page);
 
-    // Target the first hunt card rendered in the arcade grid.
     const card = page.locator("[data-testid='hunt-card']").first();
     const cardCount = await card.count();
     if (cardCount === 0) {
-      // Fallback to generic card selector if data-testid is absent.
       const fallback = page.locator("article, [class*='card'], [class*='Card']").first();
       await expect(fallback).toHaveScreenshot("hunt-card-light.png", {
         ...SCREENSHOT_OPTS,
@@ -329,7 +450,7 @@ test.describe("Visual regression — HuntCard component", () => {
     }
   });
 
-  test("first card — dark mode", async ({ page }) => {
+  test("@desktop first card — dark mode", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/");
     await waitForPageReady(page);
@@ -359,20 +480,18 @@ test.describe("Visual regression — LeaderboardTable component", () => {
     await seedHuntData(page);
   });
 
-  test("light mode", async ({ page }) => {
+  test("@desktop light mode", async ({ page }) => {
     await setTheme(page, "light");
-    // The leaderboard is embedded on the hunt detail page.
     await page.goto(`/hunt/${SEED_HUNT_ID}/leaderboard`);
     await waitForPageReady(page);
 
-    // Snapshot the whole page since the leaderboard IS the page content.
     await expect(page).toHaveScreenshot("leaderboard-light.png", {
       ...SCREENSHOT_OPTS,
       mask: dynamicMasks(page),
     });
   });
 
-  test("dark mode", async ({ page }) => {
+  test("@desktop dark mode", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto(`/hunt/${SEED_HUNT_ID}/leaderboard`);
     await waitForPageReady(page);
@@ -392,15 +511,6 @@ test.describe("Visual regression — GameCompleteModal component", () => {
     await seedHuntData(page);
   });
 
-  /**
-   * Attempts to surface the GameCompleteModal by:
-   * 1. Calling window.__triggerGameComplete() if the app exposes it.
-   * 2. Waiting for [data-testid="game-complete-modal"].
-   * 3. Falling back to congratulations / game-complete text match.
-   *
-   * If the modal cannot be triggered in the current seed state the snapshot
-   * captures the page as-is so CI still produces an artifact.
-   */
   async function openGameCompleteModal(page: Page): Promise<void> {
     await page.evaluate(() => {
       (window as any).__triggerGameComplete?.();
@@ -421,11 +531,10 @@ test.describe("Visual regression — GameCompleteModal component", () => {
         });
     }
 
-    // Allow confetti / entrance animations to finish.
     await page.waitForTimeout(300);
   }
 
-  test("light mode matches snapshot", async ({ page }) => {
+  test("@desktop light mode matches snapshot", async ({ page }) => {
     await setTheme(page, "light");
     await page.goto("/hunty");
     await waitForPageReady(page);
@@ -437,7 +546,7 @@ test.describe("Visual regression — GameCompleteModal component", () => {
     });
   });
 
-  test("dark mode matches snapshot", async ({ page }) => {
+  test("@desktop dark mode matches snapshot", async ({ page }) => {
     await setTheme(page, "dark");
     await page.goto("/hunty");
     await waitForPageReady(page);

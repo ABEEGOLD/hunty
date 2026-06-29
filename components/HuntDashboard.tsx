@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ActivateHuntModal } from "@/components/ActivateHuntModal"
-import { EmptyState } from "@/components/EmptyState"
+import { RewardPoolManager } from "@/components/RewardPoolManager"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { deleteHunts, archiveHunts } from "@/lib/huntStore"
 import {

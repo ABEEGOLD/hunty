@@ -17,9 +17,16 @@
 /blob-report/
 /playwright/.cache/
 
+# Visual regression baselines (tracked)
+!/e2e/screenshots/
+
 # next.js
 /.next/
 /out/
+
+# mutation testing artifacts
+/mutation-report
+/.stryker-tmp
 
 # production
 /build

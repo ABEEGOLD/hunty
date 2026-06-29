@@ -2,13 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Home, Search, Trophy, Compass } from "lucide-react";
-
-const SUGGESTIONS = [
-  { href: "/", label: "Game Arcade", icon: Compass, desc: "Browse all active hunts" },
-  { href: "/dashboard", label: "My Hunts", icon: Trophy, desc: "View hunts you've joined" },
-  { href: "/hunty", label: "Create a Hunt", icon: Search, desc: "Start your own challenge" },
-];
 
 export const metadata: Metadata = {
   title: "404 - Page Not Found | Hunty",

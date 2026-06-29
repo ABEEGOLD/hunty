@@ -1,9 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowRight, CalendarDays, ExternalLink, Gift, Sparkles } from "lucide-react"
+import { CalendarDays, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import type { RewardHistoryEntry, RewardHistoryType } from "@/lib/types"
 import { formatISOString } from "@/lib/dateUtils"
 

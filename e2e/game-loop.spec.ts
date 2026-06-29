@@ -348,7 +348,7 @@ test.describe("Core Game Loop: Create → Join → Solve → Complete", () => {
       await registerBtn.click();
 
       // Look for timer
-      const timer = page.locator("text=/time|remaining|:/).first();
+      const timer = page.locator("text=/time|remaining|:/").first();
 
       if (await timer.isVisible().catch(() => false)) {
         await expect(timer).toBeVisible();

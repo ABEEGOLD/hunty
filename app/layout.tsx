@@ -1,14 +1,15 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 
-import "./globals.css";
-import { hankenGrotesk } from "@/lib/font";
-import { TxToaster } from "@/components/TxToaster";
-import { EnvironmentIndicator } from "@/components/EnvironmentIndicator";
-import Providers from "./providers";
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
-import { Suspense } from "react";
-import { PageSkeleton } from "@/components/PageSkeleton";
-import { PageTransitionWrapper } from "@/components/PageTransitionWrapper";
+import "./globals.css"
+import { hankenGrotesk } from "@/lib/font"
+import { TxToaster } from "@/components/TxToaster"
+import { PageSkeleton } from "@/components/PageSkeleton"
+import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
+import Providers from "./providers"
+import PWAInstallPrompt from "@/components/PWAInstallPrompt"
+import { PageSkeleton } from "@/components/PageSkeleton"
+import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 
 export const viewport: Viewport = {
   themeColor: "#7c3aed",
@@ -76,15 +77,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers()
+  const nonce = headersList.get("x-nonce") || undefined
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               try {

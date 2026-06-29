@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker"
 
-import type { Clue, HuntStatus, StoredHunt } from "@/lib/types"
+import type { Clue, StoredHunt } from "@/lib/types"
 
 export interface TestPlayer {
   name: string
