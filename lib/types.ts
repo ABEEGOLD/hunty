@@ -128,10 +128,24 @@ export type ExtendHuntResult = {
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 
+export type LeaderboardTimePeriod = "today" | "week" | "month" | "all"
+export type LeaderboardMetric = "points" | "completions"
+
 export type LeaderboardEntry = {
   address: string
   name?: string
   points: number
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
+}
+
+export interface LeaderboardFilters {
+  timePeriod: LeaderboardTimePeriod
+  category: string
+  difficulty: ClueDifficulty | "all"
+  metric: LeaderboardMetric
 }
 
 export type FastestPlayerEntry = {
@@ -146,6 +160,10 @@ export interface LeaderboardDisplayEntry {
   name: string
   points: number
   icon: ReactNode
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
 }
 
 export interface FastestPlayerDisplayEntry {
@@ -177,6 +195,43 @@ export type RegistrationResult = {
   success: boolean
   error?: string
   transactionHash?: string
+}
+
+export type HuntAttemptStatus = "completed" | "abandoned" | "in_progress"
+
+export interface ClueAttemptRecord {
+  clueId: number
+  clueIndex: number
+  question: string
+  answerGiven: string
+  timeTakenSeconds: number
+  pointsEarned: number
+  answeredAt: string
+}
+
+export interface HuntAttemptRecord {
+  id: string
+  huntId: number
+  huntTitle: string
+  playerAddress: string
+  status: HuntAttemptStatus
+  startedAt: string
+  completedAt?: string
+  totalTimeSeconds: number
+  totalPoints: number
+  clues: ClueAttemptRecord[]
+  attemptNumber: number
+}
+
+export interface HuntAttemptTimeComparison {
+  playerTimeSeconds: number
+  playerTimeLabel: string
+  fastestTimeSeconds: number | null
+  fastestTimeLabel: string | null
+  averageTimeSeconds: number | null
+  averageTimeLabel: string | null
+  rankAmongFastest: number | null
+  totalComparedPlayers: number
 }
 
 // ─── Reward ──────────────────────────────────────────────────────────────────

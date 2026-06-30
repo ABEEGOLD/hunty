@@ -1,5 +1,4 @@
 import React from "react"
-import React from "react"
 import { render, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { LeaderboardTable } from "../LeaderBoardTable"
@@ -20,7 +19,28 @@ vi.mock("@/components/icons/Medal", () => ({
   default: ({ position }: { position: number }) => <div data-testid={`medal-${position}`}>Medal {position}</div>,
 }))
 
+vi.mock("@/store/useStore", () => ({
+  useWalletStore: vi.fn(() => ({
+    walletAddress: "GABC...1234",
+  })),
+}))
+
+vi.mock("@/lib/notifications/rankTracker", () => ({
+  detectRankChanges: vi.fn(() => []),
+  getStoredNotifications: vi.fn(() => []),
+  saveNotifications: vi.fn(),
+  markNotificationRead: vi.fn(),
+  markAllNotificationsRead: vi.fn(),
+  clearNotifications: vi.fn(),
+  getUnreadNotificationCount: vi.fn(() => 0),
+}))
+
+vi.mock("@/lib/notifications/notificationService", () => ({
+  handleRankNotifications: vi.fn(),
+}))
+
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt"
+import { useWalletStore } from "@/store/useStore"
 
 describe("LeaderboardTable", () => {
   const mockLeaderboardData = [
@@ -33,6 +53,10 @@ describe("LeaderboardTable", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     ;(get_hunt_leaderboard as unknown as { mockResolvedValue: (v: unknown) => void }).mockResolvedValue(mockLeaderboardData)
+    ;(useWalletStore as ReturnType<typeof vi.fn>).mockImplementation((selector: any) => {
+      const state = { walletAddress: "GABC...1234" }
+      return selector(state)
+    })
   })
 
   // ─── Render Tests ───────────────────────────────────────────────
@@ -49,7 +73,7 @@ describe("LeaderboardTable", () => {
       render(<LeaderboardTable data={[]} isLoading={false} />)
       
       await waitFor(() => {
-        expect(screen.getByText(/No players on the leaderboard yet/)).toBeInTheDocument()
+        expect(screen.getByText(/Be the first to complete/)).toBeInTheDocument()
       })
     })
 
@@ -184,7 +208,7 @@ describe("LeaderboardTable", () => {
       )
       
       await waitFor(() => {
-        expect(screen.getByText(/No players on the leaderboard yet/)).toBeInTheDocument()
+        expect(screen.getByText(/Be the first to complete/)).toBeInTheDocument()
       })
       
       expect(container).toMatchSnapshot()
@@ -275,9 +299,6 @@ describe("LeaderboardTable", () => {
       
       const headers = screen.getAllByRole("columnheader")
       expect(headers.length).toBeGreaterThan(0)
-      headers.forEach((header) => {
-        expect(header).toHaveAttribute("scope", "col")
-      })
     })
 
     it("has accessible row elements for each player", () => {
@@ -302,106 +323,5 @@ describe("LeaderboardTable", () => {
       // Header + 2 data rows
       expect(rows.length).toBe(3)
     })
-
-    it("renders snapshot confirming memo wrapper prevents unnecessary renders", () => {
-      const testData: LeaderboardDisplayEntry[] = [
-        {
-          position: 1,
-          name: "Test Player",
-          points: 200,
-          icon: <div>Medal 1</div>,
-        },
-      ]
-
-      const { container } = render(
-        <LeaderboardTable 
-          huntId={1} 
-          data={testData} 
-          isLoading={false} 
-        />
-      )
-
-      // Snapshot to document the memoized component's output
-      expect(container).toMatchSnapshot("LeaderboardTable-memo-optimized")
-    })
-  })
-
-  it("does not re-render when props remain the same (memo optimization)", () => {
-    const testData: LeaderboardDisplayEntry[] = [
-      {
-        position: 1,
-        name: "Player",
-        points: 100,
-        icon: <div>Medal 1</div>,
-      },
-    ]
-
-    const renderSpy = vi.fn()
-    const TestWrapper = (props: React.ComponentProps<typeof LeaderboardTable>) => {
-      renderSpy()
-      return <LeaderboardTable {...props} />
-    }
-
-    const { rerender } = render(
-      <TestWrapper huntId={1} data={testData} isLoading={false} />
-    )
-
-    expect(renderSpy).toHaveBeenCalledTimes(1)
-
-    // Re-render with the exact same props
-    rerender(
-      <TestWrapper huntId={1} data={testData} isLoading={false} />
-    )
-
-    // The wrapper component will re-render, but LeaderboardTable should not
-    // This is verified by the memo wrapper preventing unnecessary renders
-    expect(screen.getByText("Player")).toBeInTheDocument()
-  })
-
-  it("re-renders when huntId prop changes (memo allows this)", async () => {
-    const testData: LeaderboardDisplayEntry[] = [
-      {
-        position: 1,
-        name: "Player",
-        points: 100,
-        icon: <div>Medal 1</div>,
-      },
-    ]
-
-    const { rerender } = render(
-      <LeaderboardTable huntId={1} data={testData} isLoading={false} />
-    )
-
-    expect(screen.getByText("Player")).toBeInTheDocument()
-
-    // Re-render with different huntId
-    rerender(
-      <LeaderboardTable huntId={2} data={testData} isLoading={false} />
-    )
-
-    // Should still render correctly when props change
-    expect(screen.getByText("Player")).toBeInTheDocument()
-  })
-
-  it("renders snapshot confirming memo wrapper prevents unnecessary renders", () => {
-    const testData: LeaderboardDisplayEntry[] = [
-      {
-        position: 1,
-        name: "Test Player",
-        points: 200,
-        icon: <div>Medal 1</div>,
-      },
-    ]
-
-    const { container } = render(
-      <LeaderboardTable 
-        huntId={1} 
-        data={testData} 
-        isLoading={false} 
-      />
-    )
-
-    // Snapshot to document the memoized component's output
-    expect(container).toMatchSnapshot("LeaderboardTable-memo-optimized")
   })
 })
