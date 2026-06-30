@@ -25,6 +25,8 @@ import {
   Gamepad2,
   HelpCircle,
 } from "lucide-react";
+import { getUnreadNotificationCount } from "@/lib/notifications/rankTracker"
+import { createWeeklyDigestNotification, shouldSendWeeklyDigest } from "@/lib/notifications/weeklyDigest"
 
 // ÔöÇÔöÇÔöÇ Nav structure ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
@@ -300,6 +302,22 @@ export function Header({ balance = "0" }: { balance?: string }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Update unread notification count
+  useEffect(() => {
+    setUnreadCount(getUnreadNotificationCount())
+    const interval = setInterval(() => {
+      setUnreadCount(getUnreadNotificationCount())
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Weekly digest check on mount
+  useEffect(() => {
+    if (shouldSendWeeklyDigest()) {
+      createWeeklyDigestNotification()
+    }
+  }, [])
+
   // Close dropdowns on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -334,7 +352,7 @@ export function Header({ balance = "0" }: { balance?: string }) {
     megaTimeoutRef.current = setTimeout(() => setActiveMega(null), 120);
   }, []);
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => n.unread).length;
+  const [unreadCount, setUnreadCount] = useState(0)
 
   return (
     <>

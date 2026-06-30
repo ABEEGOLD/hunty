@@ -8,7 +8,11 @@ import { logger } from "@/lib/logger"
 import Medal from "@/components/icons/Medal"
 import { EmptyState } from "@/components/EmptyState"
 import { Trophy } from "lucide-react"
+import { useWalletStore } from "@/store/useStore"
+import { detectRankChanges } from "@/lib/notifications/rankTracker"
+import { handleRankNotifications } from "@/lib/notifications/notificationService"
 import type { LeaderboardDisplayEntry, LeaderboardFilters } from "@/lib/types"
+import type { LeaderboardEntry } from "@/lib/types"
 
 const DEFAULT_FILTERS: LeaderboardFilters = {
   timePeriod: "all",
@@ -29,15 +33,17 @@ interface LeaderboardTableProps {
   huntId?: number
   data?: LeaderboardDisplayEntry[]
   isLoading?: boolean
+  huntTitle?: string
   filters?: Partial<LeaderboardFilters>
 }
 
-function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initialLoading = false, filters: filterOverrides }: LeaderboardTableProps) {
+function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initialLoading = false, huntTitle, filters: filterOverrides }: LeaderboardTableProps) {
   const filters: LeaderboardFilters = { ...DEFAULT_FILTERS, ...filterOverrides }
 
   const [rawData, setRawData] = useState(initialData || [])
   const [isLoading, setIsLoading] = useState(initialLoading)
   const [error, setError] = useState<string | null>(null)
+  const walletAddress = useWalletStore((s: { walletAddress: string }) => s.walletAddress)
 
   const truncateAddress = (address: string) => {
     if (address.length <= 8) return address
@@ -51,6 +57,18 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
       if (rawData.length === 0) setIsLoading(true)
 
       const fetched = await get_hunt_leaderboard(huntId)
+
+      // Detect rank changes and fire notifications using previous state
+      if (walletAddress && huntTitle) {
+        try {
+          const rankChanges = detectRankChanges(huntId, huntTitle, walletAddress, rawData as unknown as LeaderboardEntry[])
+          if (rankChanges.length > 0) {
+            handleRankNotifications(rankChanges)
+          }
+        } catch (err) {
+          logger.error("Failed to detect rank changes:", err)
+        }
+      }
 
       const mapped: LeaderboardDisplayEntry[] = fetched.map((entry, index) => ({
         position: index + 1,
@@ -71,7 +89,7 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
     } finally {
       setIsLoading(false)
     }
-  }, [huntId, rawData.length])
+  }, [huntId, rawData.length, walletAddress, huntTitle])
 
   useEffect(() => {
     if (huntId !== undefined) {
