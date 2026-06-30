@@ -9,20 +9,23 @@ import {
   subscribeWalletConnect,
   isWalletConnectConnected,
   getActiveWalletConnectSession,
+  resetWalletConnect,
 } from "@/lib/walletConnect"
 
-const mockWeb3Wallet = {
-  init: vi.fn(),
-  connect: vi.fn(),
-  approveSession: vi.fn(),
-  rejectSession: vi.fn(),
-  disconnectSession: vi.fn(),
-  request: vi.fn(),
-  getActiveSessions: vi.fn(),
-  on: vi.fn(),
-}
-
-const mockCore = vi.fn()
+const { mockCore, mockWeb3Wallet } = vi.hoisted(() => {
+  const mockWeb3Wallet = {
+    init: vi.fn(),
+    connect: vi.fn(),
+    approveSession: vi.fn(),
+    rejectSession: vi.fn(),
+    disconnectSession: vi.fn(),
+    request: vi.fn(),
+    getActiveSessions: vi.fn(),
+    on: vi.fn(),
+  };
+  const mockCore = vi.fn();
+  return { mockCore, mockWeb3Wallet };
+});
 
 vi.mock("@walletconnect/core", () => ({
   Core: mockCore,
@@ -58,6 +61,8 @@ describe("walletConnect core module", () => {
     vi.clearAllMocks()
     localStorage.clear()
     vi.resetModules()
+    resetWalletConnect()
+    process.env.NEXT_PUBLIC_WC_PROJECT_ID = "test-project-id"
   })
 
   afterEach(() => {

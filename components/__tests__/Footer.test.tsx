@@ -65,9 +65,9 @@ describe("Footer", () => {
 
     it("uses responsive layout classes", () => {
       render(<Footer />);
-      const footer = document.querySelector("footer");
-      expect(footer?.className).toContain("sm:flex-row");
-      expect(footer?.className).toContain("flex-col");
+      const container = document.querySelector("footer > div");
+      expect(container?.className).toContain("sm:flex-row");
+      expect(container?.className).toContain("flex-col");
     });
 
     it("has dark mode support classes", () => {
