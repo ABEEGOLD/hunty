@@ -1,4 +1,5 @@
 import { getAllHunts, getHuntById, type StoredHunt } from "@/lib/huntStore"
+import { getHuntsWithRatings } from "@/lib/reviews"
 
 type CacheEntry<T> = {
   value: T
@@ -61,7 +62,7 @@ function withTimedQuery<T>(queryName: string, meta: Record<string, unknown>, fn:
 }
 
 function buildHuntIndexes() {
-  const hunts = getAllHunts()
+  const hunts = getHuntsWithRatings(getAllHunts())
   const huntsById = new Map<number, StoredHunt>()
   const activePublicHunts: StoredHunt[] = []
 
@@ -155,6 +156,14 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
 
       // Sort hunts
       filteredHunts.sort((a, b) => {
+        if (sortBy === "rating-high") {
+          const ratingA = a.averageRating ?? 0
+          const ratingB = b.averageRating ?? 0
+          if (ratingB !== ratingA) {
+            return ratingB - ratingA
+          }
+          return (b.startTime ?? 0) - (a.startTime ?? 0)
+        }
         if (sortBy === "newest") return (b.startTime ?? 0) - (a.startTime ?? 0)
         if (sortBy === "oldest") return (a.startTime ?? 0) - (b.startTime ?? 0)
         if (sortBy === "clues-high") return b.cluesCount - a.cluesCount

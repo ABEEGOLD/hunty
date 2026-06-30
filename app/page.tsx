@@ -25,6 +25,7 @@ import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
+import { StarRating } from "@/components/StarRating"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
@@ -117,6 +118,7 @@ function ActiveHuntCard({
             </span>
           )}
         </div>
+        <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
         <CardDescription className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
           {hunt.description}
         </CardDescription>
@@ -328,6 +330,7 @@ function VirtualizedInactiveHuntsGrid({
                       <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
                         {hunt.title}
                       </CardTitle>
+                      <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
                       <CardDescription className="text-sm text-slate-600 mb-4 line-clamp-3">
                         {hunt.description}
                       </CardDescription>
@@ -368,7 +371,7 @@ export default function GameArcade() {
   const [activeTab, setActiveTab] = useState<"leaderboard" | "none">("none")
   const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "clues-high" | "clues-low">("newest")
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "clues-high" | "clues-low" | "rating-high">("newest")
 
   const isLoadedRef = useRef(false)
 
@@ -813,12 +816,13 @@ export default function GameArcade() {
                 <select
                   value={sortBy}
                   onChange={(e) =>
-                    setSortBy(e.target.value as "newest" | "oldest" | "clues-high" | "clues-low")
+                    setSortBy(e.target.value as "newest" | "oldest" | "clues-high" | "clues-low" | "rating-high")
                   }
                   className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
                 >
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
+                  <option value="rating-high">Highest Rated</option>
                   <option value="clues-high">Most Clues</option>
                   <option value="clues-low">Fewest Clues</option>
                 </select>

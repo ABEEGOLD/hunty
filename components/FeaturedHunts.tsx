@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import { cn } from "@/lib/utils"
+import { StarRating } from "@/components/StarRating"
 
 function timeRemaining(endTime?: number): string {
   if (!endTime) return ""
@@ -75,6 +76,7 @@ export function FeaturedHunts() {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 pr-16 line-clamp-1">
                   {hunt.title}
                 </h3>
+                <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
                 <HuntCoverImage
                   src={hunt.coverImageCid}
                   alt={`${hunt.title} cover`}

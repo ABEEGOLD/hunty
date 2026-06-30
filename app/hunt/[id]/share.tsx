@@ -6,6 +6,7 @@ import { QrCode, Trophy } from "lucide-react";
 import { QrCodeModal } from "@/components/QrCodeModal";
 import { PlayGame } from "@/components/PlayGame";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
+import { HuntReviewsSection } from "@/components/HuntReviewsSection";
 import type { StoredHunt } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter } from "next/navigation";
@@ -312,6 +313,10 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           />
         </PlayInterfaceGuard>
       )}
+
+      <div className="mt-12 pt-8 border-t border-white/10">
+        <HuntReviewsSection huntId={hunt.id} creatorAddress={hunt.creator} />
+      </div>
     </div>
   );
 }

@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 
 // Import handlers from the app directory.
-import { GET as getHunts } from '../../app/api/v1/hunts/route';
-import { GET as getLeaderboard } from '../../app/api/v1/hunts/[id]/leaderboard/route';
-import { GET as getFeatured } from '../../app/api/admin/featured/route';
-import { GET as getIpfs } from '../../app/api/ipfs/route';
-import { GET as getAnalytics } from '../../app/api/analytics/route';
+import { GET as getHunts } from '@/app/api/v1/hunts/route';
+import { GET as getLeaderboard } from '@/app/api/v1/hunts/[id]/leaderboard/route';
+import { GET as getFeatured } from '@/app/api/admin/featured/route';
+import { GET as getIpfs } from '@/app/api/ipfs/route';
+import { GET as getAnalytics } from '@/app/api/analytics/performance/route';
 
 function handlerToExpress(handler) {
   return async (req, res) => {

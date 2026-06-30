@@ -4,6 +4,7 @@
  */
 
 import type { HuntStatus, StoredHunt, Clue } from "@/lib/types"
+import { getHuntsWithRatings } from "@/lib/reviews"
 
 export type { HuntStatus, StoredHunt, Clue }
 
@@ -140,7 +141,7 @@ function writeHunts(hunts: StoredHunt[]): void {
 
 /** All hunts (for Game Arcade: filter by status === "Active"). Private hunts are excluded. */
 export function getAllHunts(): StoredHunt[] {
-  return readHunts().filter((h) => !h.is_private)
+  return getHuntsWithRatings(readHunts().filter((h) => !h.is_private))
 }
 
 /** All hunts including private ones (for creator dashboard). */
@@ -213,7 +214,9 @@ export function archiveHunts(ids: number[]): void {
 
 /** Get a single hunt by ID */
 export function getHuntById(id: number): StoredHunt | undefined {
-  return readHunts().find((h) => h.id === id)
+  const hunt = readHunts().find((h) => h.id === id)
+  if (!hunt) return undefined
+  return getHuntsWithRatings([hunt])[0]
 }
 
 /** Get reward-pool related data for a hunt. */
