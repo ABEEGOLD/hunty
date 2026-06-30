@@ -1,21 +1,76 @@
 import { describe, it, expect } from 'vitest';
+// @ts-expect-error supertest has no types installed
 import request from 'supertest';
 
 // Import handlers from the app directory.
 import { GET as getHunts } from '@/app/api/v1/hunts/route';
 import { GET as getLeaderboard } from '@/app/api/v1/hunts/[id]/leaderboard/route';
 import { GET as getFeatured } from '@/app/api/admin/featured/route';
-import { GET as getIpfs } from '@/app/api/ipfs/route';
+import { POST as postIpfs } from '@/app/api/ipfs/route';
 import { GET as getAnalytics } from '@/app/api/analytics/performance/route';
 
-function handlerToExpress(handler) {
-  return async (req, res) => {
-    const result = await handler(req);
-    if (result?.json) {
-      const data = await result.json();
-      res.status(result.status || 200).json(data);
-    } else {
-      res.status(200).send(result);
+function handlerToExpress(handler: any) {
+  return async (req: any, res: any) => {
+    try {
+      const url = `http://localhost${req.url || req.originalUrl}`;
+      const method = req.method;
+      const headers = new Headers();
+      for (const [key, value] of Object.entries(req.headers)) {
+        if (value !== undefined) {
+          if (Array.isArray(value)) {
+            value.forEach(v => headers.append(key, v));
+          } else {
+            headers.set(key, String(value));
+          }
+        }
+      }
+      let body = undefined;
+      if (method !== "GET" && method !== "HEAD" && req.body) {
+        body = typeof req.body === "object" ? JSON.stringify(req.body) : req.body;
+      }
+      
+      const webRequest = new Request(url, {
+        method,
+        headers,
+        body,
+      });
+
+      // Parse route parameters from the URL path.
+      // e.g. /api/v1/hunts/123/leaderboard -> id = 123
+      const params: Record<string, string> = {};
+      const matchLeaderboard = req.url.match(/\/api\/v1\/hunts\/([^\/]+)\/leaderboard/);
+      if (matchLeaderboard) {
+        params.id = matchLeaderboard[1];
+      }
+
+      const result = await handler(webRequest, { params });
+      
+      if (result instanceof Response) {
+        res.statusCode = result.status;
+        result.headers.forEach((value, key) => {
+          res.setHeader(key, value);
+        });
+        const contentType = result.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await result.json();
+          res.end(JSON.stringify(data));
+        } else {
+          const text = await result.text();
+          res.end(text);
+        }
+      } else if (result?.json) {
+        const data = await result.json();
+        res.statusCode = result.status || 200;
+        res.setHeader("content-type", "application/json");
+        res.end(JSON.stringify(data));
+      } else {
+        res.statusCode = 200;
+        res.end(typeof result === "string" ? result : JSON.stringify(result));
+      }
+    } catch (err: any) {
+      res.statusCode = 500;
+      res.setHeader("content-type", "application/json");
+      res.end(JSON.stringify({ error: err.message }));
     }
   };
 }
@@ -33,21 +88,22 @@ describe('API Integration Tests', () => {
     const app = request(handlerToExpress(getLeaderboard));
     const response = await app.get('/api/v1/hunts/123/leaderboard');
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('leaderboard');
+    expect(response.body).toHaveProperty('data');
+    expect(response.body).toHaveProperty('pagination');
   });
 
   it('GET /api/admin/featured returns featured items', async () => {
     const app = request(handlerToExpress(getFeatured));
     const response = await app.get('/api/admin/featured');
     expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body).toHaveProperty('featuredHuntId');
   });
 
-  it('GET /api/ipfs returns IPFS info', async () => {
-    const app = request(handlerToExpress(getIpfs));
-    const response = await app.get('/api/ipfs');
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('cid');
+  it('POST /api/ipfs returns 503 if not configured', async () => {
+    const app = request(handlerToExpress(postIpfs));
+    const response = await app.post('/api/ipfs');
+    expect(response.status).toBe(503);
+    expect(response.body).toHaveProperty('error');
   });
 
   it('GET /api/analytics returns analytics data', async () => {

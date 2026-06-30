@@ -59,7 +59,7 @@ function parseSession(value: string | null): WalletSession | null {
         parsed.provider === "rabet" ||
         parsed.provider === "xbull" ||
         parsed.provider === "lobstr") &&
-      typeof parsed.publicKey === "string"
+      typeof parsed.publicKey === "string" && parsed.publicKey.trim().length > 0
     ) {
       return parsed
     }
