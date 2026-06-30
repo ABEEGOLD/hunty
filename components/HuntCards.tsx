@@ -10,6 +10,7 @@ import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
 import { cn } from "@/lib/utils";
 import sanitizeHtml from "@/lib/sanitizeHtml";
 import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
+import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
 import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
 import type { HuntCard as Hunt } from "@/lib/types";
 import { usePlayerCount } from "@/hooks/usePlayerCount";
@@ -43,6 +44,8 @@ interface HuntCardsProps {
   playerCountLoading?: boolean;
   playerCountError?: string | null;
   isTrending?: boolean;
+  playerAddress?: string;
+  attemptId?: string;
 }
 
 const DEFAULT_POINTS = 10;
@@ -64,6 +67,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   playerCountLoading: playerCountLoadingProp,
   playerCountError: playerCountErrorProp,
   isTrending: isTrendingProp,
+  playerAddress,
+  attemptId,
 }) => {
   const hunt = hunts && hunts.length > 0 ? hunts[0] : {} as Hunt;
 
@@ -148,6 +153,23 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
         // ClueCompleted event received
         setSuccess(true);
+
+        const actualPoints = Math.max(
+          0,
+          (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0)
+        );
+
+        if (playerAddress && attemptId) {
+          recordClueAttempt(playerAddress, attemptId, {
+            clueId: Number(hunt.id),
+            clueIndex: currentIndex - 1,
+            question: hunt.title,
+            answerGiven: input.trim(),
+            timeTakenSeconds: getClueElapsedSeconds(huntId, Number(hunt.id)),
+            pointsEarned: actualPoints,
+            answeredAt: new Date().toISOString(),
+          });
+        }
         
         // Celebratory confetti (Requirement #146)
         const isLastClue = currentIndex === totalHunts;
@@ -171,7 +193,6 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         }
 
         setInput("");
-        const actualPoints = Math.max(0, (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0));
         onScoreUpdate?.(actualPoints);
         setTimeout(() => {
           setSuccess(false);

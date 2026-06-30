@@ -9,7 +9,7 @@ import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { X, ArrowRight, Trophy, Search } from "lucide-react"
+import { X, ArrowRight, Trophy, Search, HelpCircle } from "lucide-react"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
@@ -612,7 +612,7 @@ export default function GameArcade() {
     <div
       className={`min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] dark:from-slate-900 dark:bg-slate-900 dark:to-slate-800 pb-[75px]`}
     >
-      <OnboardingTour />
+      <OnboardingTour tourType="player" />
       {/* Header */}
       <Header
         balance={balance}
@@ -656,18 +656,28 @@ export default function GameArcade() {
         {activeTab === "leaderboard" && (
           <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="max-w-4xl mx-auto bg-[#f9f9ff] rounded-3xl p-8 border border-slate-100 shadow-inner">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 className="text-3xl font-bold bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text">
                   Global Leaderboard
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveTab("none")}
-                  className="text-slate-500 hover:text-slate-800"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="border-[#3737A4] text-[#3737A4] hover:bg-[#3737A4]/5 text-xs"
+                  >
+                    <Link href="/leaderboard">Full view with filters</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTab("none")}
+                    className="text-slate-500 hover:text-slate-800"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
               <LeaderboardTable huntId={1} />
             </div>
@@ -755,11 +765,20 @@ export default function GameArcade() {
         <RecentlyCompletedSection hunts={recentlyCompleted} />
 
         {/* Active Hunts Grid */}
-        <div className="mt-10">
+        <div id="discovery-arcade" className="mt-10">
           <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6 border-b border-slate-100 dark:border-white/5 pb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent flex items-center gap-3">
                 Discovery Arcade
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs font-semibold text-[#3737A4] dark:text-indigo-400 hover:underline gap-1.5 flex items-center p-1 h-auto"
+                  onClick={() => window.dispatchEvent(new CustomEvent("start-onboarding-tour", { detail: { tourType: "player" } }))}
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  Take Tour
+                </Button>
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Find the perfect challenge for you</p>
             </div>

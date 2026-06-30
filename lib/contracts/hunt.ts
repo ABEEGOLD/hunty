@@ -222,13 +222,16 @@ export async function get_hunt_leaderboard(huntId: number): Promise<LeaderboardE
   // Simulate network latency
   await new Promise((resolve) => setTimeout(resolve, 800))
 
+  const now = Math.floor(Date.now() / 1000)
+  const DAY = 86400
+
   const mockData: LeaderboardEntry[] = [
-    { address: "GDD...9X2", name: "StellarQuest", points: 45 },
-    { address: "GBX...A1B", points: 30 },
-    { address: "GCT...Z9Y", name: "AliceCrypto", points: 58 },
-    { address: "GDE...123", points: 15 },
-    { address: "GFA...789", name: "BobHunts", points: 41 },
-    { address: "GCA...HB2", points: 28 },
+    { address: "GDD...9X2", name: "StellarQuest", points: 45, completionCount: 12, completedAt: now - DAY * 0.5, category: "Trivia", difficulty: "Medium" },
+    { address: "GBX...A1B", points: 30, completionCount: 7, completedAt: now - DAY * 3, category: "Outdoor", difficulty: "Hard" },
+    { address: "GCT...Z9Y", name: "AliceCrypto", points: 58, completionCount: 18, completedAt: now - DAY * 1, category: "Campus", difficulty: "Easy" },
+    { address: "GDE...123", points: 15, completionCount: 4, completedAt: now - DAY * 20, category: "Indoor", difficulty: "Easy" },
+    { address: "GFA...789", name: "BobHunts", points: 41, completionCount: 10, completedAt: now - DAY * 6, category: "Onboarding", difficulty: "Medium" },
+    { address: "GCA...HB2", points: 28, completionCount: 6, completedAt: now - DAY * 45, category: "Community", difficulty: "Hard" },
   ]
 
   if (typeof window !== "undefined") {
@@ -237,7 +240,7 @@ export async function get_hunt_leaderboard(huntId: number): Promise<LeaderboardE
       if (myPointsStr) {
         const myPoints = parseInt(myPointsStr, 10)
         if (myPoints > 0) {
-          mockData.push({ address: "YOU...PLYR", name: "You (Current Player)", points: myPoints })
+          mockData.push({ address: "YOU...PLYR", name: "You (Current Player)", points: myPoints, completionCount: 1, completedAt: now - DAY * 0.1 })
         }
       }
     } catch (e) {
