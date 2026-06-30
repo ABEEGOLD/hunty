@@ -656,18 +656,28 @@ export default function GameArcade() {
         {activeTab === "leaderboard" && (
           <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="max-w-4xl mx-auto bg-[#f9f9ff] rounded-3xl p-8 border border-slate-100 shadow-inner">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 className="text-3xl font-bold bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text">
                   Global Leaderboard
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveTab("none")}
-                  className="text-slate-500 hover:text-slate-800"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="border-[#3737A4] text-[#3737A4] hover:bg-[#3737A4]/5 text-xs"
+                  >
+                    <Link href="/leaderboard">Full view with filters</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTab("none")}
+                    className="text-slate-500 hover:text-slate-800"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
               <LeaderboardTable huntId={1} />
             </div>

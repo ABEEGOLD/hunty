@@ -128,10 +128,24 @@ export type ExtendHuntResult = {
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 
+export type LeaderboardTimePeriod = "today" | "week" | "month" | "all"
+export type LeaderboardMetric = "points" | "completions"
+
 export type LeaderboardEntry = {
   address: string
   name?: string
   points: number
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
+}
+
+export interface LeaderboardFilters {
+  timePeriod: LeaderboardTimePeriod
+  category: string
+  difficulty: ClueDifficulty | "all"
+  metric: LeaderboardMetric
 }
 
 export type FastestPlayerEntry = {
@@ -146,6 +160,10 @@ export interface LeaderboardDisplayEntry {
   name: string
   points: number
   icon: ReactNode
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
 }
 
 export interface FastestPlayerDisplayEntry {
