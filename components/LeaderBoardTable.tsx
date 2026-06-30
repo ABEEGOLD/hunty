@@ -4,10 +4,12 @@ import React, { useEffect, useState, useCallback, memo, useMemo } from "react"
 import { LeaderboardTableSkeleton } from "@/components/LoadingSkeletons"
 import { cn } from "@/lib/utils"
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt"
+import { getActiveSeason } from "@/lib/seasonStore"
 import { logger } from "@/lib/logger"
 import Medal from "@/components/icons/Medal"
 import { EmptyState } from "@/components/EmptyState"
 import { Trophy } from "lucide-react"
+import { SeasonInfo } from "@/components/SeasonInfo"
 import { useWalletStore } from "@/store/useStore"
 import { detectRankChanges } from "@/lib/notifications/rankTracker"
 import { handleRankNotifications } from "@/lib/notifications/notificationService"
@@ -43,6 +45,7 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
   const [rawData, setRawData] = useState(initialData || [])
   const [isLoading, setIsLoading] = useState(initialLoading)
   const [error, setError] = useState<string | null>(null)
+  const [activeSeason, setActiveSeason] = useState<ReturnType<typeof getActiveSeason>>(null)
   const walletAddress = useWalletStore((s: { walletAddress: string }) => s.walletAddress)
 
   const truncateAddress = (address: string) => {
@@ -99,6 +102,10 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
     }
   }, [huntId, fetchLeaderboard])
 
+  useEffect(() => {
+    setActiveSeason(getActiveSeason())
+  }, [])
+
   const data = useMemo(() => {
     const cutoff = getTimeCutoff(filters.timePeriod)
 
@@ -151,6 +158,11 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
 
   return (
     <div className={containerClass}>
+      {activeSeason && (
+        <div className="mb-4">
+          <SeasonInfo season={activeSeason} showRewards={false} />
+        </div>
+      )}
       <table className="w-full rounded-none border-l border-[#808080] dark:border-slate-700 border-collapse">
         <thead>
           <tr className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white">
