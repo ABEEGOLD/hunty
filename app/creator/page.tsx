@@ -1,11 +1,16 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Pencil, BarChart3 } from "lucide-react"
+import { ArrowLeft, Pencil, BarChart3, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+
+const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
+  ssr: false,
+})
 import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { useWallet } from "@/lib/context/WalletContext"
@@ -83,6 +88,7 @@ export default function CreatorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-12">
+      <OnboardingTour tourType="creator" />
       <Header balance="24.2453" />
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -99,8 +105,17 @@ export default function CreatorPage() {
           </Button>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text">
+        <h1 className="mb-2 text-3xl font-bold bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text flex items-center gap-3">
           My Hunts
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs font-semibold text-[#3737A4] dark:text-indigo-400 hover:underline gap-1.5 flex items-center p-1 h-auto"
+            onClick={() => window.dispatchEvent(new CustomEvent("start-onboarding-tour", { detail: { tourType: "creator" } }))}
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            Take Tour
+          </Button>
         </h1>
         <p className="mb-8 text-slate-600">
           View and manage hunts you have created. Draft hunts open in Edit; Active hunts open Live Statistics.
@@ -124,10 +139,11 @@ export default function CreatorPage() {
               You haven&apos;t created any hunts yet.
             </p>
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild className="bg-[#0C0C4F] hover:bg-slate-800 text-white">
+              <Button id="creator-create-button" asChild className="bg-[#0C0C4F] hover:bg-slate-800 text-white">
                 <Link href="/hunty">Create your first hunt</Link>
               </Button>
               <Button
+                id="creator-templates-button"
                 asChild
                 variant="outline"
                 className="border-[#0C0C4F] text-[#0C0C4F] hover:bg-[#0C0C4F] hover:text-white"
@@ -187,7 +203,7 @@ export default function CreatorPage() {
               })}
             </div>
 
-            <div className="mt-10">
+            <div id="reward-history-section" className="mt-10">
               <RewardHistorySection
                 title="Reward Distribution"
                 description="All rewards you distributed across your created hunts, with explorer links and filters."
