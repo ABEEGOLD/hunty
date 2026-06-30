@@ -4,6 +4,7 @@
 [![Next.js](https://img.shields.io/badge/next.js-15.3.4-black.svg)](https://nextjs.org/)
 [![Expo](https://img.shields.io/badge/expo-Managed%20App-green.svg)](https://expo.dev/)
 [![Stellar](https://img.shields.io/badge/stellar-soroban-blueviolet.svg)](https://soroban.stellar.org/)
+[![Coverage](https://codecov.io/gh/TheShnider/hunty/branch/main/graph/badge.svg)](https://codecov.io/gh/TheShnider/hunty)
 
 Hunty is a cross-platform scavenger-hunt platform and dApp that combines web, mobile, and on-chain rewards. Creators publish location-based hunts and players complete challenges to earn NFTs, tokens, and other reward assets via Stellar/Soroban.
 
@@ -62,11 +63,53 @@ pnpm install
 expo start
 ```
 
-4. Run tests:
+4. Mobile EAS Build & OTA setup:
+
+```bash
+cd mobile
+pnpm run build:android:dev
+pnpm run build:ios:preview
+pnpm run update:preview
+```
+
+5. Run tests:
 
 ```bash
 pnpm test
+pnpm run test:coverage
 pnpm run e2e
+```
+
+The local coverage command writes an HTML report to `coverage/index.html`.
+
+## Docker development
+
+This repository includes a local Docker development environment for the web app and a PostgreSQL database container.
+
+1. Build and start the development stack:
+
+```bash
+docker compose up --build
+```
+
+2. Open the web app at:
+
+```bash
+http://localhost:3000
+```
+
+3. PostgreSQL is available at `localhost:5432` with:
+
+- `POSTGRES_USER=hunty`
+- `POSTGRES_PASSWORD=hunty`
+- `POSTGRES_DB=hunty_dev`
+
+4. Code changes are mounted from the host into the container, so hot reload works automatically.
+
+5. Stop the stack:
+
+```bash
+docker compose down
 ```
 
 ## Notes

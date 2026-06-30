@@ -1,10 +1,10 @@
 "use client"
 
+import React, { ChangeEvent, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import ToggleSwitch from "./ToggleButton"
 import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react"
-import { ChangeEvent, useRef, useState } from "react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -239,6 +239,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             size="icon"
             onClick={triggerFileInput}
             disabled={isUploading}
+            aria-label="Upload hunt cover image"
             className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] hover:bg-slate-700 rounded-[12px] text-white cursor-pointer disabled:opacity-50"
           >
             {isUploading ? (
@@ -254,6 +255,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             ref={fileInputRef}
             onChange={handleImageUpload}
             accept="image/*"
+            aria-label="Upload cover image"
             className="hidden"
           />
           {hunt.image && (

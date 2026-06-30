@@ -7,7 +7,9 @@ export type NotificationEventType =
   | 'hunt_start'
   | 'correct_answer'
   | 'leaderboard_outranked'
-  | 'hunt_ending_soon';
+  | 'hunt_ending_soon'
+  | 'reward'
+  | 'achievement';
 
 // ─── Payload shapes per event ─────────────────────────────────────────────────
 
@@ -40,11 +42,28 @@ export interface HuntEndingSoonPayload {
   minutesRemaining: number;
 }
 
+export interface RewardPayload {
+  type: 'reward';
+  huntId: number;
+  huntTitle: string;
+  rewardAmount?: string;
+  rewardType?: 'XLM' | 'NFT' | 'Both';
+}
+
+export interface AchievementPayload {
+  type: 'achievement';
+  achievementId: string;
+  achievementTitle: string;
+  description?: string;
+}
+
 export type NotificationPayload =
   | HuntStartPayload
   | CorrectAnswerPayload
   | LeaderboardOutrankedPayload
-  | HuntEndingSoonPayload;
+  | HuntEndingSoonPayload
+  | RewardPayload
+  | AchievementPayload;
 
 // ─── Navigation target derived from a notification tap ───────────────────────
 
@@ -58,9 +77,12 @@ export function resolveNavTarget(payload: NotificationPayload): NotificationNavT
     case 'hunt_start':
     case 'correct_answer':
     case 'hunt_ending_soon':
+    case 'reward':
       return { path: `/hunt/${payload.huntId}` };
     case 'leaderboard_outranked':
       return { path: `/hunt/${payload.huntId}` };
+    case 'achievement':
+      return { path: '/(tabs)/profile' };
     default:
       return { path: '/(tabs)/hunts' };
   }

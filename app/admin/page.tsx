@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowLeft, Star, Trash2, RefreshCw, Trophy, Sparkles } from "lucide-react"
+import { ArrowLeft, Star, Trash2, RefreshCw, Trophy, Sparkles, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Header } from "@/components/Header"
@@ -184,6 +184,16 @@ export default function AdminPage() {
             >
               <Trash2 className="h-4 w-4" />
               Clear Curation
+            </Button>
+            <Button
+              variant="outline"
+              asChild
+              className="border-amber-200 dark:border-amber-900/35 text-amber-650 hover:bg-amber-50 dark:hover:bg-amber-950/20 font-bold flex items-center gap-2 rounded-xl"
+            >
+              <Link href="/admin/anti-cheat">
+                <Shield className="h-4 w-4" />
+                Anti-Cheat
+              </Link>
             </Button>
           </div>
         </div>

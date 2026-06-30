@@ -17,9 +17,16 @@
 /blob-report/
 /playwright/.cache/
 
+# Visual regression baselines (tracked)
+!/e2e/screenshots/
+
 # next.js
 /.next/
 /out/
+
+# mutation testing artifacts
+/mutation-report
+/.stryker-tmp
 
 # production
 /build
@@ -36,6 +43,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.staging
+!.env.production
+!.env.development
 
 # vercel
 .vercel

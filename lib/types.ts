@@ -18,6 +18,12 @@ export interface StoredHunt {
   rewardType: "XLM" | "NFT" | "Both"
   /** Total reward pool value used for creator-side sorting. */
   rewardPool?: number
+  /** Per-place XLM reward buckets funded by the creator. */
+  rewards?: Reward[]
+  /** Escrow transaction hash proving the creator funded the XLM reward pool. */
+  rewardEscrowTxHash?: string
+  /** Amount still available in the XLM escrow. */
+  rewardEscrowBalance?: number
   /** Creator-side participant count snapshot for dashboard sorting. */
   playerCount?: number
   /** Unix timestamp in seconds when the hunt draft was created locally. */
@@ -95,6 +101,12 @@ export type CreateHuntResult = {
   txHash: string
 }
 
+export type ClaimRewardResult = {
+  txHash: string
+  /** ipfs:// URI for the SEP-0039 compliant metadata JSON uploaded before minting. */
+  metadataUri: string
+}
+
 export type SubmitAnswerResult = {
   txHash: string
   /** The contract event emitted on success. */
@@ -116,10 +128,24 @@ export type ExtendHuntResult = {
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 
+export type LeaderboardTimePeriod = "today" | "week" | "month" | "all"
+export type LeaderboardMetric = "points" | "completions"
+
 export type LeaderboardEntry = {
   address: string
   name?: string
   points: number
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
+}
+
+export interface LeaderboardFilters {
+  timePeriod: LeaderboardTimePeriod
+  category: string
+  difficulty: ClueDifficulty | "all"
+  metric: LeaderboardMetric
 }
 
 export type FastestPlayerEntry = {
@@ -134,6 +160,10 @@ export interface LeaderboardDisplayEntry {
   name: string
   points: number
   icon: ReactNode
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
 }
 
 export interface FastestPlayerDisplayEntry {
@@ -167,6 +197,43 @@ export type RegistrationResult = {
   transactionHash?: string
 }
 
+export type HuntAttemptStatus = "completed" | "abandoned" | "in_progress"
+
+export interface ClueAttemptRecord {
+  clueId: number
+  clueIndex: number
+  question: string
+  answerGiven: string
+  timeTakenSeconds: number
+  pointsEarned: number
+  answeredAt: string
+}
+
+export interface HuntAttemptRecord {
+  id: string
+  huntId: number
+  huntTitle: string
+  playerAddress: string
+  status: HuntAttemptStatus
+  startedAt: string
+  completedAt?: string
+  totalTimeSeconds: number
+  totalPoints: number
+  clues: ClueAttemptRecord[]
+  attemptNumber: number
+}
+
+export interface HuntAttemptTimeComparison {
+  playerTimeSeconds: number
+  playerTimeLabel: string
+  fastestTimeSeconds: number | null
+  fastestTimeLabel: string | null
+  averageTimeSeconds: number | null
+  averageTimeLabel: string | null
+  rankAmongFastest: number | null
+  totalComparedPlayers: number
+}
+
 // ─── Reward ──────────────────────────────────────────────────────────────────
 
 export interface Reward {
@@ -179,6 +246,36 @@ export interface RewardPlayerProgress {
   is_completed: boolean
   reward_claimed: boolean
   hunt_id?: number | string
+  reward_amount?: number
+}
+
+export type RewardReceiptType = "deposit" | "distribution" | "claim" | "refund"
+
+export interface RewardReceipt {
+  id: string
+  huntId: number
+  type: RewardReceiptType
+  txHash: string
+  amount: number
+  from?: string
+  to?: string
+  rank?: number
+  createdAt: number
+}
+
+export type RewardHistoryType = "XLM" | "NFT"
+
+export interface RewardHistoryEntry {
+  id: string
+  type: RewardHistoryType
+  amount?: number
+  description: string
+  txHash: string
+  earnedAt: string
+  huntId?: number
+  huntName?: string
+  recipient?: string
+  explorerUrl: string
 }
 
 // ─── Activity Feed ───────────────────────────────────────────────────────────
@@ -189,6 +286,8 @@ export interface ActivityEvent {
   id: string
   /** Full Stellar G-address of the participant */
   address: string
+  /** Optional display name resolved from the player's profile */
+  displayName?: string
   huntTitle: string
   huntId: number
   timestamp: number
@@ -295,6 +394,8 @@ export interface NftRewardDetail {
   claimed: boolean
   huntName?: string
   attributes?: NftAttribute[]
+  /** ipfs:// URI pointing to the SEP-0039 metadata JSON file for this NFT. */
+  metadataUri?: string
 }
 
 export interface ProfileSummary {
@@ -306,4 +407,76 @@ export interface ProfileSummary {
   totalNftRewards: number
   claimedNftRewards: number
   unclaimedNftRewards: number
+}
+
+// ─── Seasonal Leaderboard ───────────────────────────────────────────────────
+
+export type SeasonStatus = "Upcoming" | "Active" | "Ended"
+
+export interface Season {
+  id: number
+  name: string
+  /** Unix timestamp in seconds — when the season starts. */
+  startTime: number
+  /** Unix timestamp in seconds — when the season ends. */
+  endTime: number
+  status: SeasonStatus
+  /** Reward amounts for the top N players, indexed by place (1st, 2nd, ...). */
+  rewards?: Reward[]
+}
+
+export interface SeasonLeaderboardEntry {
+  address: string
+  name?: string
+  points: number
+  /** Final rank for this player at season end (set once archived). */
+  rank?: number
+}
+
+export interface ArchivedSeason {
+  season: Season
+  finalLeaderboard: SeasonLeaderboardEntry[]
+  archivedAt: number
+}
+
+export interface SeasonBadge {
+  seasonId: number
+  seasonName: string
+  /** Final rank the player achieved, if the season has ended. */
+  rank?: number
+  earnedAt: number
+}
+
+// ─── Core Web Vitals ────────────────────────────────────────────────────────────
+
+export type WebVitalMetric = "LCP" | "FID" | "CLS" | "TTFB" | "INP" | "FCP"
+
+export interface PerformanceMetric {
+  name: WebVitalMetric
+  value: number
+  rating: "good" | "needs-improvement" | "poor"
+  timestamp: number
+  url: string
+}
+
+export interface PerformanceBudget {
+  name: WebVitalMetric
+  good: number
+  poor: number
+}
+
+export interface PerformanceReportEntry {
+  id: string
+  metrics: PerformanceMetric[]
+  timestamp: number
+  url: string
+  userAgent: string
+}
+
+export interface PerformanceAlert {
+  metric: WebVitalMetric
+  value: number
+  threshold: number
+  timestamp: number
+  url: string
 }

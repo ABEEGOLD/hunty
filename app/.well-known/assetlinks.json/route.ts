@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 const ANDROID_SHA256_CERT_FINGERPRINTS = process.env.ANDROID_SHA256_CERT_FINGERPRINTS
+const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME || "com.yourorg.hunty"
 
 function parseFingerprints(value: string) {
   return value
@@ -35,7 +36,7 @@ export function GET() {
         relation: ["delegate_permission/common.handle_all_urls"],
         target: {
           namespace: "android_app",
-          package_name: "com.hunty.app",
+          package_name: ANDROID_PACKAGE_NAME,
           sha256_cert_fingerprints: fingerprints,
         },
       },

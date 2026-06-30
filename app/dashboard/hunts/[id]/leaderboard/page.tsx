@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/Header"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { LeaderboardExport } from "@/components/LeaderboardExport"
 import { getHuntById } from "@/lib/huntStore"
 import type { StoredHunt } from "@/lib/types"
 
@@ -73,6 +74,12 @@ export default function LeaderboardPage({ params }: LeaderboardPageProps) {
                 <LeaderboardTable huntId={huntId} />
               )}
             </div>
+
+            {huntId !== null && (
+              <div className="mt-6">
+                <LeaderboardExport huntId={huntId} />
+              </div>
+            )}
 
             {/* Hunt Stats */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">

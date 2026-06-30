@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
@@ -8,11 +8,18 @@ import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { Header } from "@/components/Header";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
+import { queryCachePolicy, queryKeys } from "@/lib/queryKeys";
 import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig";
+import {
+  abandonHuntAttempt,
+  completeHuntAttempt,
+  ensureActiveAttempt,
+  getActiveAttempt,
+} from "@/lib/huntAttemptHistory";
 
 import { HuntCards } from "./HuntCards";
 import Replay from "./icons/Replay";
@@ -36,11 +43,14 @@ export function PlayGame({
   onGameComplete,
   gameCompleteModal,
   huntId,
+  playerAddress,
 }: PlayGameProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [solvedClues, setSolvedClues] = useState<Set<number>>(new Set());
   const [huntEnded, setHuntEnded] = useState(false);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+  const attemptIdRef = useRef<string | null>(null);
 
   const solvedCount = solvedClues.size;
 
@@ -50,7 +60,7 @@ export function PlayGame({
     error: queryError,
     refetch,
   } = useQuery({
-    queryKey: ["huntClues", huntId],
+    queryKey: queryKeys.hunts.clues(huntId),
     queryFn: async () => {
       if (huntId == null) return null;
       const huntInfo = await get_hunt(huntId);
@@ -73,7 +83,10 @@ export function PlayGame({
       return { clues, huntInfo };
     },
     enabled: huntId != null,
-    staleTime: SOROBAN_READ_STALE_TIME_MS,
+    staleTime: Math.max(SOROBAN_READ_STALE_TIME_MS, queryCachePolicy.hunts.staleTime),
+    gcTime: queryCachePolicy.hunts.gcTime,
+    refetchInterval: queryCachePolicy.hunts.refetchInterval,
+    refetchIntervalInBackground: true,
   });
 
   const error: string | null = queryError instanceof Error ? queryError.message : queryError ? "Failed to fetch clues" : null;
@@ -86,7 +99,27 @@ export function PlayGame({
     setCurrentCardIndex(0);
     setScore(0);
     setSolvedClues(new Set());
+    setAttemptId(null);
+    attemptIdRef.current = null;
   }, [huntId]);
+
+  useEffect(() => {
+    if (huntId == null || !playerAddress || !gameName) return;
+
+    const attempt = ensureActiveAttempt(playerAddress, huntId, gameName);
+    setAttemptId(attempt.id);
+    attemptIdRef.current = attempt.id;
+  }, [gameName, huntId, playerAddress]);
+
+  const handleExit = () => {
+    if (playerAddress && attemptIdRef.current) {
+      const activeAttempt = getActiveAttempt(playerAddress, huntId ?? -1);
+      if (activeAttempt && activeAttempt.clues.length > 0) {
+        abandonHuntAttempt(playerAddress, activeAttempt.id);
+      }
+    }
+    onExit();
+  };
 
   useEffect(() => {
     if (error) {
@@ -135,26 +168,23 @@ export function PlayGame({
       if (huntId) {
         localStorage.setItem(`hunt_completed_${huntId}`, "true");
       }
+      if (playerAddress && attemptIdRef.current && huntId != null) {
+        const activeAttempt = getActiveAttempt(playerAddress, huntId);
+        completeHuntAttempt(
+          playerAddress,
+          attemptIdRef.current,
+          activeAttempt?.totalPoints ?? score
+        );
+        attemptIdRef.current = null;
+        setAttemptId(null);
+      }
       onGameComplete(score);
     }
   };
 
   if (loading && !hasHunts) {
     return (
-      <div className="min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6 text-center rounded-3xl bg-white dark:bg-slate-900 px-8 py-10 shadow-lg border border-slate-100 dark:border-white/5">
-          <div className="space-y-3">
-            <Skeleton className="h-8 w-3/4 mx-auto bg-slate-100 dark:bg-slate-800" />
-            <Skeleton className="h-4 w-full bg-slate-100 dark:bg-slate-800" />
-            <Skeleton className="h-4 w-5/6 mx-auto bg-slate-100 dark:bg-slate-800" />
-          </div>
-          <div className="pt-4">
-            <Button variant="ghost" onClick={onExit} className="dark:text-slate-400 dark:hover:text-white">
-              Go Back
-            </Button>
-          </div>
-        </div>
-      </div>
+      <HuntPageSkeletonLayout />
     );
   }
 
@@ -169,7 +199,7 @@ export function PlayGame({
                 Retry
               </Button>
             )}
-            <Button variant="ghost" onClick={onExit}>
+            <Button variant="ghost" onClick={handleExit}>
               Go Back
             </Button>
           </div>
@@ -205,7 +235,7 @@ export function PlayGame({
             This hunt has ended. Final score: <span className="font-bold text-slate-900 dark:text-white">{score}</span>
           </p>
           <div className="pt-4">
-            <Button onClick={onExit} className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white px-6 py-2 rounded-full">
+            <Button onClick={handleExit} className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white px-6 py-2 rounded-full">
               Go Home
             </Button>
           </div>
@@ -226,7 +256,7 @@ export function PlayGame({
         <div className="flex items-center gap-4 mb-8 print:hidden">
           <Button
             variant="ghost"
-            onClick={onExit}
+            onClick={handleExit}
             className="flex items-center gap-2 text-slate-700 hover:text-slate-900"
           >
             <ArrowLeft className="w-6 h-6 fill-[#0C0C4F]" />
@@ -294,6 +324,8 @@ export function PlayGame({
                 isActive={true}
                 isLoading={loading}
                 huntId={huntId}
+                playerAddress={playerAddress}
+                attemptId={attemptId ?? undefined}
                 onScoreUpdate={handleScoreUpdate}
                 onUnlock={() => handleClueUnlock(currentCardIndex)}
                 currentIndex={currentCardIndex + 1}
