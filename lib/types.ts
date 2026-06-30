@@ -179,6 +179,43 @@ export type RegistrationResult = {
   transactionHash?: string
 }
 
+export type HuntAttemptStatus = "completed" | "abandoned" | "in_progress"
+
+export interface ClueAttemptRecord {
+  clueId: number
+  clueIndex: number
+  question: string
+  answerGiven: string
+  timeTakenSeconds: number
+  pointsEarned: number
+  answeredAt: string
+}
+
+export interface HuntAttemptRecord {
+  id: string
+  huntId: number
+  huntTitle: string
+  playerAddress: string
+  status: HuntAttemptStatus
+  startedAt: string
+  completedAt?: string
+  totalTimeSeconds: number
+  totalPoints: number
+  clues: ClueAttemptRecord[]
+  attemptNumber: number
+}
+
+export interface HuntAttemptTimeComparison {
+  playerTimeSeconds: number
+  playerTimeLabel: string
+  fastestTimeSeconds: number | null
+  fastestTimeLabel: string | null
+  averageTimeSeconds: number | null
+  averageTimeLabel: string | null
+  rankAmongFastest: number | null
+  totalComparedPlayers: number
+}
+
 // ─── Reward ──────────────────────────────────────────────────────────────────
 
 export interface Reward {

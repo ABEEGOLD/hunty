@@ -8,7 +8,7 @@ import { PlayGame } from "@/components/PlayGame";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
 import type { StoredHunt } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
 import { RegistrationButton } from "@/components/RegistrationButton";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
@@ -24,6 +24,7 @@ import { debounce } from "@/lib/debounce";
 import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
 import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
 import { withTransactionToast } from "@/lib/txToast";
+import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
 import type { RewardReceipt } from "@/lib/types";
 
 interface HuntDetailProps {
@@ -32,6 +33,7 @@ interface HuntDetailProps {
 
 export default function HuntShare({ hunt }: HuntDetailProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [completionScore, setCompletionScore] = useState(0);
   const [rewardReceipt, setRewardReceipt] = useState<RewardReceipt | null>(null);
@@ -45,7 +47,10 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
   });
   const [qrOpen, setQrOpen] = useState(false);
 
-  // Check wallet availability and connection on mount
+  useEffect(() => {
+    if (searchParams.get("reattempt") !== "1" || !connectedPublicKey) return;
+    prepareHuntReattempt(connectedPublicKey, hunt.id);
+  }, [connectedPublicKey, hunt.id, searchParams]);
   useEffect(() => {
     // Check if wallet is available
     if (!isWalletAvailable()) {
@@ -302,7 +307,9 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
             onGoHome={() => router.push("/")}
             onReplay={() => {
               setIsCompleteModalOpen(false);
-              // PlayGame handles internal reset or we can refetch
+              if (connectedPublicKey) {
+                prepareHuntReattempt(connectedPublicKey, hunt.id);
+              }
             }}
             onViewLeaderboard={() => router.push(`/?huntId=${hunt.id}&tab=leaderboard`)}
             reward={completionScore}
