@@ -101,7 +101,9 @@
     "tailwindcss": "^4.0.0",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
-    "vite": "^8.1.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "vite": "^8.1.0"
   }
 }
