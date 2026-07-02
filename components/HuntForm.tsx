@@ -255,7 +255,6 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             ref={fileInputRef}
             onChange={handleImageUpload}
             accept="image/*"
-            aria-label="Upload cover image"
             className="hidden"
             aria-label="Upload hunt cover image"
           />
@@ -473,3 +472,4 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     </div>
   )
 }
+

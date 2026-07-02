@@ -20,6 +20,12 @@ export interface StoredHunt {
   rewardPool?: number
   /** Per-place XLM reward buckets funded by the creator. */
   rewards?: Reward[]
+  /** Legacy reward distribution shape used by older hunt-store helpers. */
+  rewardDistribution?: { place: number; amount: number }[]
+  /** Current balance in the creator pool. */
+  poolBalance?: number
+  /** Optional low-balance threshold for admin warnings. */
+  poolLowBalanceThreshold?: number
   /** Escrow transaction hash proving the creator funded the XLM reward pool. */
   rewardEscrowTxHash?: string
   /** Amount still available in the XLM escrow. */
@@ -154,6 +160,13 @@ export interface FastestPlayerDisplayEntry {
   completionTimeLabel: string
   points?: number
   icon: ReactNode
+}
+
+
+export interface PlayerProfile {
+  address: string
+  displayName?: string
+  avatarUrl?: string
 }
 
 // ─── Player & Registration ───────────────────────────────────────────────────
@@ -387,3 +400,4 @@ export interface PerformanceAlert {
   timestamp: number
   url: string
 }
+

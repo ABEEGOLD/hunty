@@ -1,5 +1,6 @@
 import Server from "@stellar/stellar-sdk";
 import { getEnvironmentConfig } from "@/lib/config/environment";
+import { createSorobanRpcOptimizer } from "@/lib/soroban/rpcOptimization"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SorobanServer = Server as any;

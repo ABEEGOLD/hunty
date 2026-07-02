@@ -28,6 +28,7 @@ import { toast } from "sonner"
 import { ACHIEVEMENTS } from "@/lib/achievements/config"
 import { checkAndAwardAchievements } from "@/lib/achievements/service"
 import { logger } from "@/lib/logger"
+import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import type { RewardReceipt } from "@/lib/types"
 
 interface GameCompleteModalProps {

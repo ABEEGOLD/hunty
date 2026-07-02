@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
 import { RegistrationButton } from "@/components/RegistrationButton";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
+import { PlayGame } from "@/components/PlayGame";
+import { GameCompleteModal } from "@/components/GameCompleteModal";
 import { 
   checkRegistrationStatus, 
   registerPlayer, 
@@ -314,3 +316,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     </div>
   );
 }
+
+
+
+

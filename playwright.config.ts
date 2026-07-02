@@ -57,7 +57,7 @@ export default defineConfig({
     // Dark-mode / CSS-compat project (runs on Chromium emulation)
     {
       name: "chromium-dark",
-      use: { ...devices["Desktop Chrome"], colorScheme: "dark", reducedMotion: "reduce" },
+      use: { ...devices["Desktop Chrome"], colorScheme: "dark" },
     },
     // Optional wallet-extension project: only enabled when WALLET_EXTENSION_PATH is set
     ...(process.env.WALLET_EXTENSION_PATH
@@ -84,3 +84,4 @@ export default defineConfig({
     timeout: 120_000,
   },
 });
+

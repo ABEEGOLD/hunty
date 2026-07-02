@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { X, ArrowRight, Trophy, Search } from "lucide-react"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Header } from "@/components/Header"
 import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"

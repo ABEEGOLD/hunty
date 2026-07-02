@@ -149,6 +149,7 @@ export function Footer() {
                     id="footer-email"
                     type="email"
                     required
+                    aria-label="Email address"
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value)
@@ -160,6 +161,7 @@ export function Footer() {
                 </div>
                 <button
                   type="submit"
+                  aria-label="Subscribe to updates"
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0C0C4F] px-4 text-sm font-bold text-white transition hover:bg-[#3737A4] focus:outline-none focus:ring-2 focus:ring-[#3737A4]/40"
                 >
                   Subscribe

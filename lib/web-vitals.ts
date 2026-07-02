@@ -14,8 +14,6 @@ const METRIC_NAMES: Record<string, WebVitalMetric> = {
 }
 
 export function observeWebVitals(onReport: ReportCallback): () => void {
-  const unsubscribers: (() => void)[] = []
-
   const handleMetric = (metric: { name: string; value: number }) => {
     const name = METRIC_NAMES[metric.name]
     if (!name) return
@@ -31,13 +29,13 @@ export function observeWebVitals(onReport: ReportCallback): () => void {
     onReport(report)
   }
 
-  unsubscribers.push(onCLS(handleMetric))
-  unsubscribers.push(onFCP(handleMetric))
-  unsubscribers.push(onINP(handleMetric))
-  unsubscribers.push(onLCP(handleMetric))
-  unsubscribers.push(onTTFB(handleMetric))
+  onCLS(handleMetric)
+  onFCP(handleMetric)
+  onINP(handleMetric)
+  onLCP(handleMetric)
+  onTTFB(handleMetric)
 
-  return () => unsubscribers.forEach((fn) => fn())
+  return () => {}
 }
 
 export async function reportPerformanceMetric(
@@ -56,3 +54,5 @@ export async function reportPerformanceMetric(
     logger.warn("Failed to report performance metric", error)
   }
 }
+
+
