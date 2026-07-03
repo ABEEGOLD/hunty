@@ -148,10 +148,24 @@ export type ExtendHuntResult = {
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 
+export type LeaderboardTimePeriod = "today" | "week" | "month" | "all"
+export type LeaderboardMetric = "points" | "completions"
+
 export type LeaderboardEntry = {
   address: string
   name?: string
   points: number
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
+}
+
+export interface LeaderboardFilters {
+  timePeriod: LeaderboardTimePeriod
+  category: string
+  difficulty: ClueDifficulty | "all"
+  metric: LeaderboardMetric
 }
 
 export type FastestPlayerEntry = {
@@ -166,6 +180,10 @@ export interface LeaderboardDisplayEntry {
   name: string
   points: number
   icon: ReactNode
+  completionCount?: number
+  completedAt?: number
+  category?: string
+  difficulty?: ClueDifficulty
 }
 
 export interface FastestPlayerDisplayEntry {
@@ -197,6 +215,43 @@ export type RegistrationResult = {
   success: boolean
   error?: string
   transactionHash?: string
+}
+
+export type HuntAttemptStatus = "completed" | "abandoned" | "in_progress"
+
+export interface ClueAttemptRecord {
+  clueId: number
+  clueIndex: number
+  question: string
+  answerGiven: string
+  timeTakenSeconds: number
+  pointsEarned: number
+  answeredAt: string
+}
+
+export interface HuntAttemptRecord {
+  id: string
+  huntId: number
+  huntTitle: string
+  playerAddress: string
+  status: HuntAttemptStatus
+  startedAt: string
+  completedAt?: string
+  totalTimeSeconds: number
+  totalPoints: number
+  clues: ClueAttemptRecord[]
+  attemptNumber: number
+}
+
+export interface HuntAttemptTimeComparison {
+  playerTimeSeconds: number
+  playerTimeLabel: string
+  fastestTimeSeconds: number | null
+  fastestTimeLabel: string | null
+  averageTimeSeconds: number | null
+  averageTimeLabel: string | null
+  rankAmongFastest: number | null
+  totalComparedPlayers: number
 }
 
 // ─── Reward ──────────────────────────────────────────────────────────────────
@@ -372,6 +427,44 @@ export interface ProfileSummary {
   totalNftRewards: number
   claimedNftRewards: number
   unclaimedNftRewards: number
+}
+
+// ─── Seasonal Leaderboard ───────────────────────────────────────────────────
+
+export type SeasonStatus = "Upcoming" | "Active" | "Ended"
+
+export interface Season {
+  id: number
+  name: string
+  /** Unix timestamp in seconds — when the season starts. */
+  startTime: number
+  /** Unix timestamp in seconds — when the season ends. */
+  endTime: number
+  status: SeasonStatus
+  /** Reward amounts for the top N players, indexed by place (1st, 2nd, ...). */
+  rewards?: Reward[]
+}
+
+export interface SeasonLeaderboardEntry {
+  address: string
+  name?: string
+  points: number
+  /** Final rank for this player at season end (set once archived). */
+  rank?: number
+}
+
+export interface ArchivedSeason {
+  season: Season
+  finalLeaderboard: SeasonLeaderboardEntry[]
+  archivedAt: number
+}
+
+export interface SeasonBadge {
+  seasonId: number
+  seasonName: string
+  /** Final rank the player achieved, if the season has ended. */
+  rank?: number
+  earnedAt: number
 }
 
 // ─── Core Web Vitals ────────────────────────────────────────────────────────────

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import React, { useEffect, useRef, useState } from "react"
-import { Trophy, CheckCircle2, Loader2 } from "lucide-react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { toast } from "sonner"
-import { cn } from "@/lib/utils"
-import { logger } from "@/lib/logger"
+import React, { useEffect, useRef, useState } from "react";
+import { Trophy, CheckCircle2, Loader2 } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   type ActivityEvent,
   anonymizeAddress,
@@ -17,21 +17,27 @@ import {
 // ---------------------------------------------------------------------------
 
 function relativeTime(timestampSeconds: number): string {
-  const diffSeconds = Math.floor(Date.now() / 1000) - timestampSeconds
-  if (diffSeconds < 60) return "just now"
-  const diffMinutes = Math.floor(diffSeconds / 60)
-  if (diffMinutes < 60) return `${diffMinutes}m ago`
-  const diffHours = Math.floor(diffMinutes / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  return `${Math.floor(diffHours / 24)}d ago`
+  const diffSeconds = Math.floor(Date.now() / 1000) - timestampSeconds;
+  if (diffSeconds < 60) return "just now";
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${Math.floor(diffHours / 24)}d ago`;
 }
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ActivityItem({ event, prefersReducedMotion }: { event: ActivityEvent; prefersReducedMotion: boolean }) {
-  const isCompleted = event.type === "HuntCompleted"
+function ActivityItem({
+  event,
+  prefersReducedMotion,
+}: {
+  event: ActivityEvent;
+  prefersReducedMotion: boolean;
+}) {
+  const isCompleted = event.type === "HuntCompleted";
 
   return (
     <motion.div
@@ -47,7 +53,7 @@ function ActivityItem({ event, prefersReducedMotion }: { event: ActivityEvent; p
           "shrink-0 rounded-full p-1.5",
           isCompleted
             ? "bg-gradient-to-br from-[#39A437] to-[#194F0C] text-white"
-            : "bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white"
+            : "bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white",
         )}
       >
         {isCompleted ? (
@@ -64,7 +70,9 @@ function ActivityItem({ event, prefersReducedMotion }: { event: ActivityEvent; p
             {anonymizeAddress(event.address)}
           </span>{" "}
           {isCompleted ? "completed" : "solved a clue in"}{" "}
-          <span className="font-medium text-slate-700 dark:text-slate-300 italic">{event.huntTitle}</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300 italic">
+            {event.huntTitle}
+          </span>
         </p>
       </div>
 
@@ -73,7 +81,7 @@ function ActivityItem({ event, prefersReducedMotion }: { event: ActivityEvent; p
         {relativeTime(event.timestamp)}
       </span>
     </motion.div>
-  )
+  );
 }
 
 function SkeletonItem() {
@@ -85,41 +93,41 @@ function SkeletonItem() {
       </div>
       <div className="w-10 h-3 bg-slate-200 dark:bg-slate-800 rounded" />
     </div>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
-const POLL_INTERVAL_MS = 30_000
+const POLL_INTERVAL_MS = 30_000;
 
 interface GlobalActivityFeedProps {
   /** Max events to display (default: 8) */
-  limit?: number
+  limit?: number;
   /** Override polling interval in ms — useful in tests */
-  pollIntervalMs?: number
+  pollIntervalMs?: number;
 }
 
 export function GlobalActivityFeed({
   limit = 8,
   pollIntervalMs = POLL_INTERVAL_MS,
 }: GlobalActivityFeedProps) {
-  const [events, setEvents] = useState<ActivityEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const prefersReducedMotion = !!useReducedMotion()
-  const isMountedRef = useRef(false)
-  const previousEventIdsRef = useRef<Set<string>>(new Set())
-  const hasRenderedRef = useRef(false)
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const prefersReducedMotion = !!useReducedMotion();
+  const isMountedRef = useRef(false);
+  const previousEventIdsRef = useRef<Set<string>>(new Set());
+  const hasRenderedRef = useRef(false);
 
   async function fetchActivity() {
     try {
-      const data = await getRecentActivity(limit)
+      const data = await getRecentActivity(limit);
 
       if (isMountedRef.current) {
-        const existingIds = previousEventIdsRef.current
-        const newEvents = data.filter((evt) => !existingIds.has(evt.id))
+        const existingIds = previousEventIdsRef.current;
+        const newEvents = data.filter((evt) => !existingIds.has(evt.id));
 
         if (hasRenderedRef.current) {
           newEvents
@@ -128,39 +136,39 @@ export function GlobalActivityFeed({
               toast.success(
                 `${anonymizeAddress(evt.address)} completed ${evt.huntTitle}!`,
                 { duration: 4000 },
-              )
-            })
+              );
+            });
         }
 
-        setEvents(data)
-        previousEventIdsRef.current = new Set(data.map((evt) => evt.id))
-        setError(null)
+        setEvents(data);
+        previousEventIdsRef.current = new Set(data.map((evt) => evt.id));
+        setError(null);
       }
     } catch (err) {
       if (isMountedRef.current) {
-        setError("Unable to load activity feed.")
+        setError("Unable to load activity feed.");
         // Keep stale events visible on error
       }
-      logger.error("[GlobalActivityFeed] fetch error:", err)
+      logger.error("[GlobalActivityFeed] fetch error:", err);
     } finally {
       if (isMountedRef.current) {
-        setLoading(false)
-        hasRenderedRef.current = true
+        setLoading(false);
+        hasRenderedRef.current = true;
       }
     }
   }
 
   useEffect(() => {
-    isMountedRef.current = true
-    fetchActivity()
+    isMountedRef.current = true;
+    fetchActivity();
 
-    const timer = setInterval(fetchActivity, pollIntervalMs)
+    const timer = setInterval(fetchActivity, pollIntervalMs);
     return () => {
-      isMountedRef.current = false
-      clearInterval(timer)
-    }
+      isMountedRef.current = false;
+      clearInterval(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [limit, pollIntervalMs])
+  }, [limit, pollIntervalMs]);
 
   return (
     <section
@@ -202,11 +210,15 @@ export function GlobalActivityFeed({
         ) : (
           <AnimatePresence initial={false}>
             {events.map((event) => (
-              <ActivityItem key={event.id} event={event} prefersReducedMotion={prefersReducedMotion} />
+              <ActivityItem
+                key={event.id}
+                event={event}
+                prefersReducedMotion={prefersReducedMotion}
+              />
             ))}
           </AnimatePresence>
         )}
       </div>
     </section>
-  )
+  );
 }

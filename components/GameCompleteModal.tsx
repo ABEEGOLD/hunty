@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import Coin from "@/components/icons/Coin"
 import Replay from "@/components/icons/Replay"
 import { RewardsPanel } from "@/components/RewardsPanel"
+import { NftMintProgress } from "@/components/NftMintProgress"
 import { useQuery } from "@tanstack/react-query"
 import { checkRegistrationStatus } from "@/lib/contracts/player-registration"
 import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig"
@@ -236,6 +237,15 @@ export function GameCompleteModal({
               />
             </div>
           )}
+
+          {/* End-to-end NFT minting flow for hunt reward (Stellar/Soroban). */}
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <NftMintProgress
+              huntId={huntId ?? 0}
+              rank={1}
+              recipientAddress={playerAddress}
+            />
+          </div>
          
           <div className="flex gap-4">
             <div className="flex-1 p-[2px] bg-gradient-to-br from-[#4A4AFF] to-[#0C0C4F] rounded-xl">

@@ -15,6 +15,8 @@ import { ProfilePageSkeleton } from "@/components/LoadingSkeletons"
 import type { NftRewardDetail } from "@/components/NftDetailModal"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { fetchPlayerRewardHistory } from "@/lib/rewardHistory"
+import { getPlayerAttempts } from "@/lib/huntAttemptHistory"
+import type { HuntAttemptRecord } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
 // #355 — Registered Hunts types and fetcher
@@ -178,6 +180,7 @@ export default function UserProfilePage() {
   const [nftRewards, setNftRewards] = useState<NftReward[]>([])
   const [rewardHistory, setRewardHistory] = useState<ReturnType<typeof fetchPlayerRewardHistory> extends Promise<infer U> ? U : never>([])
   const [registrations, setRegistrations] = useState<RegisteredHunt[]>([])
+  const [attemptHistory, setAttemptHistory] = useState<HuntAttemptRecord[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -186,6 +189,7 @@ export default function UserProfilePage() {
       setHunts([])
       setNftRewards([])
       setRegistrations([])
+      setAttemptHistory([])
       return
     }
 
@@ -243,6 +247,7 @@ export default function UserProfilePage() {
     loadRewards()
     loadRegistrations()
     loadRewardHistory()
+    setAttemptHistory(getPlayerAttempts(publicKey))
 
     return () => {
       cancelled = true
@@ -425,9 +430,16 @@ export default function UserProfilePage() {
                 <h2 className="text-xl md:text-2xl font-semibold bg-linear-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent">
                   Hunt History
                 </h2>
-                {isLoading && (
-                  <span className="text-xs md:text-sm text-slate-500">Refreshing your latest games…</span>
-                )}
+                <div className="flex items-center gap-3">
+                  <Link href="/profile/history">
+                    <Button variant="outline" size="sm" className="rounded-full">
+                      View replay history
+                    </Button>
+                  </Link>
+                  {isLoading && (
+                    <span className="text-xs md:text-sm text-slate-500">Refreshing your latest games…</span>
+                  )}
+                </div>
               </div>
 
               {error && (
@@ -454,7 +466,7 @@ export default function UserProfilePage() {
                       <ul className="space-y-4">
                         {inProgressHunts.map((hunt) => (
                           <li key={hunt.id}>
-                            <HuntCard hunt={hunt} />
+                            <HuntCard hunt={hunt} attemptHistory={attemptHistory} />
                           </li>
                         ))}
                       </ul>
@@ -471,7 +483,7 @@ export default function UserProfilePage() {
                       <ul className="space-y-4">
                         {completedHunts.map((hunt) => (
                           <li key={hunt.id}>
-                            <HuntCard hunt={hunt} />
+                            <HuntCard hunt={hunt} attemptHistory={attemptHistory} />
                           </li>
                         ))}
                       </ul>
@@ -587,8 +599,18 @@ function RegistrationCard({ registration }: { registration: RegisteredHunt }) {
   )
 }
 
-function HuntCard({ hunt }: { hunt: PlayerHuntProgress }) {
+function HuntCard({
+  hunt,
+  attemptHistory,
+}: {
+  hunt: PlayerHuntProgress
+  attemptHistory: HuntAttemptRecord[]
+}) {
   const isCompleted = hunt.status === "Completed"
+  const latestAttempt = attemptHistory.find((attempt) => attempt.huntId === hunt.id)
+  const detailsHref = latestAttempt
+    ? `/profile/history/${latestAttempt.id}`
+    : "/profile/history"
 
   return (
     <Card className="border border-slate-200 bg-white/80 shadow-sm">
@@ -644,11 +666,12 @@ function HuntCard({ hunt }: { hunt: PlayerHuntProgress }) {
         </div>
         <div className="mt-3">
           <Button
+            asChild
             variant="outline"
             size="sm"
             className="text-xs md:text-sm rounded-full border-slate-300 hover:bg-slate-50"
           >
-            View details
+            <Link href={detailsHref}>View details</Link>
           </Button>
         </div>
       </CardContent>
