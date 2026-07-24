@@ -4,6 +4,8 @@ import request from 'supertest';
 // Import handlers from the app directory.
 import { GET as getHunts } from '../../app/api/v1/hunts/route';
 import { GET as getLeaderboard } from '../../app/api/v1/hunts/[id]/leaderboard/route';
+import { GET as getPublicLeaderboard } from '../../app/api/v1/hunts/[id]/leaderboard/public/route';
+import { GET as getLeaderboardOgImage } from '../../app/api/og/leaderboard/route';
 import { GET as getFeatured } from '../../app/api/admin/featured/route';
 import { GET as getIpfs } from '../../app/api/ipfs/route';
 import { GET as getAnalytics } from '../../app/api/analytics/route';
@@ -33,7 +35,23 @@ describe('API Integration Tests', () => {
     const app = request(handlerToExpress(getLeaderboard));
     const response = await app.get('/api/v1/hunts/123/leaderboard');
     expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('data');
+  });
+
+  it('GET /api/v1/hunts/:id/leaderboard/public returns public leaderboard payload', async () => {
+    const app = request(handlerToExpress(getPublicLeaderboard));
+    const response = await app.get('/api/v1/hunts/123/leaderboard/public');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('hunt');
     expect(response.body).toHaveProperty('leaderboard');
+    expect(response.body).toHaveProperty('embedUrl');
+  });
+
+  it('GET /api/og/leaderboard returns an image response', async () => {
+    const app = request(handlerToExpress(getLeaderboardOgImage));
+    const response = await app.get('/api/og/leaderboard?huntId=123&wallet=GABC123');
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toContain('image');
   });
 
   it('GET /api/admin/featured returns featured items', async () => {
