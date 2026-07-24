@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import "./globals.css"
 import { hankenGrotesk } from "@/lib/font"
 import { TxToaster } from "@/components/TxToaster"
+import { FavoriteNotifications } from "@/components/FavoriteNotifications"
 import { PageSkeleton } from "@/components/PageSkeleton"
 import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 import Providers from "./providers"
@@ -121,6 +122,7 @@ export default async function RootLayout({
             Skip to content
           </a>
           <TxToaster />
+          <FavoriteNotifications />
           <PWAInstallPrompt />
           <main id="main-content">
             <Suspense fallback={<PageSkeleton />}>

@@ -25,6 +25,7 @@ import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
+import { FavoriteButton } from "@/components/FavoriteButton"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
@@ -97,7 +98,10 @@ function ActiveHuntCard({
   playerCount?: PlayerCountResult
 }) {
   return (
-    <Card className="h-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
+    <Card className="h-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow relative">
+      <div className="absolute top-3 right-3 z-10">
+        <FavoriteButton huntId={hunt.id} />
+      </div>
       <HuntCoverImage
         src={hunt.coverImageCid}
         alt={`${hunt.title} cover`}

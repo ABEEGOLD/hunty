@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import { cn } from "@/lib/utils"
+import { FavoriteButton } from "@/components/FavoriteButton"
 
 function timeRemaining(endTime?: number): string {
   if (!endTime) return ""
@@ -71,6 +72,9 @@ export function FeaturedHunts() {
                     Top Pick
                   </span>
                 )}
+                <div className={cn("absolute z-10", idx === 0 ? "top-12 right-3" : "top-3 right-3")}>
+                  <FavoriteButton huntId={hunt.id} />
+                </div>
 
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 pr-16 line-clamp-1">
                   {hunt.title}
