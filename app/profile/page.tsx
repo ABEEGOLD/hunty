@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { WalletContext, shortenAddress } from "@/lib/context/WalletContext"
 import { NftGallery } from "@/components/NftGallery"
 import { BadgeWall } from "@/components/BadgeWall"
+import { LevelBadge, LevelProgress } from "@/components/LevelBadge"
 import { ProfilePageSkeleton } from "@/components/LoadingSkeletons"
 import type { NftRewardDetail } from "@/components/NftDetailModal"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
@@ -325,6 +326,25 @@ export default function UserProfilePage() {
           <ProfilePageSkeleton />
         ) : (
           <>
+            <section aria-label="Player level" className="mt-6">
+              <Card className="bg-[#ececfa] border border-white/40 shadow-md">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-lg md:text-xl font-semibold text-slate-900">
+                      Player Level
+                    </CardTitle>
+                    <CardDescription>
+                      Earn XP from completing hunts and level up!
+                    </CardDescription>
+                  </div>
+                  <LevelBadge playerAddress={publicKey} />
+                </CardHeader>
+                <CardContent>
+                  <LevelProgress playerAddress={publicKey} />
+                </CardContent>
+              </Card>
+            </section>
+
             <section aria-label="Player statistics" className="mt-6">
               <Card className="bg-[#ececfa] border border-white/40 shadow-md">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

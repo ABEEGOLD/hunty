@@ -12,24 +12,27 @@ import Replay from "@/components/icons/Replay"
 import { RewardsPanel } from "@/components/RewardsPanel"
 import { NftMintProgress } from "@/components/NftMintProgress"
 import { useQuery } from "@tanstack/react-query"
-import { checkRegistrationStatus } from "@/lib/contracts/player-registration"
+import { checkRegistrationStatus } from "@/lib/contracts/player-registration"   
 import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig"
 import { useRef, useState } from "react"
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice"
-import { AchievementCertificate } from "@/components/AchievementCertificate"
+import { AchievementCertificate } from "@/components/AchievementCertificate"    
 import { downloadElementAsImage, shareOnTwitter, shareOnFarcaster } from "@/lib/downloadAsImage"
 import { Share2, Twitter, Download } from "lucide-react"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { ACHIEVEMENTS } from "@/lib/achievements/config"
 import { checkAndAwardAchievements } from "@/lib/achievements/service"
 import { logger } from "@/lib/logger"
 import type { RewardReceipt } from "@/lib/types"
+import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
+import { awardXpFromHunt, getLevelTierForXp, getPlayerLevel } from "@/lib/level"
+import { LevelUpModal } from "./LevelUpModal"
 
 interface GameCompleteModalProps {
   isOpen: boolean
@@ -64,11 +67,17 @@ export function GameCompleteModal({
 
   const usdEquivalent =
     xlmUsdPrice != null ? currencyFormatter.format(reward * xlmUsdPrice) : null;
-
   const certificateRef = useRef<HTMLDivElement>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const prefersReducedMotion = useReducedMotion()
   const [newAchievements, setNewAchievements] = useState<string[]>([])
+  const [levelUpData, setLevelUpData] = useState<{
+    oldLevel: number;
+    newLevel: number;
+    oldTier: ReturnType<typeof getLevelTierForXp>;
+    newTier: ReturnType<typeof getLevelTierForXp>;
+  } | null>(null)
+  const [isLevelUpModalOpen, setIsLevelUpModalOpen] = useState(false)
 
   const { data: registrationStatus } = useQuery({
     queryKey: queryKeys.registration.status(huntId, playerAddress),
@@ -76,7 +85,7 @@ export function GameCompleteModal({
     enabled: isOpen && !!huntId && !!playerAddress,
     staleTime: Math.max(SOROBAN_READ_STALE_TIME_MS, queryCachePolicy.registrationStatus.staleTime),
     gcTime: queryCachePolicy.registrationStatus.gcTime,
-    refetchInterval: queryCachePolicy.registrationStatus.refetchInterval,
+    refetchInterval: queryCachePolicy.registrationStatus.refetchInterval,       
     refetchIntervalInBackground: true,
   });
 
@@ -123,20 +132,45 @@ export function GameCompleteModal({
         } catch (error) {
           logger.error("Failed to check achievements:", error)
         }
+
+        // Award XP and check for level up
+        try {
+          const oldLevelData = getPlayerLevel(playerAddress)
+          const oldTier = getLevelTierForXp(oldLevelData.totalXp)
+          const { xpEarned, levelUpOccurred } = awardXpFromHunt(playerAddress, reward)
+
+          if (levelUpOccurred) {
+            const newLevelData = getPlayerLevel(playerAddress)
+            const newTier = getLevelTierForXp(newLevelData.totalXp)
+            setLevelUpData({
+              oldLevel: oldTier.level,
+              newLevel: newTier.level,
+              oldTier,
+              newTier
+            })
+            setIsLevelUpModalOpen(true)
+          }
+
+          toast.success(`✨ +${xpEarned} XP earned!`, {
+            duration: 3000
+          })
+        } catch (error) {
+          logger.error("Failed to award XP:", error)
+        }
       }
     }
-  }, [isOpen, playerAddress, prefersReducedMotion]);
+  }, [isOpen, playerAddress, prefersReducedMotion, reward]);
 
-  const handleShareAchievement = async (platform?: "twitter" | "farcaster") => {
+  const handleShareAchievement = async (platform?: "twitter" | "farcaster") => {    
     if (!certificateRef.current) return
 
     setIsGenerating(true)
     try {
       // First download the image
       const filename = `hunty-achievement-${huntId}.png`
-      await downloadElementAsImage(certificateRef.current, { filename })
-      
-      const shareText = `I just completed "${registrationStatus?.progressData?.hunt_id ? `Hunt #${huntId}` : "a Scavenger Hunt"}" on @huntyapp! Check it out:`
+      await downloadElementAsImage(certificateRef.current, { filename })        
+
+      const shareText = `I just completed "${registrationStatus?.progressData?.hunt_id ? `Hunt #${huntId}` : "a Scavenger Hunt"}" on @huntyapp! Check it out:`  
       const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/hunt/${huntId}` : "https://hunty.app"
 
       if (platform === "twitter") {
@@ -165,7 +199,8 @@ export function GameCompleteModal({
           <div className="flex items-center justify-center gap-2 text-2xl">
             <span>🥇</span>
             <span className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent text-2xl font-bold">1st Place</span>
-          </div>            <div className="flex items-center justify-center gap-2 w-full">
+          </div>
+          <div className="flex items-center justify-center gap-2 w-full">
             <p className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent text-xl font-normal  mb-2">You won</p>
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center justify-center gap-2 bg-[#e5e5eb] p-2 rounded-xl w-[230px]">
@@ -193,7 +228,7 @@ export function GameCompleteModal({
                   </p>
                 )}
                 <p className="break-all">
-                  Tx: <span className="font-mono">{rewardReceipt.txHash}</span>
+                  Tx: <span className="font-mono">{rewardReceipt.txHash}</span> 
                 </p>
               </div>
             </div>
@@ -213,7 +248,7 @@ export function GameCompleteModal({
                       key={achievementId}
                       className="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-lg"
                     >
-                      <span className="text-2xl">{achievement.icon}</span>
+                      <span className="text-2xl">{achievement.icon}</span>      
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
                           {achievement.title}
@@ -246,7 +281,7 @@ export function GameCompleteModal({
               recipientAddress={playerAddress}
             />
           </div>
-         
+
           <div className="flex gap-4">
             <div className="flex-1 p-[2px] bg-gradient-to-br from-[#4A4AFF] to-[#0C0C4F] rounded-xl">
             <Button
@@ -260,15 +295,15 @@ export function GameCompleteModal({
               </span>
             </Button>
           </div>
-            <Button onClick={onReplay} className="flex-1 bg-gradient-to-br from-[#E3225C] to-[#7B1C4A] hover:bg-pink-600 text-white cursor-pointer rounded-xl">
+            <Button onClick={onReplay} className="flex-1 bg-gradient-to-br from-[#E3225C] to-[#7B1C4A] hover:bg-pink-600 text-white cursor-pointer rounded-xl"> 
               <Replay /> Replay
             </Button>
           </div>
           <div className="flex flex-col gap-3 pt-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   disabled={isGenerating}
                   className="w-full border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 rounded-xl flex items-center gap-2 h-11"
                 >
@@ -303,7 +338,7 @@ export function GameCompleteModal({
         </div>
 
         {/* Hidden Achievement Certificate for Capture */}
-        <div className="fixed left-[-9999px] top-0 pointer-events-none">
+        <div className="fixed left-[-9999px] top-0 pointer-events-none">        
           <AchievementCertificate
             ref={certificateRef}
             playerName={playerAddress ? `${playerAddress.slice(0, 6)}...${playerAddress.slice(-4)}` : "Explorer"}
@@ -314,5 +349,15 @@ export function GameCompleteModal({
         </div>
       </DialogContent>
     </Dialog>
+    {levelUpData && (
+      <LevelUpModal
+        isOpen={isLevelUpModalOpen}
+        onClose={() => setIsLevelUpModalOpen(false)}
+        oldLevel={levelUpData.oldLevel}
+        newLevel={levelUpData.newLevel}
+        oldTier={levelUpData.oldTier}
+        newTier={levelUpData.newTier}
+      />
+    )}
   )
 }
