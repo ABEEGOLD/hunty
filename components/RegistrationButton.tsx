@@ -4,27 +4,34 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
-import type { RegistrationStatus } from "@/lib/types";
+import type { HuntRegistrationStatus } from "@/lib/types";
 
 interface RegistrationButtonProps {
   huntId: number;
   playerAddress: string;
-  registrationStatus: RegistrationStatus;
+  registrationStatus: HuntRegistrationStatus;
   onRegister: () => Promise<void>;
+  onWaitlist: () => Promise<void>;
+  maxCapacity?: number;
+  currentPlayers?: number;
 }
 
 export function RegistrationButton({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   huntId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   playerAddress,
   registrationStatus,
   onRegister,
+  onWaitlist,
+  maxCapacity,
+  currentPlayers,
 }: RegistrationButtonProps) {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isWaitlisting, setIsWaitlisting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  const isHuntFull = maxCapacity !== undefined && currentPlayers !== undefined && currentPlayers >= maxCapacity;
 
   const handleRegister = async () => {
     setIsRegistering(true);
@@ -41,6 +48,24 @@ export function RegistrationButton({
       setRetryCount((prev) => prev + 1);
     } finally {
       setIsRegistering(false);
+    }
+  };
+
+  const handleWaitlist = async () => {
+    setIsWaitlisting(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      await onWaitlist();
+      setSuccessMessage("Successfully added to waitlist!");
+      setRetryCount(0); // Reset retry count on success
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Waitlist failed. Please try again.";
+      setError(errorMessage);
+      setRetryCount((prev) => prev + 1);
+    } finally {
+      setIsWaitlisting(false);
     }
   };
 
@@ -80,6 +105,31 @@ export function RegistrationButton({
           <AnimatedCheckmark asCircle className="text-green-600" size={20} />
           Continue Hunt
         </button>
+      ) : registrationStatus.isWaitlisted ? (
+        <div className="w-full flex items-center justify-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-200 font-semibold text-base px-8 py-4 rounded-2xl border border-amber-200 dark:border-amber-800">
+          <div className="animate-pulse w-2 h-2 bg-amber-600 dark:bg-amber-500 rounded-full" />
+          You&apos;re on the waitlist (Position #{registrationStatus.waitlistPosition})
+        </div>
+      ) : isHuntFull ? (
+        <button
+          onClick={handleWaitlist}
+          disabled={isWaitlisting}
+          className="w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 active:scale-95 transition-all duration-150 text-white font-semibold text-base px-8 py-4 rounded-2xl shadow-lg shadow-amber-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isWaitlisting ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Joining waitlist...</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 90 11-18 0 9 90 0118 0z" />
+              </svg>
+              Join Waitlist
+            </>
+          )}
+        </button>
       ) : (
         <button
           onClick={handleRegister}
@@ -107,7 +157,7 @@ export function RegistrationButton({
         <div className="rounded-lg bg-green-50 border border-green-200 p-4">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 90 0 11-18 0 9 90 0 0118 0z" />
             </svg>
             <p className="text-sm font-medium text-green-800">{successMessage}</p>
           </div>
@@ -119,10 +169,10 @@ export function RegistrationButton({
         <div className="rounded-lg bg-red-50 border border-red-200 p-4">
           <div className="flex items-start gap-2">
             <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 90 0 11-18 0 9 90 0 0118 0z" />
             </svg>
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800 mb-1">Registration failed</p>
+              <p className="text-sm font-medium text-red-800 mb-1">Request failed</p>
               <p className="text-sm text-red-700">{error}</p>
               {retryCount > 0 && (
                 <p className="text-xs text-red-600 mt-2">
@@ -141,7 +191,7 @@ export function RegistrationButton({
               )}
               {error.includes("cancelled") && (
                 <p className="text-xs text-red-600 mt-2">
-                  Click the button again when you&apos;re ready to complete the registration.
+                  Click the button again when you&apos;re ready to complete the request.
                 </p>
               )}
             </div>
