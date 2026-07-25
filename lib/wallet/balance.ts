@@ -45,10 +45,25 @@ export class WalletBalanceError extends Error {
   }
 }
 
-export type XlmBalanceSnapshot = {
+/** A non-native asset held by the account (USDC, a hunt reward token, …). */
+export type TokenBalance = {
+  /** Asset code as issued, e.g. `USDC`. */
+  assetCode: string
+  /** Issuing account's public key. Two assets can share a code but never an issuer. */
+  assetIssuer: string
+  balance: number
+}
+
+export type WalletBalanceSnapshot = {
   address: string
   /** Native (XLM) balance. `0` for an account Horizon has never seen. */
   xlm: number
+  /**
+   * Non-native asset balances, richest first. Horizon returns these in the
+   * same `/accounts` payload as the native balance, so they cost no extra
+   * request.
+   */
+  tokens: TokenBalance[]
   /** True when Horizon returns 404 — the account exists locally but is unfunded. */
   unfunded: boolean
   /** Epoch millis at which this snapshot was produced. */
@@ -69,7 +84,33 @@ export type NftCountSnapshot = {
 
 /** Narrow shape of the Horizon `/accounts/{id}` payload that this module reads. */
 type HorizonAccountResponse = {
-  balances?: Array<{ asset_type?: string; balance?: string }>
+  balances?: Array<{
+    asset_type?: string
+    asset_code?: string
+    asset_issuer?: string
+    balance?: string
+  }>
+}
+
+/**
+ * Extracts non-native holdings from a Horizon balances array.
+ *
+ * Liquidity pool shares also appear here but carry no asset code — they are
+ * not a token the user holds in any displayable sense, so they are skipped
+ * along with any entry whose amount will not parse.
+ */
+function parseTokenBalances(
+  balances: NonNullable<HorizonAccountResponse["balances"]>,
+): TokenBalance[] {
+  return balances
+    .filter((entry) => entry.asset_type !== "native" && Boolean(entry.asset_code))
+    .map((entry) => ({
+      assetCode: entry.asset_code as string,
+      assetIssuer: entry.asset_issuer ?? "",
+      balance: Number(entry.balance),
+    }))
+    .filter((token) => Number.isFinite(token.balance) && token.balance >= 0)
+    .sort((a, b) => b.balance - a.balance || a.assetCode.localeCompare(b.assetCode))
 }
 
 export function isStellarPublicKey(address: string | null | undefined): boolean {
@@ -125,7 +166,8 @@ function createRequestSignal(
 }
 
 /**
- * Reads the native XLM balance for `address` from Horizon.
+ * Reads the native XLM balance and every non-native token balance for
+ * `address` from Horizon, in a single request.
  *
  * An unfunded account (Horizon 404) is **not** an error: Stellar accounts do
  * not exist on-chain until they receive their first payment, and a brand new
@@ -134,14 +176,14 @@ function createRequestSignal(
  * trouble (worth retrying, keep showing the last known value) from a permanent
  * problem such as a malformed address.
  */
-export async function fetchXlmBalance(
+export async function fetchWalletBalance(
   address: string,
   options: {
     signal?: AbortSignal
     horizonUrl?: string
     timeoutMs?: number
   } = {},
-): Promise<XlmBalanceSnapshot> {
+): Promise<WalletBalanceSnapshot> {
   if (!isStellarPublicKey(address)) {
     throw new WalletBalanceError("invalid-address", "Not a valid Stellar public key.")
   }
@@ -175,7 +217,14 @@ export async function fetchXlmBalance(
 
   // Horizon has no record of the account — it has never been funded.
   if (response.status === 404) {
-    return { address, xlm: 0, unfunded: true, fetchedAt: Date.now(), optimistic: false }
+    return {
+      address,
+      xlm: 0,
+      tokens: [],
+      unfunded: true,
+      fetchedAt: Date.now(),
+      optimistic: false,
+    }
   }
 
   if (response.status === 429) {
@@ -197,8 +246,9 @@ export async function fetchXlmBalance(
     throw new WalletBalanceError("parse", "Horizon returned a malformed response.")
   }
 
-  const native = payload?.balances?.find((entry) => entry.asset_type === "native")
-  if (!native) {
+  const balances = payload?.balances
+  const native = balances?.find((entry) => entry.asset_type === "native")
+  if (!balances || !native) {
     throw new WalletBalanceError("parse", "Horizon response contained no native balance.")
   }
 
@@ -207,7 +257,16 @@ export async function fetchXlmBalance(
     throw new WalletBalanceError("parse", "Horizon returned an unreadable balance amount.")
   }
 
-  return { address, xlm, unfunded: false, fetchedAt: Date.now(), optimistic: false }
+  return {
+    address,
+    xlm,
+    // A single unreadable token must not cost the user their XLM balance, so
+    // token parsing drops bad entries rather than throwing.
+    tokens: parseTokenBalances(balances),
+    unfunded: false,
+    fetchedAt: Date.now(),
+    optimistic: false,
+  }
 }
 
 /**

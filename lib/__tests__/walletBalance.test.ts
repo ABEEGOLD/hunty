@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import {
   BALANCE_REQUEST_TIMEOUT_MS,
   describeWalletBalanceError,
-  fetchXlmBalance,
+  fetchWalletBalance,
   formatXlmAmount,
   getHorizonUrl,
   isStellarPublicKey,
@@ -78,7 +78,7 @@ describe("getHorizonUrl", () => {
   })
 })
 
-describe("fetchXlmBalance", () => {
+describe("fetchWalletBalance", () => {
   let fetchMock: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -93,19 +93,22 @@ describe("fetchXlmBalance", () => {
   it("returns the native balance", async () => {
     fetchMock.mockResolvedValue(jsonResponse(accountPayload("24.2453000")))
 
-    const snapshot = await fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })
+    const snapshot = await fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })
 
     expect(snapshot.xlm).toBe(24.2453)
     expect(snapshot.address).toBe(ADDRESS)
     expect(snapshot.unfunded).toBe(false)
     expect(snapshot.optimistic).toBe(false)
     expect(snapshot.fetchedAt).toBeGreaterThan(0)
+    expect(snapshot.tokens).toEqual([
+      { assetCode: "USDC", assetIssuer: "", balance: 10 },
+    ])
   })
 
   it("requests the account endpoint on the configured Horizon", async () => {
     fetchMock.mockResolvedValue(jsonResponse(accountPayload("1.0000000")))
 
-    await fetchXlmBalance(ADDRESS, { horizonUrl: `${HORIZON}/` })
+    await fetchWalletBalance(ADDRESS, { horizonUrl: `${HORIZON}/` })
 
     expect(fetchMock).toHaveBeenCalledWith(
       `${HORIZON}/accounts/${ADDRESS}`,
@@ -116,14 +119,93 @@ describe("fetchXlmBalance", () => {
   it("treats an unfunded account (404) as a zero balance, not an error", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ status: 404 }, { status: 404 }))
 
-    const snapshot = await fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })
+    const snapshot = await fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })
 
     expect(snapshot.xlm).toBe(0)
+    expect(snapshot.tokens).toEqual([])
     expect(snapshot.unfunded).toBe(true)
   })
 
+  it("returns non-native token balances alongside XLM", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        balances: [
+          {
+            asset_type: "credit_alphanum4",
+            asset_code: "USDC",
+            asset_issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+            balance: "10.0000000",
+          },
+          {
+            asset_type: "credit_alphanum12",
+            asset_code: "HUNTYPOINTS",
+            asset_issuer: "GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H",
+            balance: "250.0000000",
+          },
+          { asset_type: "native", balance: "24.2453000" },
+        ],
+      }),
+    )
+
+    const snapshot = await fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })
+
+    expect(snapshot.xlm).toBe(24.2453)
+    // Richest first, so the most meaningful holding leads.
+    expect(snapshot.tokens).toEqual([
+      {
+        assetCode: "HUNTYPOINTS",
+        assetIssuer: "GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H",
+        balance: 250,
+      },
+      {
+        assetCode: "USDC",
+        assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        balance: 10,
+      },
+    ])
+  })
+
+  it("skips liquidity pool shares, which have no asset code", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        balances: [
+          { asset_type: "liquidity_pool_shares", liquidity_pool_id: "abc123", balance: "5.0" },
+          { asset_type: "native", balance: "1.0000000" },
+        ],
+      }),
+    )
+
+    const snapshot = await fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })
+
+    expect(snapshot.tokens).toEqual([])
+    expect(snapshot.xlm).toBe(1)
+  })
+
+  it("drops an unreadable token rather than losing the whole balance", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        balances: [
+          { asset_type: "credit_alphanum4", asset_code: "BAD", balance: "not-a-number" },
+          {
+            asset_type: "credit_alphanum4",
+            asset_code: "OK",
+            asset_issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+            balance: "3.0000000",
+          },
+          { asset_type: "native", balance: "9.0000000" },
+        ],
+      }),
+    )
+
+    const snapshot = await fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })
+
+    expect(snapshot.xlm).toBe(9)
+    expect(snapshot.tokens).toHaveLength(1)
+    expect(snapshot.tokens[0].assetCode).toBe("OK")
+  })
+
   it("rejects an invalid address without calling the network", async () => {
-    await expect(fetchXlmBalance("not-a-key", { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance("not-a-key", { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "invalid-address",
     })
     expect(fetchMock).not.toHaveBeenCalled()
@@ -132,7 +214,7 @@ describe("fetchXlmBalance", () => {
   it("flags rate limiting distinctly from other HTTP failures", async () => {
     fetchMock.mockResolvedValue(jsonResponse({}, { status: 429 }))
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "rate-limited",
       status: 429,
     })
@@ -141,7 +223,7 @@ describe("fetchXlmBalance", () => {
   it("surfaces server errors as http failures", async () => {
     fetchMock.mockResolvedValue(jsonResponse({}, { status: 503 }))
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "http",
       status: 503,
     })
@@ -150,7 +232,7 @@ describe("fetchXlmBalance", () => {
   it("reports a network failure when fetch rejects", async () => {
     fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "network",
     })
   })
@@ -164,7 +246,7 @@ describe("fetchXlmBalance", () => {
       },
     } as unknown as Response)
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "parse",
     })
   })
@@ -174,7 +256,7 @@ describe("fetchXlmBalance", () => {
       jsonResponse({ balances: [{ asset_type: "credit_alphanum4", balance: "5" }] }),
     )
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "parse",
     })
   })
@@ -182,7 +264,7 @@ describe("fetchXlmBalance", () => {
   it("reports a parse failure when the amount is not a number", async () => {
     fetchMock.mockResolvedValue(jsonResponse(accountPayload("not-a-number")))
 
-    await expect(fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
+    await expect(fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON })).rejects.toMatchObject({
       kind: "parse",
     })
   })
@@ -196,7 +278,7 @@ describe("fetchXlmBalance", () => {
     )
 
     await expect(
-      fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON, timeoutMs: 10 }),
+      fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON, timeoutMs: 10 }),
     ).rejects.toMatchObject({ kind: "timeout" })
   })
 
@@ -207,7 +289,7 @@ describe("fetchXlmBalance", () => {
     fetchMock.mockRejectedValue(abortError)
 
     await expect(
-      fetchXlmBalance(ADDRESS, { horizonUrl: HORIZON, signal: controller.signal }),
+      fetchWalletBalance(ADDRESS, { horizonUrl: HORIZON, signal: controller.signal }),
     ).rejects.toBe(abortError)
   })
 

@@ -7,11 +7,12 @@ import { fetchPlayerNfts } from "@/lib/nftUtils"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import {
   describeWalletBalanceError,
-  fetchXlmBalance,
+  fetchWalletBalance,
   formatXlmAmount,
   WalletBalanceError,
   type NftCountSnapshot,
-  type XlmBalanceSnapshot,
+  type TokenBalance,
+  type WalletBalanceSnapshot,
 } from "@/lib/wallet/balance"
 import {
   subscribeToWalletBalanceEvents,
@@ -20,6 +21,9 @@ import {
 
 /** How long an unconfirmed optimistic value may stand before we force a refetch. */
 export const OPTIMISTIC_RECONCILE_MS = 6_000
+
+/** Shared empty array so a token-less wallet does not hand out a new identity each render. */
+const EMPTY_TOKENS: TokenBalance[] = []
 
 /** Transient failures worth retrying; a bad address or unreadable payload is not. */
 function shouldRetry(failureCount: number, error: unknown): boolean {
@@ -38,6 +42,8 @@ export type WalletBalanceState = {
   xlm: number | null
   /** `xlm` rendered for display, or `"—"` when unknown. */
   formattedXlm: string
+  /** Non-native token holdings, richest first. Empty until the first read. */
+  tokens: TokenBalance[]
   /** Number of NFTs owned; `null` until the first successful read. */
   nftCount: number | null
   /** True when Horizon has no record of the account (never funded). */
@@ -88,9 +94,9 @@ export function useWalletBalance(options: { address?: string } = {}): WalletBala
   const balanceKey = useMemo(() => queryKeys.wallet.balance(address), [address])
   const nftKey = useMemo(() => queryKeys.wallet.nftCount(address), [address])
 
-  const balanceQuery = useQuery<XlmBalanceSnapshot>({
+  const balanceQuery = useQuery<WalletBalanceSnapshot>({
     queryKey: balanceKey,
-    queryFn: ({ signal }) => fetchXlmBalance(address, { signal }),
+    queryFn: ({ signal }) => fetchWalletBalance(address, { signal }),
     enabled,
     staleTime: queryCachePolicy.walletBalance.staleTime,
     gcTime: queryCachePolicy.walletBalance.gcTime,
@@ -140,7 +146,7 @@ export function useWalletBalance(options: { address?: string } = {}): WalletBala
       const { xlmDelta = 0, nftDelta = 0 } = delta
 
       if (xlmDelta !== 0) {
-        queryClient.setQueryData<XlmBalanceSnapshot>(balanceKey, (previous) =>
+        queryClient.setQueryData<WalletBalanceSnapshot>(balanceKey, (previous) =>
           previous
             ? // A balance can never go negative, so a prediction that would
               // overshoot is clamped rather than rendered as nonsense.
@@ -190,6 +196,7 @@ export function useWalletBalance(options: { address?: string } = {}): WalletBala
     address,
     xlm: balanceData?.xlm ?? null,
     formattedXlm: formatXlmAmount(balanceData?.xlm ?? null),
+    tokens: balanceData?.tokens ?? EMPTY_TOKENS,
     nftCount: nftData?.count ?? null,
     unfunded: balanceData?.unfunded ?? false,
     isLoading: enabled && !hasValue && (balanceQuery.isPending || nftQuery.isPending),

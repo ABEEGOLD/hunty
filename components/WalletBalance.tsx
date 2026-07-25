@@ -3,6 +3,7 @@
 import { AlertTriangle, RefreshCw, Trophy } from "lucide-react"
 import Coin from "./icons/Coin"
 import { cn } from "@/lib/utils"
+import { formatXlmAmount } from "@/lib/wallet/balance"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 
 type WalletBalanceProps = {
@@ -11,6 +12,11 @@ type WalletBalanceProps = {
   /** Forwarded to the root element — the onboarding tour anchors to `#balance-pill`. */
   id?: string
   className?: string
+  /**
+   * Also list non-native token holdings beneath the XLM line. Off by default —
+   * the header chip has no room for it; the profile card does.
+   */
+  showTokens?: boolean
 }
 
 /**
@@ -26,11 +32,17 @@ type WalletBalanceProps = {
  *   stale       → last known value plus a warning affordance
  *   failed      → em dash plus a retry control
  */
-export function WalletBalance({ variant = "pill", id, className }: WalletBalanceProps) {
+export function WalletBalance({
+  variant = "pill",
+  id,
+  className,
+  showTokens = false,
+}: WalletBalanceProps) {
   const {
     address,
     xlm,
     formattedXlm,
+    tokens,
     nftCount,
     unfunded,
     isLoading,
@@ -63,21 +75,18 @@ export function WalletBalance({ variant = "pill", id, className }: WalletBalance
   // Nothing has ever loaded successfully — offer a way out rather than a zero.
   const hasNoValue = xlm == null && nftCount == null
 
+  const visibleTokens = showTokens ? tokens : []
+
   const statusLabel = hasNoValue
     ? "Wallet balance unavailable"
-    : `Balance ${formattedXlm} XLM${nftCount == null ? "" : `, ${nftCount} NFT${nftCount === 1 ? "" : "s"}`}` +
+    : `Balance ${formattedXlm} XLM` +
+      visibleTokens.map((token) => `, ${token.balance} ${token.assetCode}`).join("") +
+      (nftCount == null ? "" : `, ${nftCount} NFT${nftCount === 1 ? "" : "s"}`) +
       (isOptimistic ? ", pending confirmation" : "") +
       (isStale ? ", may be out of date" : "")
 
-  return (
-    <div
-      id={id}
-      className={rootClass}
-      role="status"
-      aria-live="polite"
-      aria-label={statusLabel}
-      data-testid="wallet-balance"
-    >
+  const summaryRow = (
+    <>
       <span
         className={cn(
           "flex items-center gap-1.5 transition-opacity",
@@ -140,6 +149,44 @@ export function WalletBalance({ variant = "pill", id, className }: WalletBalance
           Retry
         </button>
       )}
+    </>
+  )
+
+  const wrapperProps = {
+    id,
+    role: "status" as const,
+    "aria-live": "polite" as const,
+    "aria-label": statusLabel,
+    "data-testid": "wallet-balance",
+  }
+
+  if (visibleTokens.length === 0) {
+    return (
+      <div {...wrapperProps} className={rootClass}>
+        {summaryRow}
+      </div>
+    )
+  }
+
+  return (
+    <div {...wrapperProps} className={cn("flex flex-col gap-1.5", className)}>
+      <div className={cn("flex items-center gap-2", isPill && "px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800")}>
+        {summaryRow}
+      </div>
+      <ul className="flex flex-col gap-0.5" data-testid="wallet-balance-tokens">
+        {visibleTokens.map((token) => (
+          // Code alone is not unique across issuers, so the key carries both.
+          <li
+            key={`${token.assetCode}-${token.assetIssuer}`}
+            className="flex items-center justify-between gap-3 text-xs"
+          >
+            <span className="font-medium text-slate-500 dark:text-slate-400">{token.assetCode}</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300 tabular-nums">
+              {formatXlmAmount(token.balance)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

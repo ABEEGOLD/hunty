@@ -19,6 +19,7 @@ function state(overrides: Partial<ReturnType<typeof useWalletBalance>> = {}) {
     address: ADDRESS,
     xlm: 24.2453,
     formattedXlm: "24.2453",
+    tokens: [],
     nftCount: 3,
     unfunded: false,
     isLoading: false,
@@ -144,6 +145,63 @@ describe("WalletBalance", () => {
     const { container } = render(<WalletBalance id="balance-pill" />)
 
     expect(container.querySelector("#balance-pill")).not.toBeNull()
+  })
+
+  it("lists token balances when asked to", () => {
+    mockUseWalletBalance.mockReturnValue(
+      state({
+        tokens: [
+          { assetCode: "HUNTYPOINTS", assetIssuer: "GISSUER1", balance: 250 },
+          { assetCode: "USDC", assetIssuer: "GISSUER2", balance: 10 },
+        ],
+      }),
+    )
+
+    render(<WalletBalance variant="row" showTokens />)
+
+    const tokenList = screen.getByTestId("wallet-balance-tokens")
+    expect(tokenList).toHaveTextContent("HUNTYPOINTS")
+    expect(tokenList).toHaveTextContent("250.00")
+    expect(tokenList).toHaveTextContent("USDC")
+    expect(tokenList).toHaveTextContent("10.00")
+  })
+
+  it("keeps tokens out of the compact header chip", () => {
+    mockUseWalletBalance.mockReturnValue(
+      state({ tokens: [{ assetCode: "USDC", assetIssuer: "GISSUER", balance: 10 }] }),
+    )
+
+    render(<WalletBalance />)
+
+    expect(screen.queryByTestId("wallet-balance-tokens")).not.toBeInTheDocument()
+    expect(screen.getByTestId("wallet-balance-xlm")).toBeInTheDocument()
+  })
+
+  it("announces token balances alongside XLM", () => {
+    mockUseWalletBalance.mockReturnValue(
+      state({ tokens: [{ assetCode: "USDC", assetIssuer: "GISSUER", balance: 10 }] }),
+    )
+
+    render(<WalletBalance variant="row" showTokens />)
+
+    expect(screen.getByRole("status")).toHaveAccessibleName(
+      expect.stringContaining("10 USDC") as unknown as string,
+    )
+  })
+
+  it("distinguishes two tokens sharing an asset code from different issuers", () => {
+    mockUseWalletBalance.mockReturnValue(
+      state({
+        tokens: [
+          { assetCode: "USDC", assetIssuer: "GISSUER1", balance: 10 },
+          { assetCode: "USDC", assetIssuer: "GISSUER2", balance: 5 },
+        ],
+      }),
+    )
+
+    render(<WalletBalance variant="row" showTokens />)
+
+    expect(screen.getByTestId("wallet-balance-tokens").querySelectorAll("li")).toHaveLength(2)
   })
 
   it("singularises the NFT label for a single token", () => {

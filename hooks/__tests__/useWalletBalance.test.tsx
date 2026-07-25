@@ -5,11 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 vi.mock("@/lib/wallet/balance", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/wallet/balance")>()
-  return { ...actual, fetchXlmBalance: vi.fn() }
+  return { ...actual, fetchWalletBalance: vi.fn() }
 })
 vi.mock("@/lib/nftUtils", () => ({ fetchPlayerNfts: vi.fn() }))
 
-import { fetchXlmBalance, WalletBalanceError } from "@/lib/wallet/balance"
+import { fetchWalletBalance, WalletBalanceError } from "@/lib/wallet/balance"
 import { fetchPlayerNfts } from "@/lib/nftUtils"
 import { queryCachePolicy } from "@/lib/queryKeys"
 import {
@@ -21,11 +21,15 @@ import { useWalletBalance } from "@/hooks/useWalletBalance"
 
 const ADDRESS = "GDQP2KPQGKIHYJGXNUIYOMHARUARCA7DJT5FO2FFOOKY3B2WSQHG4W37"
 
-const mockFetchBalance = vi.mocked(fetchXlmBalance)
+const mockFetchBalance = vi.mocked(fetchWalletBalance)
 const mockFetchNfts = vi.mocked(fetchPlayerNfts)
 
-function snapshot(xlm: number, unfunded = false) {
-  return { address: ADDRESS, xlm, unfunded, fetchedAt: Date.now(), optimistic: false }
+function snapshot(
+  xlm: number,
+  unfunded = false,
+  tokens: Array<{ assetCode: string; assetIssuer: string; balance: number }> = [],
+) {
+  return { address: ADDRESS, xlm, tokens, unfunded, fetchedAt: Date.now(), optimistic: false }
 }
 
 function nfts(count: number) {
@@ -79,6 +83,32 @@ describe("useWalletBalance", () => {
     expect(result.current.error).toBeNull()
     expect(result.current.isStale).toBe(false)
     expect(result.current.lastUpdated).toBeGreaterThan(0)
+  })
+
+  it("exposes non-native token balances", async () => {
+    mockFetchBalance.mockResolvedValue(
+      snapshot(24.2453, false, [
+        { assetCode: "USDC", assetIssuer: "GISSUER", balance: 10 },
+      ]),
+    )
+    const { result } = renderBalance()
+
+    await waitFor(() => expect(result.current.tokens).toHaveLength(1))
+    expect(result.current.tokens[0]).toEqual({
+      assetCode: "USDC",
+      assetIssuer: "GISSUER",
+      balance: 10,
+    })
+  })
+
+  it("hands out a stable empty array for a wallet holding no tokens", async () => {
+    const { result } = renderBalance()
+
+    await waitFor(() => expect(result.current.xlm).toBe(24.2453))
+    const first = result.current.tokens
+    expect(first).toEqual([])
+    // A fresh array each render would churn any consumer memoising on it.
+    expect(result.current.tokens).toBe(first)
   })
 
   it("reports an unfunded account as a real zero balance", async () => {
@@ -234,6 +264,7 @@ describe("useWalletBalance", () => {
     mockFetchBalance.mockImplementation(async () => ({
       address: otherAddress,
       xlm: 7,
+      tokens: [],
       unfunded: false,
       fetchedAt: Date.now(),
       optimistic: false,

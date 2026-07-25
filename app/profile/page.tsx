@@ -335,7 +335,7 @@ export default function UserProfilePage() {
             </div>
             {connected && publicKey && (
               <div className="pt-2 border-t border-slate-200">
-                <WalletBalance variant="row" />
+                <WalletBalance variant="row" showTokens />
               </div>
             )}
           </Card>
