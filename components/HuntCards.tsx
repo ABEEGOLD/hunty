@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import confetti from "canvas-confetti";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import sanitizeHtml from "@/lib/sanitizeHtml";
 import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
 import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
+import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
 import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
 import type { HuntCard as Hunt } from "@/lib/types";
 import { usePlayerCount } from "@/hooks/usePlayerCount";
@@ -49,6 +50,20 @@ interface HuntCardsProps {
 }
 
 const DEFAULT_POINTS = 10;
+
+const shakeVariants = {
+  shake: {
+    x: [0, -10, 10, -10, 10, -5, 5, 0],
+    transition: { duration: 0.5 },
+  },
+  idle: { x: 0 },
+};
+
+const slideVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
 
 export const HuntCards: React.FC<HuntCardsProps> = ({
   hunts,
@@ -90,8 +105,10 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const submittingRef = useRef(false);
   const [imgGatewayIdx, setImgGatewayIdx] = useState(0);
   const [hintRevealed, setHintRevealed] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(0);
   const [keyboardInsetHeight, setKeyboardInsetHeight] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const [shake, setShake] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -159,16 +176,35 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0)
         );
 
+        let updatedActualPoints = 0;
         if (playerAddress && attemptId) {
-          recordClueAttempt(playerAddress, attemptId, {
-            clueId: Number(hunt.id),
-            clueIndex: currentIndex - 1,
-            question: hunt.title,
-            answerGiven: input.trim(),
-            timeTakenSeconds: getClueElapsedSeconds(huntId, Number(hunt.id)),
-            pointsEarned: actualPoints,
-            answeredAt: new Date().toISOString(),
-          });
+          const updatedAttempt = recordClueAttempt(
+            playerAddress, 
+            attemptId, 
+            {
+              clueId: Number(hunt.id),
+              clueIndex: currentIndex - 1,
+              question: hunt.title,
+              answerGiven: input.trim(),
+              timeTakenSeconds: getClueElapsedSeconds(huntId, Number(hunt.id)),
+              pointsEarned: 0, // This will be replaced by the scoring function
+              answeredAt: new Date().toISOString(),
+              hintsUsed: 0, // This will be replaced too
+            },
+            points ?? DEFAULT_POINTS,
+            hunt.difficulty || "Medium",
+            hintsUsed
+          );
+          if (updatedAttempt) {
+            // Find the clue we just added to get the points
+            const updatedClue = updatedAttempt.clues.find(
+              (c) => c.clueId === Number(hunt.id)
+            );
+            updatedActualPoints = updatedClue?.pointsEarned || 0;
+          }
+        } else {
+          // Fallback if no address/attempt ID
+          updatedActualPoints = Math.max(0, (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0));
         }
         
         // Celebratory confetti (Requirement #146)
@@ -193,7 +229,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         }
 
         setInput("");
-        onScoreUpdate?.(actualPoints);
+        onScoreUpdate?.(updatedActualPoints);
         setTimeout(() => {
           setSuccess(false);
           onUnlock?.();
@@ -202,6 +238,15 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         // Local fallback (test / preview mode — no wallet required)
         if (input.trim().toLowerCase() === (hunt.code || "").trim().toLowerCase()) {
           setSuccess(true);
+          
+          // Calculate points for local mode too!
+          const { breakdown } = calculateCluePoints(
+            points ?? DEFAULT_POINTS,
+            hunt.difficulty || "Medium",
+            0, // For local mode, time is 0 for simplicity
+            hintsUsed,
+            0 // Streak 0 for local mode
+          );
           
           // Celebratory confetti for local/preview mode (Requirement #146)
           const isLastClue = currentIndex === totalHunts;
@@ -225,8 +270,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
           setError("");
           setInput("");
-          const actualPoints = Math.max(0, (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0));
-          onScoreUpdate?.(actualPoints);
+          onScoreUpdate?.(breakdown.totalPoints);
           setTimeout(() => {
             setSuccess(false);
             onUnlock?.();
@@ -234,11 +278,19 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         } else {
           setError("Try Again");
           setSuccess(false);
+          if (!prefersReducedMotion) {
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+          }
         }
       }
     } catch (err) {
       if (err instanceof AnswerIncorrectError) {
         setError("Try Again");
+        if (!prefersReducedMotion) {
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
       } else {
         setError(err instanceof Error ? err.message : "Submission failed. Try again.");
       }
@@ -358,7 +410,10 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
               variant="outline"
               size="sm"
               className="w-full text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-900/50 py-2 sm:py-2.5"
-              onClick={() => setHintRevealed(true)}
+              onClick={() => {
+                setHintRevealed(true);
+                setHintsUsed((prev) => prev + 1);
+              }}
               disabled={isLocked}
             >
               Reveal Hint (-{hunt.hintCost || 0} pts)
@@ -394,7 +449,12 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           backdropFilter: "saturate(180%) blur(18px)",
         }}
       >
-        <Input
+        <motion.div
+          animate={shake ? "shake" : "idle"}
+          variants={shakeVariants}
+          className="flex-1"
+        >
+          <Input
           placeholder={isActive && !preview ? "Enter answer" : "Locked"}
           className={cn(
             "flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-full text-sm transition-colors",
@@ -406,6 +466,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           onFocus={handleInputFocus}
           disabled={isLocked}
         />
+        </motion.div>
         <Button
           className={cn(
             "bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] hover:bg-purple-700 text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0",
@@ -424,24 +485,54 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
       {/* Feedback */}
       <div className="bg-white dark:bg-slate-900 rounded-b-xl sm:rounded-b-2xl -mt-4 pb-4 px-4 sm:px-6 min-h-[36px] print:hidden">
-        {huntEnded && (
-          <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base">
-            <span>🏁</span>
-            Hunt Ended
-          </div>
-        )}
-        {!huntEnded && success && (
-          <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base animate-bounce">
-            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            Solved!
-          </div>
-        )}
-        {!huntEnded && !success && isPending && (
-          <p className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm">Submitting...</p>
-        )}
-        {!huntEnded && !success && !isPending && error && (
-          <p className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm">{error}</p>
-        )}
+        <AnimatePresence mode="wait">
+          {huntEnded && (
+            <motion.div
+              key="ended"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base"
+            >
+              <span>🏁</span>
+              Hunt Ended
+            </motion.div>
+          )}
+          {!huntEnded && success && (
+            <motion.div
+              key="success"
+              initial={prefersReducedMotion ? false : slideVariants.initial}
+              animate={prefersReducedMotion ? {} : slideVariants.animate}
+              exit={prefersReducedMotion ? {} : slideVariants.exit}
+              className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base"
+            >
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              Solved!
+            </motion.div>
+          )}
+          {!huntEnded && !success && isPending && (
+            <motion.p
+              key="pending"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm"
+            >
+              Submitting...
+            </motion.p>
+          )}
+          {!huntEnded && !success && !isPending && error && (
+            <motion.p
+              key="error"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
+              className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

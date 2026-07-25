@@ -6,18 +6,19 @@ import { QrCode, Trophy } from "lucide-react";
 import { QrCodeModal } from "@/components/QrCodeModal";
 import { PlayGame } from "@/components/PlayGame";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
-import type { StoredHunt } from "@/lib/types";
+import { ChatWindow } from "@/components/ChatWindow";
+import { RegistrationButton } from "@/components/RegistrationButton";
+import { WaitlistDisplay } from "@/components/WaitlistDisplay";
+import type { StoredHunt, HuntRegistrationStatus } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
-import { RegistrationButton } from "@/components/RegistrationButton";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
 import { 
   checkRegistrationStatus, 
   registerPlayer, 
   clearRegistrationCache,
   isWalletAvailable,
-  RegistrationStatus 
 } from "@/lib/contracts/player-registration";
 import { useQueryClient } from "@tanstack/react-query";
 import { debounce } from "@/lib/debounce";
@@ -25,6 +26,8 @@ import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
 import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
 import { withTransactionToast } from "@/lib/txToast";
 import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
+import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
+import { SponsorHuntButton } from "@/components/SponsorHuntButton";
 import type { RewardReceipt } from "@/lib/types";
 
 interface HuntDetailProps {
@@ -41,22 +44,29 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
   const [copied, setCopied] = useState(false);
   const [connectedPublicKey, setConnectedPublicKey] = useState<string | undefined>(undefined);
   const [walletCheckComplete, setWalletCheckComplete] = useState(false);
-  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus>({
+  const [registrationStatus, setRegistrationStatus] = useState<HuntRegistrationStatus>({
     isRegistered: false,
+    isWaitlisted: false,
     loading: true,
   });
   const [qrOpen, setQrOpen] = useState(false);
+
+  // Get current players (using stored hunt's playerCount, defaulting to 0)
+  const currentPlayers = hunt.playerCount ?? 0;
+  const maxCapacity = hunt.maxCapacity;
 
   useEffect(() => {
     if (searchParams.get("reattempt") !== "1" || !connectedPublicKey) return;
     prepareHuntReattempt(connectedPublicKey, hunt.id);
   }, [connectedPublicKey, hunt.id, searchParams]);
+  
   useEffect(() => {
     // Check if wallet is available
     if (!isWalletAvailable()) {
       setWalletCheckComplete(true);
       setRegistrationStatus({
         isRegistered: false,
+        isWaitlisted: false,
         loading: false,
         error: "No wallet detected. Please install Freighter or another Soroban-compatible wallet.",
       });
@@ -81,6 +91,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           setWalletCheckComplete(true);
           setRegistrationStatus({
             isRegistered: false,
+            isWaitlisted: false,
             loading: false,
             error: "Please connect your wallet to continue",
           });
@@ -89,6 +100,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       setWalletCheckComplete(true);
       setRegistrationStatus({
         isRegistered: false,
+        isWaitlisted: false,
         loading: false,
         error: "Please connect your wallet to continue",
       });
@@ -104,6 +116,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       if (isActive()) {
         setRegistrationStatus({
           isRegistered: false,
+          isWaitlisted: false,
           loading: false,
           error: "Please connect your wallet to continue",
         });
@@ -114,12 +127,22 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     // Set loading state
     setRegistrationStatus({
       isRegistered: false,
+      isWaitlisted: false,
       loading: true,
     });
 
+    // Check registration status
     const status = await checkRegistrationStatus(hunt.id, connectedPublicKey);
+    
+    // Also check waitlist position
+    const waitlistPosition = getWaitlistPosition(hunt.id, connectedPublicKey);
+
     if (isActive()) {
-      setRegistrationStatus(status);
+      setRegistrationStatus({
+        ...status,
+        isWaitlisted: waitlistPosition !== null,
+        waitlistPosition: waitlistPosition,
+      });
     }
   }, [hunt.id, connectedPublicKey, walletCheckComplete]);
 
@@ -159,6 +182,16 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     }
   };
 
+  // Handle adding to waitlist
+  const handleWaitlist = async () => {
+    if (!connectedPublicKey) {
+      return;
+    }
+
+    addToWaitlist(hunt.id, connectedPublicKey, `${connectedPublicKey.slice(0, 6)}...${connectedPublicKey.slice(-4)}`);
+    await refreshRegistrationStatus();
+  };
+
   // Track anonymous hunt page views for creator engagement analytics.
   useEffect(() => {
     void (async () => {
@@ -196,13 +229,25 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       <div className="flex flex-col sm:flex-row items-center gap-4">
         {/* Registration Button - Requirements 1.2, 2.1 */}
         {connectedPublicKey ? (
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full space-y-4">
             <RegistrationButton
               huntId={hunt.id}
               playerAddress={connectedPublicKey}
               registrationStatus={registrationStatus}
               onRegister={handleRegister}
+              onWaitlist={handleWaitlist}
+              maxCapacity={maxCapacity}
+              currentPlayers={currentPlayers}
             />
+            {/* Waitlist/Spot Display */}
+            {maxCapacity && (
+              <WaitlistDisplay
+                huntId={hunt.id}
+                currentPlayers={currentPlayers}
+                maxCapacity={maxCapacity}
+                playerAddress={connectedPublicKey}
+              />
+            )}
           </div>
         ) : (
           <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-4 w-full">
@@ -250,7 +295,14 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
             <QrCode className="w-4 h-4" />
           </Button>
         </div>
-  <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
+        <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
+
+        {hunt.rewardType !== "NFT" && (
+          <SponsorHuntButton
+            huntId={hunt.id}
+            totalPool={hunt.rewardPool ?? 0}
+          />
+        )}
 
         <HuntControls
           hunt={hunt}
@@ -264,7 +316,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       </div>
 
       {/* Play Interface Section - Protected by PlayInterfaceGuard (Requirements 3.1, 3.2, 3.3) */}
-      {connectedPublicKey && (
+      {connectedPublicKey && registrationStatus.isRegistered && (
         <PlayInterfaceGuard
           huntId={hunt.id}
           playerAddress={connectedPublicKey}
@@ -319,6 +371,12 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           />
         </PlayInterfaceGuard>
       )}
+      
+      {/* Chat Window */}
+      <ChatWindow 
+        huntId={hunt.id} 
+        currentUserAddress={connectedPublicKey} 
+      />
     </div>
   );
 }

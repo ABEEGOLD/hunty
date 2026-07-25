@@ -4,6 +4,7 @@
  */
 
 import type { ReactNode } from "react"
+import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
 
 // ─── Hunt ────────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,8 @@ export interface StoredHunt {
   rewardEscrowBalance?: number
   /** Creator-side participant count snapshot for dashboard sorting. */
   playerCount?: number
+  /** Max number of participants for limited spots */
+  maxCapacity?: number
   /** Unix timestamp in seconds when the hunt draft was created locally. */
   createdAt?: number
   /** Unix timestamp in seconds — when the hunt starts. */
@@ -207,6 +210,8 @@ export interface ClueAttemptRecord {
   timeTakenSeconds: number
   pointsEarned: number
   answeredAt: string
+  hintsUsed: number // Number of hints used for this clue
+  scoringBreakdown?: ClueScoringBreakdown // Detailed scoring breakdown
 }
 
 export interface HuntAttemptRecord {
@@ -221,6 +226,10 @@ export interface HuntAttemptRecord {
   totalPoints: number
   clues: ClueAttemptRecord[]
   attemptNumber: number
+  currentStreak: number // Current consecutive clues solved streak
+  scoringWeights?: ScoringWeights // Scoring weights used for this attempt
+  scoringBreakdown?: HuntScoringBreakdown // Detailed scoring breakdown for the entire attempt
+  isFirstToComplete?: boolean // Whether this was the first completion of the hunt
 }
 
 export interface HuntAttemptTimeComparison {
@@ -280,7 +289,7 @@ export interface RewardHistoryEntry {
 
 // ─── Activity Feed ───────────────────────────────────────────────────────────
 
-export type ActivityEventType = "HuntCompleted" | "ClueCompleted"
+export type ActivityEventType = "HuntCompleted" | "ClueCompleted" | "HuntSponsored"
 
 export interface ActivityEvent {
   id: string
@@ -292,6 +301,8 @@ export interface ActivityEvent {
   huntId: number
   timestamp: number
   type: ActivityEventType
+  /** Amount for sponsored events */
+  amount?: number
 }
 
 // ─── Component-level Hunt (used by PlayGame, HuntForm, GamePreview, HuntCards) ─
@@ -479,4 +490,52 @@ export interface PerformanceAlert {
   threshold: number
   timestamp: number
   url: string
+}
+
+// ─── Chat ────────────────────────────────────────────────────────────────────
+
+export interface ChatMessage {
+  id: string
+  huntId: number
+  senderAddress: string
+  senderName?: string
+  content: string
+  timestamp: number
+  isDeleted?: boolean
+}
+
+export interface ChatSettings {
+  huntId: number
+  isChatEnabled: boolean
+  creatorAddress?: string
+  mutedAddresses: string[]
+}
+
+export interface ReportedMessage {
+  id: string
+  messageId: string
+  huntId: number
+  reportedBy: string
+  reason: string
+  timestamp: number
+}
+
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+
+export interface WaitlistEntry {
+  id: string
+  huntId: number
+  playerAddress: string
+  playerName?: string
+  timestamp: number
+  isNotified?: boolean
+}
+
+export interface HuntRegistrationStatus {
+  isRegistered: boolean
+  isWaitlisted: boolean
+  waitlistPosition?: number
+  progressData?: PlayerProgress
+  loading: boolean
+  error?: string
 }

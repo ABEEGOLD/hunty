@@ -4,7 +4,9 @@ import type {
   HuntAttemptRecord,
   HuntAttemptStatus,
   HuntAttemptTimeComparison,
+  ClueDifficulty,
 } from "@/lib/types"
+import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring"
 
 const ACTIVE_ATTEMPT_KEY_PREFIX = "hunty_active_attempt_"
 const ATTEMPTS_KEY_PREFIX = "hunty_hunt_attempts_"
@@ -115,6 +117,8 @@ export function startHuntAttempt(
     totalPoints: 0,
     clues: [],
     attemptNumber: previousAttempts.length + 1,
+    currentStreak: 0,
+    scoringWeights: DEFAULT_SCORING_WEIGHTS,
   }
 
   attempts.unshift(attempt)
@@ -142,19 +146,42 @@ function updateAttempt(
 export function recordClueAttempt(
   playerAddress: string,
   attemptId: string,
-  clueRecord: ClueAttemptRecord
+  clueRecord: ClueAttemptRecord,
+  basePoints: number,
+  difficulty: ClueDifficulty,
+  hintsUsed: number = 0
 ): HuntAttemptRecord | null {
   return updateAttempt(playerAddress, attemptId, (attempt) => {
+    // Calculate scoring for this clue
+    const { breakdown, newStreak } = calculateCluePoints(
+      basePoints,
+      difficulty,
+      clueRecord.timeTakenSeconds,
+      hintsUsed,
+      attempt.currentStreak,
+      attempt.scoringWeights
+    )
+
+    // Create the updated clue record with scoring details
+    const updatedClueRecord: ClueAttemptRecord = {
+      ...clueRecord,
+      hintsUsed,
+      scoringBreakdown: breakdown,
+      pointsEarned: breakdown.totalPoints,
+    }
+
+    // Update the clues array
     const existingIndex = attempt.clues.findIndex(
-      (clue) => clue.clueId === clueRecord.clueId
+      (clue) => clue.clueId === updatedClueRecord.clueId
     )
     const clues =
       existingIndex === -1
-        ? [...attempt.clues, clueRecord]
+        ? [...attempt.clues, updatedClueRecord]
         : attempt.clues.map((clue, index) =>
-            index === existingIndex ? clueRecord : clue
+            index === existingIndex ? updatedClueRecord : clue
           )
 
+    // Calculate total time and points
     const totalTimeSeconds = clues.reduce(
       (sum, clue) => sum + clue.timeTakenSeconds,
       0
@@ -166,6 +193,7 @@ export function recordClueAttempt(
       clues,
       totalTimeSeconds,
       totalPoints,
+      currentStreak: newStreak,
     }
   })
 }
