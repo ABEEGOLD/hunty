@@ -8,7 +8,8 @@ export type HuntScheduleValidationResult = {
 export type HuntReminderState = Map<number, number>
 
 const REMINDER_WINDOWS_MS = [24 * 60 * 60 * 1000, 60 * 60 * 1000]
-const TOLERANCE_MS = 60 * 1000
+const TRANSITION_TOLERANCE_MS = 60 * 1000
+const VALIDATION_TOLERANCE_MS = 5 * 1000
 
 export function validateHuntSchedule({
   startAt,
@@ -21,12 +22,14 @@ export function validateHuntSchedule({
 }): HuntScheduleValidationResult {
   const errors: Partial<Record<"startAt" | "endAt", string>> = {}
 
-  if (startAt < now - TOLERANCE_MS) {
+  if (startAt < now - VALIDATION_TOLERANCE_MS) {
     errors.startAt = "Start time must be in the future."
   }
 
   if (endAt <= startAt) {
     errors.endAt = "End time must be after the start time."
+  } else if (endAt < now - VALIDATION_TOLERANCE_MS) {
+    errors.endAt = "End time must be after the current time."
   }
 
   return {
@@ -38,14 +41,14 @@ export function validateHuntSchedule({
 export function applyHuntScheduleTransitions(hunts: StoredHunt[], now = Date.now()): StoredHunt[] {
   return hunts.map((hunt) => {
     const status = hunt.status?.toLowerCase()
-    const startAt = hunt.startAt ?? hunt.startTime
-    const endAt = hunt.endAt ?? hunt.endTime
+    const startAt = hunt.startAt
+    const endAt = hunt.endAt
 
-    if (status === "scheduled" && startAt != null && startAt <= now + TOLERANCE_MS) {
+    if (status === "scheduled" && startAt != null && startAt <= now + TRANSITION_TOLERANCE_MS) {
       return { ...hunt, status: "active" as StoredHunt["status"] }
     }
 
-    if (status === "active" && endAt != null && endAt <= now + TOLERANCE_MS) {
+    if (status === "active" && endAt != null && endAt <= now + TRANSITION_TOLERANCE_MS) {
       return { ...hunt, status: "ended" as StoredHunt["status"] }
     }
 
@@ -60,7 +63,7 @@ export function getReminderCandidates(
 ): StoredHunt[] {
   return hunts.filter((hunt) => {
     const status = hunt.status?.toLowerCase()
-    const startAt = hunt.startAt ?? hunt.startTime
+    const startAt = hunt.startAt
     if (status !== "scheduled" || startAt == null) return false
 
     const diff = startAt - now
@@ -70,6 +73,6 @@ export function getReminderCandidates(
     if (!shouldSend) return false
 
     const lastSentAt = alreadySent.get(hunt.id)
-    return lastSentAt == null || lastSentAt < startAt - TOLERANCE_MS
+    return lastSentAt == null || lastSentAt < now - TRANSITION_TOLERANCE_MS
   })
 }
