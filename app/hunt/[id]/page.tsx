@@ -28,7 +28,8 @@ export async function generateMetadata({
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://hunty.app";
   const huntUrl = `${baseUrl}/hunt/${hunt.id}`;
-  const ogImage = hunt.coverImageCid || `${baseUrl}/og-image.png`;
+  // Use the dynamic OG image route so every hunt gets a unique, branded preview card
+  const ogImage = `${baseUrl}/api/og/hunt/${hunt.id}`;
 
   return {
     title: `${hunt.title} | Hunty - Scavenger Hunt Game`,
