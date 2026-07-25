@@ -27,6 +27,7 @@ import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
 import { withTransactionToast } from "@/lib/txToast";
 import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
 import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
+import { SponsorHuntButton } from "@/components/SponsorHuntButton";
 import type { RewardReceipt } from "@/lib/types";
 
 interface HuntDetailProps {
@@ -295,6 +296,13 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           </Button>
         </div>
         <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
+
+        {hunt.rewardType !== "NFT" && (
+          <SponsorHuntButton
+            huntId={hunt.id}
+            totalPool={hunt.rewardPool ?? 0}
+          />
+        )}
 
         <HuntControls
           hunt={hunt}

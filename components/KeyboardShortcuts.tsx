@@ -13,6 +13,8 @@ const SHORTCUTS: ShortcutDisplay[] = [
   { keys: '?', description: 'Show this help' },
   { keys: '/', description: 'Focus search' },
   { keys: 'Esc', description: 'Close modal / Cancel' },
+  { keys: 'Enter', description: 'Submit answer' },
+  { keys: 'Ctrl + K', description: 'Open hunt search' },
   { keys: 'G + H', description: 'Go to Home' },
   { keys: 'G + C', description: 'Go to Create Hunt' },
   { keys: 'G + D', description: 'Go to Dashboard' },

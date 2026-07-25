@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
-import { Plus, Trash2, Trophy, Copy, X } from "lucide-react"
+import { Plus, Trash2, Trophy, Copy, X, BarChart3, List } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,12 +17,14 @@ import {
 import { ActivateHuntModal } from "@/components/ActivateHuntModal"
 import { RewardPoolManager } from "@/components/RewardPoolManager"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { CreatorAnalytics } from "@/components/CreatorAnalytics"
 import { deleteHunts, archiveHunts } from "@/lib/huntStore"
 import {
   HUNT_HISTORY_STATUS_FILTERS,
   type HuntHistorySortOption,
   type HuntHistoryStatusFilter,
 } from "@/lib/huntHistory"
+import { cn } from "@/lib/utils"
 import type { ClueRow, StoredHunt } from "@/lib/types"
 
 interface HuntDashboardProps {
@@ -109,6 +111,7 @@ export function HuntDashboard({
   ])
   const [poolHuntId, setPoolHuntId] = useState<number | null>(null)
   const [isSavingClues, setIsSavingClues] = useState(false)
+  const [activeTab, setActiveTab] = useState<"hunts" | "analytics">("hunts")
 
   const visibleHuntIds = hunts.map((hunt) => hunt.id)
   const selectedVisibleCount = visibleHuntIds.filter((id) => selectedIds.has(id)).length
@@ -227,6 +230,37 @@ export function HuntDashboard({
 
   return (
     <>
+      {/* Tab Navigation */}
+      <div className="mb-6 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 p-1.5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/60 w-fit">
+        <button
+          onClick={() => setActiveTab("hunts")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all",
+            activeTab === "hunts"
+              ? "bg-[#3737A4] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+          )}
+        >
+          <List className="w-4 h-4" />
+          My Hunts
+        </button>
+        <button
+          onClick={() => setActiveTab("analytics")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all",
+            activeTab === "analytics"
+              ? "bg-[#3737A4] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+          )}
+        >
+          <BarChart3 className="w-4 h-4" />
+          Analytics
+        </button>
+      </div>
+
+      {activeTab === "analytics" ? (
+        <CreatorAnalytics hunts={hunts} />
+      ) : (<>
       <div className="mb-6 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/60">
         <div className="flex flex-col gap-5 border-b border-slate-200 pb-5 dark:border-white/10 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -512,6 +546,7 @@ export function HuntDashboard({
           </Button>
         </div>
       </div>
+      </>)}
 
       <ActivateHuntModal
         isOpen={!!modalHunt}
