@@ -299,8 +299,13 @@ export default function UserProfilePage() {
 
   const completedHunts = hunts.filter((h) => h.status === "Completed")
   const inProgressHunts = hunts.filter((h) => h.status === "In-Progress")
+  const totalXlmEarned = rewardHistory.reduce(
+    (sum, entry) => sum + (entry.type === "XLM" ? (entry.amount ?? 0) : 0),
+    0,
+  )
 
   const displayAddress = publicKey ? shortenAddress(publicKey) : "Not connected"
+  const avatarLabel = publicKey ? publicKey.slice(1, 3).toUpperCase() : "HP"
 
   return (
     <div className="min-h-screen bg-linear-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] pb-20">
@@ -317,9 +322,14 @@ export default function UserProfilePage() {
             </p>
           </div>
 
-          <Card className="border border-slate-200 bg-white/70 shadow-sm px-4 py-3 flex flex-col gap-1 max-w-sm">
-            <div className="text-xs uppercase tracking-wide text-slate-500">Connected Wallet</div>
-            <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
+          <Card className="border border-slate-200 bg-white/70 shadow-sm px-4 py-3 flex items-center gap-3 max-w-sm">
+            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white grid place-items-center font-semibold text-sm">
+              {avatarLabel}
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Connected Wallet</div>
+              <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
+            </div>
           </Card>
         </div>
 
