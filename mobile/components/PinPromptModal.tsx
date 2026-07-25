@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Modal, StyleSheet, TextInput, View } from 'react-native';
 import { ThemedButton, ThemedCustomText } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
+import { useState } from 'react';
+import { Modal, StyleSheet, TextInput, View } from 'react-native';
 
 interface PinPromptModalProps {
   visible: boolean;

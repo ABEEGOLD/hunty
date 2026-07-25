@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getPlayerSeasonBadges, getAllSeasonBadges, awardSeasonBadge } from "@/lib/seasonStore";
-import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { awardSeasonBadge,getAllSeasonBadges, getPlayerSeasonBadges } from "@/lib/seasonStore";
 
 /**
  * GET /api/v1/seasons/badges

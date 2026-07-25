@@ -1,15 +1,16 @@
+import { useHaptics } from '@hooks/useHaptics';
+import { useTheme } from '@providers/ThemeProvider';
 import React, { useState } from 'react';
 import {
-  Pressable,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  PressableProps,
   ActivityIndicator,
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  TextStyle,
+  ViewStyle,
 } from 'react-native';
-import { useTheme } from '@providers/ThemeProvider';
+
 import { ThemedCustomText } from './ThemedCustomText';
-import { useHaptics } from '@hooks/useHaptics';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';

@@ -9,9 +9,10 @@
  * Rendered by HuntsList while data loads.
  */
 
+import { useTheme } from '@providers/ThemeProvider';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '@providers/ThemeProvider';
+
 import { SkeletonBase } from './SkeletonBase';
 
 export function HuntCardSkeleton() {

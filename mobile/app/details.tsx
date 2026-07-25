@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
 import { ThemedCustomText, ThemedView } from '@components/themed';
+import type { Clue, StoredHunt } from '@lib/types';
 import { useTheme } from '@providers/ThemeProvider';
 import { getHuntById, getHuntClues } from '@store/huntStore';
 import { usePlayerStore } from '@store/useStore';
-import type { Clue, StoredHunt } from '@lib/types';
-import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function DetailsScreen() {
   const router = useRouter();

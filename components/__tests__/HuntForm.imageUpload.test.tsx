@@ -1,10 +1,11 @@
-import React from "react"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { HuntForm } from "../HuntForm"
 import type { HuntDraft } from "@/lib/types"
+
+import { HuntForm } from "../HuntForm"
 
 const { loggerError, toastError, uploadToIPFSMock } = vi.hoisted(() => ({
   loggerError: vi.fn(),

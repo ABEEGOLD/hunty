@@ -1,15 +1,16 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Platform,
   Dimensions,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ThemedView, ThemedCustomText } from './themed';
+
+import { ThemedCustomText,ThemedView } from './themed';
 
 interface Clue {
   id: number;

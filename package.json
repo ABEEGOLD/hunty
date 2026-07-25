@@ -92,6 +92,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-storybook": "^10.4.6",
     "jsdom": "^28.1.0",
     "node-mocks-http": "^1.12.1",

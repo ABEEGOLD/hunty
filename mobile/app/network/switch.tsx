@@ -1,7 +1,7 @@
-import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
+import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
 export default function NetworkSwitchInstructionsScreen() {
   const router = useRouter();

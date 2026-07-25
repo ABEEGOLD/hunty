@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
-import { Dialog, DialogContent } from './ui/dialog';
-import { Button } from './ui/button';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+
+import { Button } from './ui/button';
+import { Dialog, DialogContent } from './ui/dialog';
 
 interface QrCodeModalProps {
   open: boolean;

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server"
 import fs from "fs"
+import { NextResponse } from "next/server"
 import path from "path"
+
 import { SEED_HUNTS } from "@/lib/huntStore"
 
 const FILE_PATH = path.join(process.cwd(), "lib", "featuredHuntServer.json")

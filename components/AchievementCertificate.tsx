@@ -1,7 +1,7 @@
 "use client"
 
+import { ShieldCheck,Star, Trophy } from "lucide-react"
 import React, { forwardRef } from "react"
-import { Trophy, Star, ShieldCheck } from "lucide-react"
 
 interface AchievementCertificateProps {
   playerName?: string

@@ -1,6 +1,6 @@
+import { useHaptics } from '@hooks/useHaptics';
 import React from 'react';
 import { RefreshControl, RefreshControlProps } from 'react-native';
-import { useHaptics } from '@hooks/useHaptics';
 
 interface Props extends RefreshControlProps {
   onRefresh: () => void;

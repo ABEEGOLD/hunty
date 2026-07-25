@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native'
 import { View } from 'react-native'
+
 import { Button } from '../../shared/components/native/Button'
 
 const meta = {

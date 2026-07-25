@@ -1,9 +1,10 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { addHunt, takeHuntStoreSnapshot, restoreHuntStoreSnapshot, updateHuntStatus } from "@/lib/huntStore"
-import type { StoredHunt } from "@/lib/types"
+
+import { addHunt, restoreHuntStoreSnapshot, takeHuntStoreSnapshot, updateHuntStatus } from "@/lib/huntStore"
 import { queryKeys } from "@/lib/queryKeys"
+import type { StoredHunt } from "@/lib/types"
 
 export function useCreateHuntMutation() {
   const queryClient = useQueryClient()

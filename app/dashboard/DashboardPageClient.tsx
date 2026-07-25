@@ -1,32 +1,33 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useCallback, useEffect, useMemo, useState } from "react"
+
 import { Header } from "@/components/Header"
 import { HuntDashboard } from "@/components/HuntDashboard"
 import { RewardHistoryPanel } from "@/components/RewardHistoryPanel"
-import type { StoredHunt } from "@/lib/types"
-import {
-  getCreatorHunts,
-  updateHuntStatus,
-  saveClueLocally,
-  takeHuntStoreSnapshot,
-  restoreHuntStoreSnapshot,
-} from "@/lib/huntStore"
+import { Button } from "@/components/ui/button"
 import { activateHunt, addClue } from "@/lib/contracts/hunt"
-import { withTransactionToast } from "@/lib/txToast"
 import {
   buildHuntHistoryQuery,
   getHuntHistoryView,
+  type HuntHistorySortOption,
+  type HuntHistoryStatusFilter,
   parseHuntHistoryPage,
   parseHuntHistorySortOption,
   parseHuntHistoryStatusFilter,
-  type HuntHistorySortOption,
-  type HuntHistoryStatusFilter,
 } from "@/lib/huntHistory"
+import {
+  getCreatorHunts,
+  restoreHuntStoreSnapshot,
+  saveClueLocally,
+  takeHuntStoreSnapshot,
+  updateHuntStatus,
+} from "@/lib/huntStore"
+import { withTransactionToast } from "@/lib/txToast"
+import type { StoredHunt } from "@/lib/types"
 
 type SearchParamValue = string | string[] | undefined
 

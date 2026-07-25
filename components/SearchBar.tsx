@@ -2,10 +2,12 @@
 
 'use client';
 
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import './globals.css';
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+
 import KeyboardShortcutsProvider from '../components/KeyboardShortcutsProvider';
 
 const inter = Inter({ subsets: ['latin'] });

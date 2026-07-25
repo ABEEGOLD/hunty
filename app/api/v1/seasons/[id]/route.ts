@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSeasonById, updateSeasonStatus, archiveSeason, getCurrentSeasonLeaderboard } from "@/lib/seasonStore";
-import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { archiveSeason, getCurrentSeasonLeaderboard,getSeasonById, updateSeasonStatus } from "@/lib/seasonStore";
 
 /**
  * GET /api/v1/seasons/[id]

@@ -1,3 +1,10 @@
+import { ThemedButton, ThemedCustomText, ThemedInput } from '@components/themed';
+import {
+  EMPTY_ANSWER_ERROR,
+  isValidClueAnswer,
+  normalizeClueAnswer,
+} from '@lib/clueAnswerValidation';
+import { useTheme } from '@providers/ThemeProvider';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -8,13 +15,6 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ThemedButton, ThemedCustomText, ThemedInput } from '@components/themed';
-import { useTheme } from '@providers/ThemeProvider';
-import {
-  EMPTY_ANSWER_ERROR,
-  isValidClueAnswer,
-  normalizeClueAnswer,
-} from '@lib/clueAnswerValidation';
 
 export interface ClueTextAnswerModalProps {
   visible: boolean;

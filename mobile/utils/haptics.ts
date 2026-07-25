@@ -1,6 +1,6 @@
 export {
-  triggerNotification,
-  triggerImpact,
-  triggerSelection,
   hapticTriggers,
+  triggerImpact,
+  triggerNotification,
+  triggerSelection,
 } from "../../lib/haptics"

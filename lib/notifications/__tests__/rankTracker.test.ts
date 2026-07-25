@@ -1,16 +1,18 @@
 import { beforeEach, describe, expect, it } from "vitest"
+
+import type { LeaderboardEntry } from "@/lib/types"
+
 import {
+  clearNotifications,
   detectRankChanges,
   getStoredNotifications,
-  storeSnapshot,
   getStoredSnapshot,
-  saveNotifications,
-  markNotificationRead,
-  markAllNotificationsRead,
-  clearNotifications,
   getUnreadNotificationCount,
+  markAllNotificationsRead,
+  markNotificationRead,
+  saveNotifications,
+  storeSnapshot,
 } from "../rankTracker"
-import type { LeaderboardEntry } from "@/lib/types"
 
 describe("rankTracker", () => {
   const mockHuntId = 1

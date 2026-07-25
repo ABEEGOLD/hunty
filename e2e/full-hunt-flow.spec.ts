@@ -13,8 +13,9 @@
  * is required.
  */
 
-import { test, expect, type Page } from "@playwright/test";
-import { injectMockWallet, seedHuntData, MOCK_PUBLIC_KEY } from "./helpers/mock-wallet";
+import { expect, type Page,test } from "@playwright/test";
+
+import { injectMockWallet, MOCK_PUBLIC_KEY,seedHuntData } from "./helpers/mock-wallet";
 
 // ---------------------------------------------------------------------------
 // Fixtures

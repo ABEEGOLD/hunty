@@ -1,20 +1,20 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import * as Sentry from '@sentry/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sentry from '@sentry/react-native';
 import {
-  initializeAnalytics,
-  trackEvent,
-  trackScreenView,
-  trackUserAction,
-  trackAppStart,
-  trackScreenLoad,
-  reportError,
-  setUserContext,
   getOptOutStatus,
+  initializeAnalytics,
+  onNavigationStateChange,
   optIn,
   optOut,
-  onNavigationStateChange,
+  reportError,
+  setUserContext,
+  trackAppStart,
+  trackEvent,
+  trackScreenLoad,
+  trackScreenView,
+  trackUserAction,
 } from '@services/analytics';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ───────────────────────────────────────────────────────────
 // Mocks

@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger"
-import type { LeaderboardRankNotification } from "./types"
+
 import { getStoredNotifications, saveNotifications } from "./rankTracker"
+import type { LeaderboardRankNotification } from "./types"
 
 const WEEKLY_DIGEST_KEY = "hunty_weekly_digest_last_sent"
 

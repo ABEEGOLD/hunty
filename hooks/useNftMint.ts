@@ -2,14 +2,15 @@
 
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  mintHuntRewardNft,
-  estimateMintFee,
-  saveMintReceipt,
-  type FeeEstimate,
-  type MintResult,
-} from "@/lib/nft/minter";
+
 import type { MintStage } from "@/lib/nft/minter";
+import {
+  estimateMintFee,
+  type FeeEstimate,
+  mintHuntRewardNft,
+  type MintResult,
+  saveMintReceipt,
+} from "@/lib/nft/minter";
 
 export type { MintStage } from "@/lib/nft/minter";
 

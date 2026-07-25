@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { checkRegistrationStatus } from "@/lib/contracts/player-registration";
-import type { RegistrationStatus } from "@/lib/types";
+
 import { RegistrationButton } from "@/components/RegistrationButton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { checkRegistrationStatus } from "@/lib/contracts/player-registration";
 import { debounce } from "@/lib/debounce";
 import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
+import type { RegistrationStatus } from "@/lib/types";
 
 interface PlayInterfaceGuardProps {
   huntId: number;

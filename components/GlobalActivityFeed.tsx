@@ -1,16 +1,17 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { CheckCircle2, Heart,Loader2, Trophy } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Trophy, CheckCircle2, Loader2, Heart } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { logger } from "@/lib/logger";
+
 import {
   type ActivityEvent,
   anonymizeAddress,
   getRecentActivity,
 } from "@/lib/contracts/activityFeed"
+import { logger } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Helpers

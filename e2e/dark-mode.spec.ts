@@ -11,7 +11,8 @@
  * 6. Manual override persists after system preference changes
  */
 
-import { test, expect } from "@playwright/test";
+import { expect,test } from "@playwright/test";
+
 import { injectMockWallet, seedHuntData } from "./helpers/mock-wallet";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

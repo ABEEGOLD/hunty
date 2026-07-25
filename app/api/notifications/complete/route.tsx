@@ -1,6 +1,7 @@
-import { Resend } from 'resend';
-import { HuntCompletionEmail } from '@/components/emails/HuntCompletionEmail';
 import { NextResponse } from 'next/server';
+import { Resend } from 'resend';
+
+import { HuntCompletionEmail } from '@/components/emails/HuntCompletionEmail';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {

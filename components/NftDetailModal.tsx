@@ -1,20 +1,20 @@
 "use client";
 
-import React from "react"
-import Image from "next/image"
 import { motion } from "framer-motion"
+import { Calendar, Download, ExternalLink, Send,Share2, Trophy, Zap } from "lucide-react"
+import Image from "next/image"
+import React from "react"
+
+import { Button } from "@/components/ui/button"
 import { 
   Dialog, 
   DialogContent, 
+  DialogDescription, 
   DialogHeader, 
-  DialogTitle, 
-  DialogDescription 
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { Calendar, Trophy, Zap, Share2, Download, ExternalLink, Send } from "lucide-react"
-import { resolveImageSrc } from "@/lib/ipfs"
+  DialogTitle} from "@/components/ui/dialog"
 import { formatISOString } from "@/lib/dateUtils"
+import { resolveImageSrc } from "@/lib/ipfs"
+import { cn } from "@/lib/utils"
 
 interface NftAttribute {
   trait_type: string;

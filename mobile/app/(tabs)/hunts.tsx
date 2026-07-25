@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { useHaptics } from '@hooks/useHaptics';
+import type { StoredHunt } from '@lib/types';
 import { useTheme } from '@providers/ThemeProvider';
 import { useToast } from '@providers/ToastProvider';
 import { getAllHunts } from '@store/huntStore';
 import { usePlayerStore, useWalletStore } from '@store/useStore';
-import type { StoredHunt } from '@lib/types';
+import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 function rewardLabel(hunt: StoredHunt) {
   if (hunt.rewardType === 'Both') return '100 XLM + NFT';

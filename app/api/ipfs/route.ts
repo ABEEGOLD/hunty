@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+
 import { logger } from "@/lib/logger"
 
 const PINATA_JWT = process.env.PINATA_JWT

@@ -1,32 +1,34 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import Coin from "./icons/Coin";
-import { useIsMounted } from "@/hooks/useIsMounted";
-import { useWallet } from "@/lib/context/WalletContext";
-import { WalletBottomSheet } from "./WalletBottomSheet";
-import { ThemeToggle } from "./ThemeToggle";
 import {
-  Copy,
-  LogOut,
-  Check,
   Bell,
-  Search,
-  X,
-  Menu,
-  Compass,
-  Trophy,
-  PlusCircle,
-  User,
+  Check,
   ChevronDown,
+  Compass,
+  Copy,
   Gamepad2,
   HelpCircle,
+  LogOut,
+  Menu,
+  PlusCircle,
+  Search,
+  Trophy,
+  User,
+  X,
 } from "lucide-react";
+import Link from "next/link";
+import { useCallback,useEffect, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { useIsMounted } from "@/hooks/useIsMounted";
+import { useWallet } from "@/lib/context/WalletContext";
 import { getUnreadNotificationCount } from "@/lib/notifications/rankTracker"
 import { createWeeklyDigestNotification, shouldSendWeeklyDigest } from "@/lib/notifications/weeklyDigest"
+import { cn } from "@/lib/utils";
+
+import Coin from "./icons/Coin";
+import { ThemeToggle } from "./ThemeToggle";
+import { WalletBottomSheet } from "./WalletBottomSheet";
 
 // ÔöÇÔöÇÔöÇ Nav structure ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 

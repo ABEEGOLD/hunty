@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+
 import { DashboardPageClient } from "@/app/dashboard/DashboardPageClient"
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://hunty.app"

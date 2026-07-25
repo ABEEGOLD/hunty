@@ -1,7 +1,8 @@
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
 import type { SharedCardProps } from '@shared/types/components'
+import { cva, type VariantProps } from 'class-variance-authority'
+import * as React from 'react'
+
+import { cn } from '@/lib/utils'
 
 const cardVariants = cva(
   'flex flex-col rounded-xl text-card-foreground',

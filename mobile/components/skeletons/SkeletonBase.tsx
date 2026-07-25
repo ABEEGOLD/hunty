@@ -9,17 +9,17 @@
  *   <SkeletonBase width={200} height={16} borderRadius={4} />
  */
 
+import { useTheme } from '@providers/ThemeProvider';
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
-  useSharedValue,
+  Easing,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
-  Easing,
 } from 'react-native-reanimated';
-import { useTheme } from '@providers/ThemeProvider';
 
 interface SkeletonBaseProps {
   width: number | `${number}%`;

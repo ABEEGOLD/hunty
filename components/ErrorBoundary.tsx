@@ -1,6 +1,7 @@
 "use client"
 
 import { Component, type ErrorInfo, type ReactNode } from "react"
+
 import { logger } from "@/lib/logger"
 
 type Props = {

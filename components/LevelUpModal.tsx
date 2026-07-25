@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
-import { useReducedMotion } from "framer-motion"
 import confetti from "canvas-confetti"
+import { useReducedMotion } from "framer-motion"
+import { useEffect } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getLevelTierForXp } from "@/lib/level"

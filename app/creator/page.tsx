@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { ArrowLeft, BarChart3, HelpCircle,Pencil } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Pencil, BarChart3, HelpCircle } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 
@@ -14,9 +15,9 @@ const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
 import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { useWallet } from "@/lib/context/WalletContext"
-import type { StoredHunt } from "@/lib/types"
 import { getHuntsByCreator } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
+import type { StoredHunt } from "@/lib/types"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
   const config = {

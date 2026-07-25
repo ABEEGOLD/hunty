@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest"
-import { getAllHuntsIncludingPrivate, addHunt, setLocalFeaturedHunt } from "@/lib/huntStore"
+import { beforeEach,describe, expect, it } from "vitest"
+
+import { addHunt, getAllHuntsIncludingPrivate, setLocalFeaturedHunt } from "@/lib/huntStore"
 import type { StoredHunt } from "@/lib/types"
 
 // Mock localStorage

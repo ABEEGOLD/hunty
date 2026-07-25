@@ -1,9 +1,10 @@
+import { ThemedCustomText } from '@components/themed/ThemedCustomText'
+import { useTheme } from '@providers/ThemeProvider'
+import type { SharedEmptyStateProps } from '@shared/types/components'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
-import { useTheme } from '@providers/ThemeProvider'
-import { ThemedCustomText } from '@components/themed/ThemedCustomText'
+
 import { Button } from './Button'
-import type { SharedEmptyStateProps } from '@shared/types/components'
 
 export interface EmptyStateProps extends SharedEmptyStateProps {}
 

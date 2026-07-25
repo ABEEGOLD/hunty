@@ -1,10 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { ArrowLeft, BarChart3 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+
 import { Header } from "@/components/Header"
 import { PerformanceDashboard } from "@/components/PerformanceDashboard"
+import { Button } from "@/components/ui/button"
 
 export default function AdminPerformancePage() {
   return (

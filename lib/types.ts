@@ -4,6 +4,7 @@
  */
 
 import type { ReactNode } from "react"
+
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
 
 // ─── Hunt ────────────────────────────────────────────────────────────────────

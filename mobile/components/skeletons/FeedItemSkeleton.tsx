@@ -1,5 +1,6 @@
-import { StyleSheet } from 'react-native';
 import { ThemedView } from '@components/themed';
+import { StyleSheet } from 'react-native';
+
 import { SkeletonBase } from './SkeletonBase';
 
 export function FeedItemSkeleton() {

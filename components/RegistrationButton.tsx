@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { HuntRegistrationStatus } from "@/lib/types";
 
 interface RegistrationButtonProps {

@@ -8,7 +8,7 @@
  * Returns a `ValidationResult` — never throws.
  */
 
-import type { NftMetadata, ValidationResult, ValidationFieldError } from "./types"
+import type { NftMetadata, ValidationFieldError,ValidationResult } from "./types"
 
 /** Maximum allowed serialised metadata size in bytes (64 KB). */
 const MAX_METADATA_BYTES = 64 * 1024

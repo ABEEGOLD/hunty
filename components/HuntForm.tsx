@@ -1,22 +1,24 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Eye, EyeOff,Minus, Plus, Trash2 } from "lucide-react"
 import React, { ChangeEvent, useRef, useState } from "react"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { z } from "zod"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import ToggleSwitch from "./ToggleButton"
-import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react"
-import { Controller, useFieldArray, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { addClue } from "@/lib/contracts/hunt"
-import { saveClueLocally, updateClueAnswer } from "@/lib/huntStore"
 import { sha256Hex } from "@/lib/crypto"
-import { withTransactionToast } from "@/lib/txToast"
+import { saveClueLocally, updateClueAnswer } from "@/lib/huntStore"
 import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
 import { logger } from "@/lib/logger"
-import { toast } from "sonner"
-import { HuntCards } from "./HuntCards"
+import { withTransactionToast } from "@/lib/txToast"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
+
+import { HuntCards } from "./HuntCards"
+import ToggleSwitch from "./ToggleButton"
 
 interface HuntFormProps {
   hunt: HuntDraft

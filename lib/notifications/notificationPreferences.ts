@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger"
+
 import type { NotificationPreferences } from "./types"
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "./types"
 

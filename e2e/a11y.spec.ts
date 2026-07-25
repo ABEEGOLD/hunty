@@ -1,7 +1,8 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, type Page,test } from "@playwright/test";
 import fs from "fs";
 import path from "path";
-import { test, expect, type Page } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+
 import { injectMockWallet, seedHuntData } from "./helpers/mock-wallet";
 
 const reportRoot = path.join(process.cwd(), "test-results", "a11y");

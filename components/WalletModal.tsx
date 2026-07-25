@@ -1,6 +1,8 @@
 "use client";
 
+import { Loader2,X } from "lucide-react";
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, Loader2 } from "lucide-react";
 import type { WalletProvider } from "@/lib/walletAdapter";
 
 interface WalletModalProps {

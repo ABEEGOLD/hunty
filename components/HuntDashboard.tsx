@@ -1,11 +1,15 @@
 "use client"
 
+import { BarChart3, Copy, List,Plus, Trash2, Trophy, X } from "lucide-react"
 import Link from "next/link"
-import { useState, type MouseEvent as ReactMouseEvent } from "react"
-import { Plus, Trash2, Trophy, Copy, X, BarChart3, List } from "lucide-react"
+import { type MouseEvent as ReactMouseEvent,useState } from "react"
 import { toast } from "sonner"
+
+import { ActivateHuntModal } from "@/components/ActivateHuntModal"
+import { CreatorAnalytics } from "@/components/CreatorAnalytics"
+import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { RewardPoolManager } from "@/components/RewardPoolManager"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -14,18 +18,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ActivateHuntModal } from "@/components/ActivateHuntModal"
-import { RewardPoolManager } from "@/components/RewardPoolManager"
-import { LeaderboardTable } from "@/components/LeaderBoardTable"
-import { CreatorAnalytics } from "@/components/CreatorAnalytics"
-import { deleteHunts, archiveHunts } from "@/lib/huntStore"
+import { Input } from "@/components/ui/input"
 import {
   HUNT_HISTORY_STATUS_FILTERS,
   type HuntHistorySortOption,
   type HuntHistoryStatusFilter,
 } from "@/lib/huntHistory"
-import { cn } from "@/lib/utils"
+import { archiveHunts,deleteHunts } from "@/lib/huntStore"
 import type { ClueRow, StoredHunt } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface HuntDashboardProps {
   hunts: StoredHunt[]

@@ -5,11 +5,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+
 import {
-  generateBreadcrumbs,
-  truncateBreadcrumbs,
   type BreadcrumbItem,
   type DynamicLabelResolver,
+  generateBreadcrumbs,
+  truncateBreadcrumbs,
 } from "@/lib/breadcrumbs";
 
 interface BreadcrumbProps {

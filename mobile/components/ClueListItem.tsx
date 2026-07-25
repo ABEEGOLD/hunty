@@ -9,17 +9,17 @@
  * The animation fires once when `isUnlocked` transitions false → true.
  */
 
+import type { ClueInfo } from '@lib/types';
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { Pressable,StyleSheet, Text, View } from 'react-native';
 import Animated, {
-  useSharedValue,
+  runOnJS,
   useAnimatedStyle,
+  useSharedValue,
+  withSequence,
   withSpring,
   withTiming,
-  withSequence,
-  runOnJS,
 } from 'react-native-reanimated';
-import type { ClueInfo } from '@lib/types';
 
 interface ClueListItemProps {
   clue: ClueInfo;

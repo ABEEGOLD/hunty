@@ -1,7 +1,7 @@
+import { GATEWAY_COUNT,resolveImageSrc } from '@lib/ipfs';
+import { Image } from 'expo-image';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
-import { resolveImageSrc, GATEWAY_COUNT } from '@lib/ipfs';
 
 const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 

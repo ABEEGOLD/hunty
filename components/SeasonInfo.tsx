@@ -1,10 +1,12 @@
 "use client"
 
+import { Calendar, Clock,Trophy } from "lucide-react"
 import React from "react"
-import { Calendar, Trophy, Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { SeasonCountdown } from "./SeasonCountdown"
+
 import type { Season } from "@/lib/types"
+import { cn } from "@/lib/utils"
+
+import { SeasonCountdown } from "./SeasonCountdown"
 
 interface SeasonInfoProps {
   season: Season

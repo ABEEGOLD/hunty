@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { BackHandler } from 'react-native';
+
 import { registerDiagnostic, unregisterDiagnostic } from '../lib/memoryDiagnostics';
 
 export function useBackHandler(handler: () => boolean) {

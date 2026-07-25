@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  X,
+  ChevronDown,
   ChevronRight,
+  HelpCircle,
   ShieldCheck,
   Smartphone,
-  HelpCircle,
-  ChevronDown,
+  X,
 } from "lucide-react";
+import { useEffect,useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { WalletProvider } from "@/lib/walletAdapter";
 
 interface WalletBottomSheetProps {

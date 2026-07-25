@@ -4,7 +4,8 @@
  */
 
 import { logger } from "@/lib/logger"
-import { LEVEL_TIERS, calculateXpFromHunt, type LevelTier, type LevelTitle } from "./config"
+
+import { calculateXpFromHunt, LEVEL_TIERS, type LevelTier, type LevelTitle } from "./config"
 
 export interface PlayerLevelData {
   address: string

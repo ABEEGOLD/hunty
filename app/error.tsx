@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
 import Link from "next/link"
+import { useEffect } from "react"
+
 import { logger } from "@/lib/logger"
 
 export default function Error({

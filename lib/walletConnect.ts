@@ -1,10 +1,11 @@
 "use client"
 
 import { Core } from "@walletconnect/core"
-import { Web3Wallet } from "@walletconnect/web3wallet"
-import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
 import type { SessionTypes } from "@walletconnect/types"
+import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
+import { Web3Wallet } from "@walletconnect/web3wallet"
 import QRCode from "qrcode"
+
 import { logger } from "@/lib/logger"
 
 // ── Constants ───────────────────────────────────────────────────────────────

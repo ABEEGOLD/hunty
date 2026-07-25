@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { getStoredNotifications,saveNotifications } from "../rankTracker"
 import {
+  createWeeklyDigestNotification,
+  generateWeeklyDigest,
   getLastDigestTimestamp,
   setLastDigestTimestamp,
-  generateWeeklyDigest,
   shouldSendWeeklyDigest,
-  createWeeklyDigestNotification,
 } from "../weeklyDigest"
-import { saveNotifications, getStoredNotifications } from "../rankTracker"
 
 describe("weeklyDigest", () => {
   beforeEach(() => {

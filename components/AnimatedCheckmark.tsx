@@ -2,8 +2,9 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import { Check, CheckCircle2 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
+
+import { cn } from "@/lib/utils"
 
 interface AnimatedCheckmarkProps {
   asCircle?: boolean

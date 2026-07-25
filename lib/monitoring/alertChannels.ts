@@ -1,6 +1,7 @@
-import { MONITORING } from "./config"
-import type { AlertEvent, AlertChannel } from "./types"
 import { logger } from "@/lib/logger"
+
+import { MONITORING } from "./config"
+import type { AlertChannel,AlertEvent } from "./types"
 
 const sentAlerts = new Set<string>()
 const alertCooldownMs = MONITORING.alerts.cooldownMinutes * 60 * 1000

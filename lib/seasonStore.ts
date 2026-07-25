@@ -3,9 +3,9 @@
  * Persisted in localStorage to track seasons, archives, and rewards.
  */
 
-import type { Season, SeasonLeaderboardEntry, ArchivedSeason, SeasonBadge, Reward } from "@/lib/types"
+import type { ArchivedSeason, Reward,Season, SeasonBadge, SeasonLeaderboardEntry } from "@/lib/types"
 
-export type { Season, SeasonLeaderboardEntry, ArchivedSeason, SeasonBadge, Reward }
+export type { ArchivedSeason, Reward,Season, SeasonBadge, SeasonLeaderboardEntry }
 
 const SEASONS_STORAGE_KEY = "hunty_seasons"
 const ARCHIVED_SEASONS_KEY = "hunty_archived_seasons"

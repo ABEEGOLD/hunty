@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { expect,test } from '@playwright/test';
+
 import { MOCK_PUBLIC_KEY } from './helpers/mock-wallet';
 
 /**

@@ -1,7 +1,9 @@
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from './Button'
 import type { SharedEmptyStateProps } from '@shared/types/components'
+import * as React from 'react'
+
+import { cn } from '@/lib/utils'
+
+import { Button } from './Button'
 
 export interface EmptyStateProps extends SharedEmptyStateProps {
   className?: string

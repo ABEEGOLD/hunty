@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { ArrowLeft,ChevronDown, ChevronUp, Gamepad2, ShieldQuestion, Trophy, Wallet } from "lucide-react"
 import Link from "next/link"
-import { Header } from "@/components/Header"
+import { useState } from "react"
+
 import { Footer } from "@/components/Footer"
-import { ChevronDown, ChevronUp, Wallet, Gamepad2, Trophy, ShieldQuestion, ArrowLeft } from "lucide-react"
+import { Header } from "@/components/Header"
 
 interface FAQItem {
   question: string

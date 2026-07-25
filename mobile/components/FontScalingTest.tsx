@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Platform, Switch, TouchableOpacity } from 'react-native';
-import { normalizeFont, getMaxFontScale, getSafeFontSize } from '../utils/fontScaling';
+import { Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity,View } from 'react-native';
+
+import { getMaxFontScale, getSafeFontSize,normalizeFont } from '../utils/fontScaling';
 
 interface FontScalingTestProps {
   isTesting: boolean;

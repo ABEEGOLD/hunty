@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, ViewProps, StyleSheet } from 'react-native';
 import { useTheme } from '@providers/ThemeProvider';
+import React from 'react';
+import { StyleSheet,View, ViewProps } from 'react-native';
 
 interface ThemedViewProps extends ViewProps {
   lightColor?: string;

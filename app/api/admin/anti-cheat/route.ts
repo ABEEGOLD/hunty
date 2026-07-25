@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
+
 import {
-  getFlaggedUsers,
-  getAnomalyHistory,
-  getSubmissionHistory,
-  getBannedUsers,
   banUser,
-  unbanUser,
+  getAnomalyHistory,
+  getBannedUsers,
   getConfig,
+  getFlaggedUsers,
+  getSubmissionHistory,
   setConfig,
+  unbanUser,
 } from "@/lib/anti-cheat"
 
 export async function GET(req: Request) {

@@ -1,14 +1,15 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { ArrowLeft, Check, Copy, Trophy } from "lucide-react"
 import Link from "next/link"
-import { ArrowLeft, Copy, Check, Trophy } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useCallback, useEffect, useState } from "react"
+
 import { Header } from "@/components/Header"
-import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { LeaderboardFilterBar } from "@/components/LeaderboardFilterBar"
-import type { LeaderboardFilters, LeaderboardTimePeriod, LeaderboardMetric } from "@/lib/types"
+import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { Button } from "@/components/ui/button"
+import type { LeaderboardFilters, LeaderboardMetric,LeaderboardTimePeriod } from "@/lib/types"
 import type { ClueDifficulty } from "@/lib/types"
 
 const DEFAULT_FILTERS: LeaderboardFilters = {

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import Joyride, { Step, CallBackProps, STATUS, TooltipRenderProps } from "react-joyride";
-import { useWallet } from "@/lib/context/WalletContext";
 import { X } from "lucide-react";
+import React, { useEffect, useMemo,useState } from "react";
+import Joyride, { CallBackProps, STATUS, Step, TooltipRenderProps } from "react-joyride";
+
+import { useWallet } from "@/lib/context/WalletContext";
 
 interface OnboardingTourProps {
   tourType: "player" | "creator";

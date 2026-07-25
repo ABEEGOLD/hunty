@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+
 import { getHuntById } from "@/lib/huntStore";
-import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/v1/hunts/[id]

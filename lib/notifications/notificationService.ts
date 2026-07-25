@@ -1,7 +1,8 @@
 import { toast } from "sonner"
-import type { LeaderboardRankNotification } from "./types"
+
 import { shouldNotifyForRankChange } from "./notificationPreferences"
 import { saveNotifications } from "./rankTracker"
+import type { LeaderboardRankNotification } from "./types"
 
 export function handleRankNotifications(notifications: LeaderboardRankNotification[]): void {
   if (notifications.length === 0) return

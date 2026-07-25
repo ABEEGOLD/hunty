@@ -1,9 +1,10 @@
-import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
-import { renderHook, act, waitFor } from "@testing-library/react"
-import { useFreighterWallet } from "../useFreighterWallet"
+import * as freighterApi from "@stellar/freighter-api"
+import { act, renderHook, waitFor } from "@testing-library/react"
+import { afterEach,beforeEach, describe, expect, it, vi } from "vitest"
 
 import * as walletAdapter from "@/lib/walletAdapter"
-import * as freighterApi from "@stellar/freighter-api"
+
+import { useFreighterWallet } from "../useFreighterWallet"
 
 let watchCallback: ((args: { address: string; network: string; networkPassphrase: string }) => void) | null = null
 

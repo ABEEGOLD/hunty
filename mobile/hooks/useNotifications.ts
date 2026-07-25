@@ -8,13 +8,13 @@
  *   const { enabled, permissionStatus, toggle, registerForWallet } = useNotifications();
  */
 
-import { useCallback, useEffect, useState } from 'react';
 import {
   getPermissionStatus,
-  requestPermission,
   type PermissionStatus,
+  requestPermission,
 } from '@services/notifications/notificationService';
 import { registerPushToken, unregisterPushToken } from '@services/notifications/tokenRegistry';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface UseNotificationsResult {
   /** Whether push notifications are currently enabled (permission granted). */

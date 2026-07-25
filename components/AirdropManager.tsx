@@ -1,35 +1,36 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import {
+  AlertCircle,
+  CheckCircle2,
+  Gift,
+  List,
+  Loader2,
+  Play,
+  Target,
+  Users,
+  XCircle,
+} from "lucide-react"
+import React, { useEffect,useState } from "react"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import {
-  Gift,
-  Users,
-  Target,
-  List,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  Play,
-  XCircle,
-} from "lucide-react"
-import {
+  type AirdropConfig,
+  type AirdropItemType,
+  type AirdropRecord,
+  type AirdropTargetType,
+  cancelAirdrop,
   createAirdrop,
   executeAirdrop,
   getAirdropsByCreator,
-  cancelAirdrop,
-  type AirdropConfig,
-  type AirdropRecord,
-  type AirdropTargetType,
-  type AirdropItemType,
 } from "@/lib/nft/airdrop"
 
 interface AirdropManagerProps {

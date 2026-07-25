@@ -5,8 +5,9 @@
  * The design mirrors existing patterns in `huntStore.ts` (read/write helpers, localStorage keys).
  */
 
-import { getAllHunts } from '@/lib/huntStore'
 import { toast } from 'sonner'
+
+import { getAllHunts } from '@/lib/huntStore'
 // Placeholder import – real implementation would interact with on‑chain reward contracts.
 // import { distributeCompletionReward } from '@/lib/contracts/rewardManager'
 

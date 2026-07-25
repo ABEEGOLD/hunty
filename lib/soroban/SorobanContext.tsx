@@ -1,21 +1,22 @@
 "use client"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Server from "@stellar/stellar-sdk"
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from "react"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Server from "@stellar/stellar-sdk"
+
 import {
   createSorobanServer,
   getSorobanNetworkPassphrase,
-  getSorobanRpcUrl,
   getSorobanRpcOptimizer,
+  getSorobanRpcUrl,
 } from "./client"
 
 export type SorobanConnectionStatus =

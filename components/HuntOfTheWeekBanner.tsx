@@ -1,11 +1,12 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { getAllHunts } from "@/lib/huntStore"
-import { Trophy, ArrowRight, Sparkles, Award, User } from "lucide-react"
+import { ArrowRight, Award, Sparkles, Trophy, User } from "lucide-react"
+
+import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { HuntCoverImage } from "@/components/HuntCoverImage"
+import { getAllHunts } from "@/lib/huntStore"
 import { cn } from "@/lib/utils"
 
 export function HuntOfTheWeekBanner() {

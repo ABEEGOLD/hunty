@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme, type ThemePreference } from "@providers/ThemeProvider";
+import { type ThemePreference,useTheme } from "@providers/ThemeProvider";
+import React from "react";
+import { StyleSheet,Text, TouchableOpacity, View } from "react-native";
 
 const OPTIONS: {
   value: ThemePreference;

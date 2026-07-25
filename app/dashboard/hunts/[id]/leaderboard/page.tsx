@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+
 import { Header } from "@/components/Header"
-import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { LeaderboardExport } from "@/components/LeaderboardExport"
+import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { Button } from "@/components/ui/button"
 import { getHuntById } from "@/lib/huntStore"
 import type { StoredHunt } from "@/lib/types"
 

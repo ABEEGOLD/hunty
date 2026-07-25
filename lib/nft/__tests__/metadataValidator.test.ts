@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { validateNftMetadata, isValidNftMetadata } from "../metadataValidator"
+
+import { isValidNftMetadata,validateNftMetadata } from "../metadataValidator"
 import type { NftMetadata } from "../types"
 
 const VALID_METADATA: NftMetadata = {

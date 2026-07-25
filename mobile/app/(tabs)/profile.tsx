@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { EmptyState } from '@components/EmptyState';
 import { HuntyRefreshControl } from '@components/HuntyRefreshControl';
-import { useTheme } from '@providers/ThemeProvider';
-import { useWalletStore } from '@store/useStore';
+import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { formatISOString } from '@lib/dateUtils';
 import type { NftRewardDetail, PlayerHuntProgress, ProfileSummary } from '@lib/types';
+import { useTheme } from '@providers/ThemeProvider';
+import { useWalletStore } from '@store/useStore';
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 type Colors = ReturnType<typeof useTheme>['colors'];
 

@@ -8,10 +8,10 @@
  *   const { currentProgress, setProgress } = usePlayerStore()
  */
 
+import type { PlayerProgress } from "@lib/types";
+import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import * as SecureStore from "expo-secure-store";
-import type { PlayerProgress } from "@lib/types";
 
 // ─── Wallet Store ─────────────────────────────────────────────────────────────
 

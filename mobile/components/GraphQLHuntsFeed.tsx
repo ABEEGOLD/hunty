@@ -1,7 +1,7 @@
-import { FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getActiveHuntsNetworkFirst } from '@services/huntsApi';
 import { ThemedCustomText, ThemedView } from '@components/themed';
+import { getActiveHuntsNetworkFirst } from '@services/huntsApi';
+import { useQuery } from '@tanstack/react-query';
+import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 
 export function GraphQLHuntsFeed() {
   const { data: hunts = [], isLoading, isError, refetch, isRefetching } = useQuery({

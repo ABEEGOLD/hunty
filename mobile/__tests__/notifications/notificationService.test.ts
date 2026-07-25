@@ -3,12 +3,13 @@
  */
 
 import * as Notifications from 'expo-notifications';
+
 import {
-  getPermissionStatus,
-  requestPermission,
   configureNotificationHandler,
   extractPayload,
   extractResponsePayload,
+  getPermissionStatus,
+  requestPermission,
 } from '../../services/notifications/notificationService';
 
 jest.mock('expo-notifications');

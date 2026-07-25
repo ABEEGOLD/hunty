@@ -1,11 +1,12 @@
-import Server, { TransactionBuilder, Operation } from "@stellar/stellar-sdk"
-import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config"
-import { withSorobanRpcRetry } from "../soroban/rpcRetry"
+import Server, { Operation,TransactionBuilder } from "@stellar/stellar-sdk"
+
 import { RegistrationError } from "@/lib/contracts/errors"
+import type { PlayerProgress, RegistrationResult,RegistrationStatus } from "@/lib/types"
 
-import type { PlayerProgress, RegistrationStatus, RegistrationResult } from "@/lib/types"
+import { withSorobanRpcRetry } from "../soroban/rpcRetry"
+import { NETWORK_PASSPHRASE,SOROBAN_RPC_URL } from "./config"
 
-export type { PlayerProgress, RegistrationStatus, RegistrationResult }
+export type { PlayerProgress, RegistrationResult,RegistrationStatus }
 
 // RegistrationError is re-exported from the central errors module for
 // backwards-compatible imports.

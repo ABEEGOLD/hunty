@@ -1,7 +1,7 @@
-import React from 'react'
-import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 import { useTheme } from '@providers/ThemeProvider'
 import type { SharedCardProps } from '@shared/types/components'
+import React from 'react'
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 
 export interface CardProps extends SharedCardProps {
   children: React.ReactNode

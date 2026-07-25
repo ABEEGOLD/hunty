@@ -3,9 +3,9 @@
  * Persisted in localStorage so activated hunts appear in the arcade after refresh.
  */
 
-import type { HuntStatus, StoredHunt, Clue } from "@/lib/types"
+import type { Clue,HuntStatus, StoredHunt } from "@/lib/types"
 
-export type { HuntStatus, StoredHunt, Clue }
+export type { Clue,HuntStatus, StoredHunt }
 
 export type HuntStoreSnapshot = {
   hunts: StoredHunt[]

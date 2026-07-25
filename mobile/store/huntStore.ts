@@ -2,13 +2,12 @@
  * Shared hunt list for dashboard (creator hunts) and Game Arcade (active hunts).
  * Persisted in SecureStore for mobile, with AsyncStorage offline cache for clues.
  */
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
 import type { Clue, HuntStatus, StoredHunt } from '@lib/types';
-
-import type { HuntStatus, StoredHunt, Clue } from "@lib/types";
-import * as SecureStore from "expo-secure-store";
+import type { Clue,HuntStatus, StoredHunt } from "@lib/types";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scheduleHuntExpiryNotification } from "@utils/huntNotifications";
+import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 const HUNTS_KEY = 'hunty_hunts';
 const CLUES_KEY = 'hunty_clues';
 

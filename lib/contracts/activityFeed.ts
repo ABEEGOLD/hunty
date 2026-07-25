@@ -1,8 +1,7 @@
 import { getAllHunts } from "@/lib/huntStore"
+import type { ActivityEvent,ActivityEventType } from "@/lib/types"
 
-import type { ActivityEventType, ActivityEvent } from "@/lib/types"
-
-export type { ActivityEventType, ActivityEvent }
+export type { ActivityEvent,ActivityEventType }
 
 /**
  * Anonymizes a Stellar public key for public display.

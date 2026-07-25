@@ -1,12 +1,13 @@
+import { act,render, screen, waitFor } from "@testing-library/react"
 import React from "react"
-import { render, screen, waitFor, act } from "@testing-library/react"
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest"
 import { toast } from "sonner"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import * as activityFeedModule from "@/lib/contracts/activityFeed"
+import { anonymizeAddress } from "@/lib/contracts/activityFeed"
+import type { ActivityEvent } from "@/lib/types"
 
 import { GlobalActivityFeed } from "../GlobalActivityFeed"
-import * as activityFeedModule from "@/lib/contracts/activityFeed"
-import type { ActivityEvent } from "@/lib/types"
-import { anonymizeAddress } from "@/lib/contracts/activityFeed"
 
 // ---------------------------------------------------------------------------
 // Mocks

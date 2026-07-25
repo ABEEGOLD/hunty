@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { resolveImageSrc } from "@/lib/ipfs";
-import { NftDetailModal, type NftRewardDetail } from "./NftDetailModal";
+import { Star,Trophy } from "lucide-react";
+import Image from "next/image";
+import React, { useMemo, useState } from "react";
+
 import { EmptyState } from "@/components/EmptyState";
-import { Trophy, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { resolveImageSrc } from "@/lib/ipfs";
+import { cn } from "@/lib/utils";
+
+import { NftDetailModal, type NftRewardDetail } from "./NftDetailModal";
 
 interface NftGalleryProps {
   nfts: NftRewardDetail[];

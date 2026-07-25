@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { observeWebVitals, reportPerformanceMetric } from "@/lib/web-vitals"
+
 import { logger } from "@/lib/logger"
+import { observeWebVitals, reportPerformanceMetric } from "@/lib/web-vitals"
 
 export function WebVitalsReporter() {
   const reported = useRef(new Set<string>())

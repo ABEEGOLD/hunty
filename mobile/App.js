@@ -1,11 +1,12 @@
-import React from 'react';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import RootLayout from './app/_layout';
+import { initializeSentry, Sentry } from './config/sentry';
 import ReactQueryProvider from './providers/ReactQueryProvider';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { initializeSplashScreen } from './utils/splashScreenManager';
-import RootLayout from './app/_layout';
-import { initializeSentry, Sentry } from './config/sentry';
 
 // Initialize splash screen on app start
 initializeSplashScreen();

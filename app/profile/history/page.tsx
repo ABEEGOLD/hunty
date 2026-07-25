@@ -1,8 +1,9 @@
 "use client"
 
-import { useContext, useEffect, useState } from "react"
-import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { useContext, useEffect, useState } from "react"
+
 import { Header } from "@/components/Header"
 import { HuntHistoryViewer } from "@/components/HuntHistoryViewer"
 import { Button } from "@/components/ui/button"

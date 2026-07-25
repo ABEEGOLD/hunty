@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
 import { promises as fs } from "fs"
+import { NextRequest, NextResponse } from "next/server"
 import path from "path"
 
 const PERFORMANCE_STORE_PATH = path.join(

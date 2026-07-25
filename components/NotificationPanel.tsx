@@ -1,16 +1,17 @@
 "use client"
 
-import React, { useEffect, useState, useCallback } from "react"
-import { Bell, ChevronUp, ChevronDown, ArrowUp, ArrowDown, Users, X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ArrowDown, ArrowUp, Bell, ChevronDown, ChevronUp, Users, X } from "lucide-react"
+import React, { useCallback,useEffect, useState } from "react"
+
 import {
-  getStoredNotifications,
-  markNotificationRead,
-  markAllNotificationsRead,
   clearNotifications,
+  getStoredNotifications,
   getUnreadNotificationCount,
+  markAllNotificationsRead,
+  markNotificationRead,
 } from "@/lib/notifications/rankTracker"
 import type { LeaderboardRankNotification } from "@/lib/notifications/types"
+import { cn } from "@/lib/utils"
 
 interface NotificationPanelProps {
   open: boolean

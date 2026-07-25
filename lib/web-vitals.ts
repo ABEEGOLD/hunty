@@ -1,7 +1,8 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals"
-import type { WebVitalMetric, PerformanceMetric } from "@/lib/types"
-import { getRating } from "@/lib/performance-budgets"
+
 import { logger } from "@/lib/logger"
+import { getRating } from "@/lib/performance-budgets"
+import type { PerformanceMetric,WebVitalMetric } from "@/lib/types"
 
 type ReportCallback = (metric: PerformanceMetric) => void
 

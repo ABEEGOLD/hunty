@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ThemedCustomText, ThemedView } from '@components/themed';
+import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
+import { CluesList } from '@components/CluesList';
 import { QRScanner } from '@components/QRScanner';
+import { ThemedCustomText, ThemedView } from '@components/themed';
+import { useHaptics } from '@hooks/useHaptics';
+import type { Clue, StoredHunt } from '@lib/types';
 import { useTheme } from '@providers/ThemeProvider';
 import { getHuntById, getHuntClues } from '@store/huntStore';
 import { usePlayerStore } from '@store/useStore';
-import { CluesList } from '@components/CluesList';
-import type { Clue, StoredHunt } from '@lib/types';
-import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+
 import { verifyClueGeofence } from '@/lib/locationGate';
-import { useHaptics } from '@hooks/useHaptics';
 
 export default function NestedScreen() {
   const router = useRouter();

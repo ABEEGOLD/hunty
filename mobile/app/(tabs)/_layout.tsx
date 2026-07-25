@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
-import { useTheme } from '@providers/ThemeProvider';
 import { StackHeader } from '@components/navigation/StackHeader';
+import { useTheme } from '@providers/ThemeProvider';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   const { colors, isDark } = useTheme();

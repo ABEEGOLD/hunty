@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock react-native's Platform module to simulate different environments
 vi.mock('react-native', () => ({
@@ -25,10 +25,10 @@ vi.mock('expo-haptics', () => ({
 }));
 
 import {
-  triggerNotification,
-  triggerImpact,
-  triggerSelection,
   hapticTriggers,
+  triggerImpact,
+  triggerNotification,
+  triggerSelection,
 } from '../haptics';
 
 describe('Haptics Platform Safety', () => {

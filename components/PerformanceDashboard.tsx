@@ -8,9 +8,9 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-
 import { PERFORMANCE_BUDGETS } from "@/lib/performance-budgets"
 
 type MetricSummary = {

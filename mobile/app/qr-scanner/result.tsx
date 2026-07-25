@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import React from 'react';
+import { Button,StyleSheet, Text, View } from 'react-native';
 
 export default function QRResultScreen() {
   const { data } = useLocalSearchParams();

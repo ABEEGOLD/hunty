@@ -1,5 +1,5 @@
-import { useCallback, useRef, useEffect } from 'react';
 import { useAnalytics as useAnalyticsContext } from '@providers/AnalyticsProvider';
+import { useCallback, useEffect,useRef } from 'react';
 
 /**
  * Hook for tracking screen-specific analytics with automatic

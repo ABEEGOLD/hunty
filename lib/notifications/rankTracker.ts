@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger"
 import type { LeaderboardEntry } from "@/lib/types"
-import type { LeaderboardRankNotification, RankSnapshot, HuntRankSnapshot } from "./types"
+
+import type { HuntRankSnapshot,LeaderboardRankNotification, RankSnapshot } from "./types"
 
 const SNAPSHOT_PREFIX = "hunty_rank_snapshot_"
 const NOTIFICATIONS_KEY = "hunty_leaderboard_notifications"

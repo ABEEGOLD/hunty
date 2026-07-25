@@ -1,19 +1,20 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 import { ArrowLeft, Download, RotateCcw, Trophy } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
+
+import { AchievementCertificate } from "@/components/AchievementCertificate"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AchievementCertificate } from "@/components/AchievementCertificate"
-import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import { get_hunt_fastest_players } from "@/lib/contracts/hunt"
+import { formatISOString } from "@/lib/dateUtils"
+import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import {
   compareAttemptWithLeaderboard,
   formatDuration,
   prepareHuntReattempt,
 } from "@/lib/huntAttemptHistory"
-import { formatISOString } from "@/lib/dateUtils"
 import { logger } from "@/lib/logger"
 import type { HuntAttemptRecord, HuntAttemptTimeComparison } from "@/lib/types"
 

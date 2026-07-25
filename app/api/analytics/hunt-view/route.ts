@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+
 import { getAllHuntViewCounts, getHuntViewCount, recordHuntView } from "@/lib/analytics"
 
 export async function POST(request: NextRequest) {

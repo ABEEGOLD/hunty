@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 
-import React from "react"
-import { render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { render, screen, waitFor } from "@testing-library/react"
+import React from "react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import * as huntStore from "@/lib/huntStore"
 
 import { PlayGame } from "../PlayGame"
-import * as huntStore from "@/lib/huntStore"
 
 const { toastError } = vi.hoisted(() => ({
   toastError: vi.fn(),

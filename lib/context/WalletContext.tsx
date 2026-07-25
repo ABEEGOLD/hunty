@@ -1,20 +1,21 @@
 "use client"
 
 import {
+  getAddress,
+  isConnected,
+  requestAccess,
+  WatchWalletChanges,
+} from "@stellar/freighter-api"
+import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from "react"
-import {
-  isConnected,
-  getAddress,
-  requestAccess,
-  WatchWalletChanges,
-} from "@stellar/freighter-api"
+
 import { useIsMounted } from "@/hooks/useIsMounted"
 import {
   clearStoredWalletSession,

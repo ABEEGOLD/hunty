@@ -1,8 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { Check, Copy, ExternalLink,QrCode, Smartphone, X } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
-import { X, Smartphone, QrCode, Copy, Check, ExternalLink } from "lucide-react"
+import { useCallback,useEffect, useState } from "react"
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,7 +13,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { toast } from "sonner"
 import { logger } from "@/lib/logger"
 import {
   connectWalletConnect,

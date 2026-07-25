@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getHuntById } from '@store/huntStore';
-import { ThemedCustomText, ThemedView } from '@components/themed';
 import { HuntCoverImage } from '@components/HuntCoverImage';
+import { ThemedCustomText, ThemedView } from '@components/themed';
+import { getHuntById } from '@store/huntStore';
+import { useQuery } from '@tanstack/react-query';
+import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 export default function HuntDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

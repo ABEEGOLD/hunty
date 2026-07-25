@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useToast } from '@providers/ToastProvider';
 import NetInfo from '@react-native-community/netinfo';
 import { processQueuedAnswers } from '@store/huntStore';
-import { useToast } from '@providers/ToastProvider';
+import { useEffect } from 'react';
 
 export const useSyncQueue = () => {
   const { showToast } = useToast();

@@ -1,20 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import confetti from "canvas-confetti";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Loader2, Printer } from "lucide-react";
-import picture from "@/public/static-images/image1.png";
+import Image from "next/image";
+import React, { useEffect, useRef,useState } from "react";
+
 import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
-import { cn } from "@/lib/utils";
-import sanitizeHtml from "@/lib/sanitizeHtml";
-import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
-import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
-import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
-import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
-import type { HuntCard as Hunt } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { usePlayerCount } from "@/hooks/usePlayerCount";
+import { AnswerIncorrectError, pollTransaction,submitAnswer } from "@/lib/contracts/hunt";
+import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
+import { GATEWAY_COUNT,resolveImageSrc } from "@/lib/ipfs";
+import sanitizeHtml from "@/lib/sanitizeHtml";
+import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
+import type { HuntCard as Hunt } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import picture from "@/public/static-images/image1.png";
 
 export type { Hunt };
 

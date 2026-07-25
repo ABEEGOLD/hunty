@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest"
-import { useRecentlyCompleted, MAX_RECENTLY_COMPLETED } from "../useRecentlyCompleted"
 import { renderHook } from "@testing-library/react"
+import { describe, expect, it } from "vitest"
+
 import type { StoredHunt } from "@/lib/types"
+
+import { MAX_RECENTLY_COMPLETED,useRecentlyCompleted } from "../useRecentlyCompleted"
 
 describe("useRecentlyCompleted", () => {
   const baseHunts: StoredHunt[] = [

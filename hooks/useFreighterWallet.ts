@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
 import {
-  isConnected,
   getAddress,
+  isConnected,
   requestAccess,
   WatchWalletChanges,
 } from "@stellar/freighter-api";
-import { useIsMounted } from "./useIsMounted";
+import { useEffect, useState } from "react";
+
 import {
   clearStoredWalletSession,
   connectWalletProvider,
@@ -13,6 +13,8 @@ import {
   setStoredWalletSession,
   type WalletProvider,
 } from "@/lib/walletAdapter";
+
+import { useIsMounted } from "./useIsMounted";
 
 const STORAGE_KEY = "freighter_public_key";
 

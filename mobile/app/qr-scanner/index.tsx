@@ -1,8 +1,9 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, StyleSheet, Button, Text } from 'react-native';
+import { Button, StyleSheet, Text,View } from 'react-native';
+
 import QRCodeScanner from '../../components/QRCodeScanner';
 import { addScanEntry } from '../../utils/scanHistory';
-import { useRouter } from 'expo-router';
 
 export default function QRScannerScreen() {
   const [scanned, setScanned] = useState<string | null>(null);

@@ -7,6 +7,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import type { NotificationEventType } from './types';
 
 const PREFS_KEY = 'hunty_notification_prefs';

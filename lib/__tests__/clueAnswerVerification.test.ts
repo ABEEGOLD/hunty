@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
+
+import { isSha256Hex, matchesClueAnswer } from '../clueAnswerVerification';
 import { sha256Hex } from '../crypto';
 import type { Clue } from '../types';
-import { isSha256Hex, matchesClueAnswer } from '../clueAnswerVerification';
 
 describe('clueAnswerVerification', () => {
   it('detects sha256 hex digests', () => {

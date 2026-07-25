@@ -1,7 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { TRENDING_PLAYER_THRESHOLD, PLAYER_COUNT_CACHE_TTL_MS, type PlayerCountResult } from "@/lib/types"
+
+import { PLAYER_COUNT_CACHE_TTL_MS, type PlayerCountResult,TRENDING_PLAYER_THRESHOLD } from "@/lib/types"
+
 import { getPlayerCountFromStorage, playerCountCache } from "./usePlayerCount"
 
 function buildResult(huntId: string, count: number, fetchedAt: number): PlayerCountResult {

@@ -1,14 +1,15 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Plus, Minus } from "lucide-react"
-import Trash from "@/components/icons/trash"
+import { Minus,Plus } from "lucide-react"
+
+import { ClaimRewardFlow } from "@/components/ClaimRewardFlow"
 import Coin from "@/components/icons/Coin"
+import Trash from "@/components/icons/trash"
+import { Button } from "@/components/ui/button"
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice"
 import type { Reward, RewardPlayerProgress } from "@/lib/types"
-import { ClaimRewardFlow } from "@/components/ClaimRewardFlow"
 
-export type { Reward, RewardPlayerProgress as PlayerProgress }
+export type { RewardPlayerProgress as PlayerProgress,Reward }
 
 export interface RewardsPanelProps {
   rewards: Reward[];

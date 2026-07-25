@@ -1,4 +1,5 @@
 import type { HuntStatus, StoredHunt } from '@lib/types';
+
 import { graphqlRequest } from './client';
 import { ACTIVE_HUNTS_QUERY, HUNT_BY_ID_QUERY } from './queries';
 

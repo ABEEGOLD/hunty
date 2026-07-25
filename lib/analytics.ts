@@ -1,6 +1,7 @@
-import { promises as fs } from "fs"
 import crypto from "crypto"
+import { promises as fs } from "fs"
 import path from "path"
+
 import { logger } from "@/lib/logger"
 
 export type HuntViewStats = {

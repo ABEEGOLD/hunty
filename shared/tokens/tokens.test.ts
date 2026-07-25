@@ -2,11 +2,12 @@
  * Unit tests for shared tokens and type exports.
  * Validates the structure and invariants of the design token objects.
  */
-import { describe, it, expect } from 'vitest'
-import { colors } from './colors'
-import { spacing, radius } from './spacing'
-import { fontSizes, fontWeights, lineHeights } from './typography'
+import { describe, expect,it } from 'vitest'
+
 import * as sharedIndex from '../index'
+import { colors } from './colors'
+import { radius,spacing } from './spacing'
+import { fontSizes, fontWeights, lineHeights } from './typography'
 
 // ── Colors ────────────────────────────────────────────────────────────────
 

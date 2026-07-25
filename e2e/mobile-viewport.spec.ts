@@ -1,5 +1,6 @@
-import { test, expect, devices } from "@playwright/test";
-import { injectMockWallet, seedHuntData, MOCK_PUBLIC_KEY } from "./helpers/mock-wallet";
+import { devices,expect, test } from "@playwright/test";
+
+import { injectMockWallet, MOCK_PUBLIC_KEY,seedHuntData } from "./helpers/mock-wallet";
 
 /**
  * Mobile Viewport Tests
@@ -54,7 +55,7 @@ MOBILE_DEVICES.forEach(({ name, viewport }) => {
 
       if (await menuBtn.isVisible().catch(() => false)) {
         // Menu should be hidden initially
-        let menu = page.locator("[role='navigation']");
+        const menu = page.locator("[role='navigation']");
 
         // Open menu
         await menuBtn.click();

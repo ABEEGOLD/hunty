@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../shared/components/web/Card'
+
+import { Card, CardContent, CardDescription, CardFooter,CardHeader, CardTitle } from '../shared/components/web/Card'
 
 const meta = {
   title: 'Shared/Web/Card',

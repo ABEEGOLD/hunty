@@ -1,10 +1,11 @@
 "use client"
 
-import React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, Users } from "lucide-react"
-import { getWaitlistForHunt, getWaitlistPosition } from "@/lib/waitlist"
+import React from "react"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { WaitlistEntry } from "@/lib/types"
+import { getWaitlistForHunt, getWaitlistPosition } from "@/lib/waitlist"
 
 interface WaitlistDisplayProps {
   huntId: number

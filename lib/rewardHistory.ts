@@ -1,5 +1,5 @@
-import { getHuntsByCreator } from "@/lib/huntStore"
 import { NETWORK_PASSPHRASE } from "@/lib/contracts/config"
+import { getHuntsByCreator } from "@/lib/huntStore"
 import type { RewardHistoryEntry } from "@/lib/types"
 
 const DEFAULT_PLAYER_HISTORY: RewardHistoryEntry[] = [

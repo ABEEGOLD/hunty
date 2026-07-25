@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { Bell, BellOff, ChevronUp, ChevronDown, Users, Calendar } from "lucide-react"
+import { Bell, BellOff, Calendar,ChevronDown, ChevronUp, Users } from "lucide-react"
+import React, { useEffect,useState } from "react"
+
 import { getNotificationPreferences, setNotificationPreferences } from "@/lib/notifications/notificationPreferences"
 import type { NotificationPreferences } from "@/lib/notifications/types"
 

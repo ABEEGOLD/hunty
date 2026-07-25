@@ -1,11 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Skeleton } from "@/components/ui/skeleton"
+
 import Medal from "@/components/icons/Medal"
+import { Skeleton } from "@/components/ui/skeleton"
 import { get_hunt_fastest_players } from "@/lib/contracts/hunt"
-import type { FastestPlayerDisplayEntry } from "@/lib/types"
 import { logger } from "@/lib/logger"
+import type { FastestPlayerDisplayEntry } from "@/lib/types"
 
 interface FastestPlayersStripProps {
   huntId: number

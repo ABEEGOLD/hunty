@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getArchivedSeasons, getArchivedSeasonById } from "@/lib/seasonStore";
-import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { getArchivedSeasonById,getArchivedSeasons } from "@/lib/seasonStore";
 
 /**
  * GET /api/v1/seasons/archived

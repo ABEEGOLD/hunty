@@ -1,9 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
 import { useToast } from '@providers/ToastProvider';
 import {
-  authenticateWithFallback,
   authenticateBiometric,
+  authenticateWithFallback,
+  BiometricTypeName,
   changePin,
   clearPin,
   createPin,
@@ -12,8 +11,9 @@ import {
   getPinExists,
   setBiometricEnabled,
   verifyPin,
-  BiometricTypeName,
 } from '@services/walletSecurity';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 
 const AUTH_TIMEOUT_MS = 5 * 60 * 1000;
 

@@ -1,16 +1,17 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowLeft, Star, Trash2, RefreshCw, Trophy, Sparkles, Shield } from "lucide-react"
+import { ArrowLeft, RefreshCw, Shield,Sparkles, Star, Trash2, Trophy } from "lucide-react"
+import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
+
+import { Header } from "@/components/Header"
+import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
-import { Header } from "@/components/Header"
 import { getAllHuntsIncludingPrivate, setLocalFeaturedHunt } from "@/lib/huntStore"
 import type { StoredHunt } from "@/lib/types"
-import { toast } from "sonner"
-import { HuntCoverImage } from "@/components/HuntCoverImage"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
   const config = {

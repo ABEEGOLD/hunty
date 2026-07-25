@@ -1,8 +1,8 @@
+import { ThemedCustomText } from '@components/themed';
+import { useTheme } from '@providers/ThemeProvider';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@providers/ThemeProvider';
-import { ThemedCustomText } from '@components/themed';
 
 interface HeaderRenderArgs {
   tintColor?: string;

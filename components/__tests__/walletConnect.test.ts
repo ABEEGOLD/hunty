@@ -1,14 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { afterEach,beforeEach, describe, expect, it, vi } from "vitest"
+
 import {
-  initWalletConnect,
   connectWalletConnect,
   disconnectWalletConnect,
+  getActiveWalletConnectSession,
   getWalletConnectDeepLink,
+  initWalletConnect,
+  isWalletConnectConnected,
   openWalletDeepLink,
   signTransactionWalletConnect,
   subscribeWalletConnect,
-  isWalletConnectConnected,
-  getActiveWalletConnectSession,
 } from "@/lib/walletConnect"
 
 const mockWeb3Wallet = {

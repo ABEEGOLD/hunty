@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native'
 import { View } from 'react-native'
+
 import { Badge } from '../../shared/components/native/Badge'
 
 const meta = {
