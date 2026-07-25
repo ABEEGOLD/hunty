@@ -29,10 +29,12 @@ import { toast } from "sonner"
 import { ACHIEVEMENTS } from "@/lib/achievements/config"
 import { checkAndAwardAchievements } from "@/lib/achievements/service"
 import { logger } from "@/lib/logger"
-import type { RewardReceipt } from "@/lib/types"
+import type { HuntAttemptRecord, RewardReceipt } from "@/lib/types"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import { awardXpFromHunt, getLevelTierForXp, getPlayerLevel } from "@/lib/level"
 import { LevelUpModal } from "./LevelUpModal"
+import { formatDuration, getPlayerAttempts } from "@/lib/huntAttemptHistory"
+import { Clock3, Lightbulb, Medal, Star } from "lucide-react"
 
 interface GameCompleteModalProps {
   isOpen: boolean
@@ -78,6 +80,8 @@ export function GameCompleteModal({
     newTier: ReturnType<typeof getLevelTierForXp>;
   } | null>(null)
   const [isLevelUpModalOpen, setIsLevelUpModalOpen] = useState(false)
+  const [latestAttempt, setLatestAttempt] = useState<HuntAttemptRecord | null>(null)
+  const [selectedRating, setSelectedRating] = useState<number>(0)
 
   const { data: registrationStatus } = useQuery({
     queryKey: queryKeys.registration.status(huntId, playerAddress),
@@ -161,6 +165,27 @@ export function GameCompleteModal({
     }
   }, [isOpen, playerAddress, prefersReducedMotion, reward]);
 
+  useEffect(() => {
+    if (!isOpen || !playerAddress || !huntId) {
+      setLatestAttempt(null)
+      return
+    }
+
+    const latest = getPlayerAttempts(playerAddress, { status: "completed" })
+      .find((attempt) => attempt.huntId === huntId)
+
+    setLatestAttempt(latest ?? null)
+  }, [isOpen, playerAddress, huntId])
+
+  const totalHintsUsed = latestAttempt?.clues.reduce((sum, clue) => sum + (clue.hintsUsed ?? 0), 0) ?? 0
+  const completionTimeLabel = latestAttempt ? formatDuration(latestAttempt.totalTimeSeconds) : "--"
+  const rankLabel = rewardReceipt?.rank ? `#${rewardReceipt.rank}` : "#1"
+
+  const handleRateHunt = (rating: number) => {
+    setSelectedRating(rating)
+    toast.success(`Thanks for rating this hunt ${rating}/5!`)
+  }
+
   const handleShareAchievement = async (platform?: "twitter" | "farcaster") => {    
     if (!certificateRef.current) return
 
@@ -189,6 +214,7 @@ export function GameCompleteModal({
   }
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md text-center">
         <DialogHeader>
@@ -200,6 +226,31 @@ export function GameCompleteModal({
             <span>🥇</span>
             <span className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent text-2xl font-bold">1st Place</span>
           </div>
+
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div className="rounded-lg bg-white p-2 text-center">
+              <div className="mx-auto mb-1 w-fit rounded-full bg-indigo-100 p-1.5 text-indigo-700">
+                <Clock3 className="h-3.5 w-3.5" />
+              </div>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500">Time</p>
+              <p className="text-xs font-semibold text-slate-800">{completionTimeLabel}</p>
+            </div>
+            <div className="rounded-lg bg-white p-2 text-center">
+              <div className="mx-auto mb-1 w-fit rounded-full bg-amber-100 p-1.5 text-amber-700">
+                <Lightbulb className="h-3.5 w-3.5" />
+              </div>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500">Hints</p>
+              <p className="text-xs font-semibold text-slate-800">{totalHintsUsed}</p>
+            </div>
+            <div className="rounded-lg bg-white p-2 text-center">
+              <div className="mx-auto mb-1 w-fit rounded-full bg-emerald-100 p-1.5 text-emerald-700">
+                <Medal className="h-3.5 w-3.5" />
+              </div>
+              <p className="text-[10px] uppercase tracking-wide text-slate-500">Rank</p>
+              <p className="text-xs font-semibold text-slate-800">{rankLabel}</p>
+            </div>
+          </div>
+
           <div className="flex items-center justify-center gap-2 w-full">
             <p className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent text-xl font-normal  mb-2">You won</p>
             <div className="flex flex-col items-center gap-1">
@@ -266,6 +317,7 @@ export function GameCompleteModal({
 
           {playerProgress && (
             <div className="mt-6 border-t border-slate-100 pt-6">
+              <p className="mb-2 text-sm font-semibold text-slate-800">Claim your reward</p>
               <RewardsPanel
                 rewards={[]}
                 playerProgress={playerProgress}
@@ -334,6 +386,28 @@ export function GameCompleteModal({
             <Button onClick={onViewLeaderboard} className="w-full bg-gradient-to-b from-[#FFD43E] to-[#EC7F00] text-white text-xl font-black cursor-pointer rounded-xl h-11">
               See Leaderboard
             </Button>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left">
+              <p className="text-sm font-semibold text-slate-800">Rate this hunt</p>
+              <div className="mt-2 flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    type="button"
+                    aria-label={`Rate ${rating} star${rating > 1 ? "s" : ""}`}
+                    className="rounded-md p-1 hover:bg-slate-200"
+                    onClick={() => handleRateHunt(rating)}
+                  >
+                    <Star
+                      className={`h-4 w-4 ${rating <= selectedRating ? "fill-amber-400 text-amber-400" : "text-slate-400"}`}
+                    />
+                  </button>
+                ))}
+                {selectedRating > 0 && (
+                  <span className="ml-1 text-xs text-slate-600">{selectedRating}/5</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -359,5 +433,6 @@ export function GameCompleteModal({
         newTier={levelUpData.newTier}
       />
     )}
+    </>
   )
 }
