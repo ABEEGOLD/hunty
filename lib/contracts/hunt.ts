@@ -164,8 +164,7 @@ export async function addClue(
   question: string,
   answer: string,
   points: number,
-  hint?: string,
-  hintCost?: number,
+  hints?: import("@/lib/types").ClueHint[],
   difficulty?: import("@/lib/types").ClueDifficulty,
 ): Promise<AddClueResult> {
   if (typeof window === "undefined")
@@ -175,10 +174,6 @@ export async function addClue(
   const wallet = getActiveWalletAdapter();
   const publicKey = await wallet.getPublicKey();
 
-  // Expect `answer` to be the pre-hashed value (SHA-256 hex) computed
-  // client-side using the scheme: sha256(lowercase(answer) + `${huntId}_${clueId}`)
-  // For backwards compatibility, if a plain-text answer is provided it will be
-  // stored as-is (legacy behaviour).
   const normalizedAnswer = answer;
 
   const account = (await withSorobanRpcRetry(() =>
@@ -190,8 +185,7 @@ export async function addClue(
     question,
     answer: normalizedAnswer,
     points,
-    ...(hint ? { hint } : {}),
-    ...(hintCost ? { hint_cost: hintCost } : {}),
+    ...(hints && hints.length > 0 ? { hints } : {}),
     ...(difficulty ? { difficulty } : {}),
   });
   const key = `add_clue:${Date.now()}`;
@@ -460,6 +454,7 @@ export async function get_clue_info(
       id: clue.id,
       question: clue.question,
       points: clue.points,
+      hints: clue.hints,
       hint: clue.hint,
       hintCost: clue.hintCost,
       difficulty: clue.difficulty,

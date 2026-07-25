@@ -11,6 +11,7 @@ import {
   getConfig,
 } from "@/lib/anti-cheat"
 import { getServerClue } from "@/lib/server/seedClues"
+import { recordHintUsage } from "@/lib/analytics"
 
 export async function POST(req: Request) {
   const ip = getIP(req)
@@ -23,14 +24,22 @@ export async function POST(req: Request) {
     return rateLimitResponse(ipReset)
   }
 
-  let body: { huntId?: number; clueId?: number; answer?: string; wallet?: string; clientTimestamp?: number }
+  let body: {
+    huntId?: number
+    clueId?: number
+    answer?: string
+    wallet?: string
+    clientTimestamp?: number
+    /** Number of progressive hints the player revealed before submitting. */
+    hintsUsed?: number
+  }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
   }
 
-  const { huntId, clueId, answer, wallet, clientTimestamp } = body
+  const { huntId, clueId, answer, wallet, clientTimestamp, hintsUsed } = body
 
   if (!huntId || typeof huntId !== "number") {
     return NextResponse.json({ error: "huntId is required" }, { status: 400 })
@@ -44,6 +53,9 @@ export async function POST(req: Request) {
   if (!wallet || typeof wallet !== "string" || wallet.trim().length === 0) {
     return NextResponse.json({ error: "wallet is required" }, { status: 400 })
   }
+
+  // Clamp hintsUsed to a sane range (0-3) — never trust the client blindly
+  const validatedHintsUsed = Math.min(3, Math.max(0, typeof hintsUsed === "number" ? Math.floor(hintsUsed) : 0))
 
   if (isBanned(wallet, ip)) {
     return NextResponse.json({ error: "Account is banned due to suspicious activity" }, { status: 403 })
@@ -83,6 +95,15 @@ export async function POST(req: Request) {
     anomalyFlags,
   )
 
+  // Record each hint reveal in the analytics store (non-blocking, fire-and-forget)
+  if (correct && validatedHintsUsed > 0) {
+    for (let i = 0; i < validatedHintsUsed; i++) {
+      recordHintUsage(huntId, clueId, i, wallet).catch(() => {
+        // Analytics errors must never break the answer response
+      })
+    }
+  }
+
   if (!correct) {
     return NextResponse.json(
       { correct: false, score: 0, bonusPoints: 0, flags: anomalyFlags },
@@ -98,5 +119,6 @@ export async function POST(req: Request) {
     event: "ClueCompleted",
     serverTimestamp: Date.now(),
     flags: anomalyFlags,
+    hintsUsed: validatedHintsUsed,
   })
 }

@@ -1,13 +1,47 @@
 import type { Clue } from "@/lib/types"
 
 export const SEED_CLUES: Clue[] = [
-  { id: 1, huntId: 1, question: "What landmark is at the town center?", answer: "fountain", points: 10 },
-  { id: 2, huntId: 1, question: "Find the historic clock tower", answer: "clock tower", points: 15 },
+  {
+    id: 1, huntId: 1,
+    question: "What landmark is at the town center?",
+    answer: "fountain", points: 10,
+    hints: [
+      { text: "It's a water feature.", penalty: 2, delaySeconds: 0 },
+      { text: "People toss coins into it.", penalty: 3, delaySeconds: 30 },
+      { text: "It is made of stone and sprays water upward.", penalty: 5, delaySeconds: 60 },
+    ],
+  },
+  {
+    id: 2, huntId: 1,
+    question: "Find the historic clock tower",
+    answer: "clock tower", points: 15,
+    hints: [
+      { text: "It's a tall structure you can hear on the hour.", penalty: 3, delaySeconds: 0 },
+      { text: "Look north of the main square.", penalty: 4, delaySeconds: 45 },
+    ],
+  },
   { id: 3, huntId: 1, question: "What color is the old town hall door?", answer: "green", points: 10 },
-  { id: 4, huntId: 1, question: "Locate the hidden mural on Main Street", answer: "phoenix", points: 20 },
+  {
+    id: 4, huntId: 1,
+    question: "Locate the hidden mural on Main Street",
+    answer: "phoenix", points: 20,
+    hints: [
+      { text: "The mural depicts a mythical bird.", penalty: 4, delaySeconds: 0 },
+      { text: "It is painted on the east-facing wall of a café.", penalty: 6, delaySeconds: 60 },
+    ],
+  },
   { id: 5, huntId: 1, question: "Count the arches on the bridge", answer: "3", points: 15 },
   { id: 6, huntId: 2, question: "What is the library's mascot?", answer: "owl", points: 10 },
-  { id: 7, huntId: 2, question: "Find the oldest tree on campus", answer: "oak", points: 15 },
+  {
+    id: 7, huntId: 2,
+    question: "Find the oldest tree on campus",
+    answer: "oak", points: 15,
+    hints: [
+      { text: "It is a deciduous hardwood.", penalty: 3, delaySeconds: 0 },
+      { text: "You'll find it near the science building.", penalty: 4, delaySeconds: 30 },
+      { text: "Its trunk is over 1 metre in diameter.", penalty: 5, delaySeconds: 60 },
+    ],
+  },
   { id: 8, huntId: 2, question: "What year was the science hall built?", answer: "1965", points: 20 },
   { id: 9, huntId: 2, question: "Decode the message at the student center", answer: "carpe diem", points: 25 },
   { id: 10, huntId: 2, question: "Name the statue near the fountain", answer: "pioneer", points: 15 },
@@ -16,7 +50,14 @@ export const SEED_CLUES: Clue[] = [
   { id: 13, huntId: 3, question: "The desk where I work hides a clue", answer: "monitor", points: 10 },
   { id: 14, huntId: 3, question: "Look for the sticky note on the whiteboard", answer: "synergy", points: 15 },
   { id: 15, huntId: 3, question: "What is the coffee blend in the break room?", answer: "colombian", points: 10 },
-  { id: 16, huntId: 3, question: "Find the secret message in the server room", answer: "42", points: 20 },
+  {
+    id: 16, huntId: 3,
+    question: "Find the secret message in the server room",
+    answer: "42", points: 20,
+    hints: [
+      { text: "The answer is also the answer to life, the universe, and everything.", penalty: 5, delaySeconds: 0 },
+    ],
+  },
   { id: 17, huntId: 4, question: "Treasure is buried beneath the old pine", answer: "pine", points: 15 },
   { id: 18, huntId: 4, question: "Follow the stone path to the answer", answer: "gazebo", points: 20 },
   { id: 19, huntId: 4, question: "What is carved into the park bench?", answer: "wanderlust", points: 10 },
