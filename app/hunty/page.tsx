@@ -45,6 +45,7 @@ const EMPTY_HUNT_DRAFT: HuntDraft = {
 
 function CreateGameContent() {  
   const searchParams = useSearchParams()
+  const editHuntId = searchParams.get("edit") ? parseInt(searchParams.get("edit")!, 10) : undefined
   const [activeTab, setActiveTab] = useState<"create" | "rewards" | "publish" | "leaderboard">("create")
   const [hunts, setHunts] = useLocalStorage<HuntDraft[]>("draft-hunts", [EMPTY_HUNT_DRAFT])
   const [rewards, setRewards] = useLocalStorage<Reward[]>("draft-rewards", []);
@@ -845,7 +846,7 @@ function CreateGameContent() {
             </div>
             {/* Right Panel - Live Preview */}
               <div ref={previewContainerRef} className="hidden lg:block">
-                <GamePreview hunts={hunts} />
+                <GamePreview hunts={hunts} huntId={editHuntId} />
               </div>
             </div>
           </div>

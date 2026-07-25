@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Pencil, BarChart3, HelpCircle } from "lucide-react"
+import { ArrowLeft, Pencil, BarChart3, HelpCircle, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 
@@ -185,10 +185,22 @@ export default function CreatorPage() {
                           {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
                         </span>
                         {isDraft && (
-                          <span className="flex items-center gap-1 text-xs text-amber-700">
-                            <Pencil className="h-3 w-3" />
-                            Edit
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center gap-1 text-xs text-amber-700">
+                              <Pencil className="h-3 w-3" />
+                              Edit
+                            </span>
+                            {hunt.cluesCount > 0 && (
+                              <Link
+                                href={`/hunt/${hunt.id}/preview`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                              >
+                                <Eye className="h-3 w-3" />
+                                Preview
+                              </Link>
+                            )}
+                          </div>
                         )}
                         {isActive && (
                           <span className="flex items-center gap-1 text-xs text-emerald-700">

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
-import { Plus, Trash2, Trophy, Copy, X, BarChart3, List } from "lucide-react"
+import { Plus, Trash2, Trophy, Copy, X, BarChart3, List, Eye } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -463,15 +463,31 @@ export function HuntDashboard({
                           Duplicate
                         </Button>
                         {isDraft && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openClueModal(hunt)}
-                            className="border-[#3737A4] text-[#3737A4] hover:bg-[#3737A4] hover:text-white"
-                          >
-                            <Plus className="mr-1 h-3 w-3" />
-                            Add Clues
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openClueModal(hunt)}
+                              className="border-[#3737A4] text-[#3737A4] hover:bg-[#3737A4] hover:text-white"
+                            >
+                              <Plus className="mr-1 h-3 w-3" />
+                              Add Clues
+                            </Button>
+                            {hasClues && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                asChild
+                                className="border-amber-400 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                              >
+                                <Link href={`/hunt/${hunt.id}/preview`}>
+                                  <Eye className="mr-1 h-3 w-3" />
+                                  Preview
+                                </Link>
+                              </Button>
+                            )}
+                          </>
                         )}
                         {(isActive || isCompleted) && (
                           <Button
