@@ -6,15 +6,14 @@ import Medal from "@/components/icons/Medal"
 import { get_hunt_fastest_players } from "@/lib/contracts/hunt"
 import type { FastestPlayerDisplayEntry } from "@/lib/types"
 import { logger } from "@/lib/logger"
+import { truncateAddress } from "@/lib/walletAddress"
 
 interface FastestPlayersStripProps {
   huntId: number
 }
 
-const truncateAddress = (address: string) => {
-  if (address.length <= 10) return address
-  return `${address.slice(0, 5)}...${address.slice(-4)}`
-}
+/** This strip has always used a 5 + 4 split. */
+const PLAYER_ADDRESS_FORMAT = { lead: 5, tail: 4 }
 
 const formatDuration = (seconds: number) => {
   const hh = Math.floor(seconds / 3600)
@@ -44,7 +43,7 @@ export function FastestPlayersStrip({ huntId }: FastestPlayersStripProps) {
       const sorted = [...rawPlayers].sort((a, b) => a.completionTimeSeconds - b.completionTimeSeconds)
       const mapped: FastestPlayerDisplayEntry[] = sorted.map((player, index) => ({
         position: index + 1,
-        name: player.name || truncateAddress(player.address),
+        name: player.name || truncateAddress(player.address, PLAYER_ADDRESS_FORMAT),
         completionTimeLabel: formatDuration(player.completionTimeSeconds),
         points: player.points,
         icon: <Medal position={index + 1} />,

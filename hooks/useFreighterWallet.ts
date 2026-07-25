@@ -13,16 +13,19 @@ import {
   setStoredWalletSession,
   type WalletProvider,
 } from "@/lib/walletAdapter";
+import { truncateAddress } from "@/lib/walletAddress";
 
 const STORAGE_KEY = "freighter_public_key";
 
 /**
  * Shortens a Stellar public key for display.
  * e.g. GABCDE...UVWXYZ (Stellar keys are 56 chars starting with G)
+ *
+ * Thin wrapper over the shared helper, kept for the symmetric 6 + 6 split.
  */
 export function shortenAddress(address: string, chars = 6): string {
-  if (!address || address.length <= chars * 2 + 3) return address;
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`;
+  if (!address) return address;
+  return truncateAddress(address, { lead: chars, tail: chars });
 }
 
 interface UseFreighterWalletReturn {

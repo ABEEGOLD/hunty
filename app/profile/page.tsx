@@ -9,6 +9,8 @@ import { Header } from "@/components/Header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { WalletContext, shortenAddress } from "@/lib/context/WalletContext"
+import { WalletAddress } from "@/components/WalletAddress"
+import { WalletIdenticon } from "@/components/WalletIdenticon"
 import { NftGallery } from "@/components/NftGallery"
 import { BadgeWall } from "@/components/BadgeWall"
 import { LevelBadge, LevelProgress } from "@/components/LevelBadge"
@@ -323,12 +325,20 @@ export default function UserProfilePage() {
           </div>
 
           <Card className="border border-slate-200 bg-white/70 shadow-sm px-4 py-3 flex items-center gap-3 max-w-sm">
-            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white grid place-items-center font-semibold text-sm">
-              {avatarLabel}
-            </div>
-            <div className="flex flex-col gap-1">
+            {publicKey ? (
+              <WalletIdenticon address={publicKey} size={44} className="flex-shrink-0" />
+            ) : (
+              <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white grid place-items-center font-semibold text-sm">
+                {avatarLabel}
+              </div>
+            )}
+            <div className="flex flex-col gap-1 min-w-0">
               <div className="text-xs uppercase tracking-wide text-slate-500">Connected Wallet</div>
-              <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
+              {publicKey ? (
+                <WalletAddress address={publicKey} showIdenticon={false} addressClassName="text-slate-800" />
+              ) : (
+                <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
+              )}
             </div>
           </Card>
         </div>

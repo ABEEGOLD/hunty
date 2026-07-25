@@ -320,7 +320,9 @@ describe("Header", () => {
       const walletBtn = screen.getByText("GABC...DEF").closest("button")!;
 
       await user.click(walletBtn);
-      const chevron = walletBtn.querySelector("svg");
+      // Selected by test id rather than by element order: the button also
+      // contains the wallet identicon, which is an SVG too.
+      const chevron = walletBtn.querySelector('[data-testid="wallet-chevron"]');
       expect(chevron?.classList.contains("rotate-180")).toBe(true);
     });
   });

@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
+import { truncateAddress } from "@/lib/walletAddress"
 import type { StoredHunt } from "@/lib/types"
 
 interface CompletedHuntCardProps {
@@ -16,11 +17,8 @@ interface CompletedHuntCardProps {
   winnerAddress?: string
 }
 
-/** Truncates a Stellar address to `G…XXXX` form (5 + 4 chars). */
-function truncateAddress(address: string): string {
-  if (address.length <= 10) return address
-  return `${address.slice(0, 5)}…${address.slice(-4)}`
-}
+/** This card has always used a 5 + 4 split with a single-character ellipsis. */
+const WINNER_ADDRESS_FORMAT = { lead: 5, tail: 4, separator: "…" }
 
 function rewardBadgeClass(rewardType: StoredHunt["rewardType"]): string {
   if (rewardType === "XLM") return "bg-green-50 text-green-700"
@@ -69,7 +67,7 @@ export function CompletedHuntCard({ hunt, winnerAddress }: CompletedHuntCardProp
               aria-label={`Winner: ${winnerAddress}`}
               className="font-mono"
             >
-              {truncateAddress(winnerAddress)}
+              {truncateAddress(winnerAddress, WINNER_ADDRESS_FORMAT)}
             </span>
           </p>
         )}

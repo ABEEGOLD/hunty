@@ -24,16 +24,21 @@ import {
   type WalletProvider,
 } from "@/lib/walletAdapter"
 import { useWalletStore } from "@/lib/wallets/walletStore"
+import { truncateAddress } from "@/lib/walletAddress"
 
 const STORAGE_KEY = "freighter_public_key"
 
 /**
  * Shortens a Stellar public key for display.
  * e.g. GABCDE...UVWXYZ (Stellar keys are 56 chars starting with G)
+ *
+ * Thin wrapper over the shared helper, kept because it is imported in several
+ * places and because the header's symmetric 6 + 6 split differs from the
+ * 4 + 4 default used elsewhere.
  */
 export function shortenAddress(address: string, chars = 6): string {
-  if (!address || address.length <= chars * 2 + 3) return address
-  return `${address.slice(0, chars)}...${address.slice(-chars)}`
+  if (!address) return address
+  return truncateAddress(address, { lead: chars, tail: chars })
 }
 
 interface WalletContextValue {
