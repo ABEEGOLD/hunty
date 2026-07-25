@@ -368,23 +368,55 @@ export default function GameArcade() {
   const [activeTab, setActiveTab] = useState<"leaderboard" | "none">("none")
   const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "clues-high" | "clues-low">("newest")
+  const [difficultyFilter, setDifficultyFilter] = useState<"all" | "Easy" | "Medium" | "Hard">("all")
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "Urban" | "Campus" | "Office" | "Museum" | "General">("all")
+  const [sortBy, setSortBy] = useState<"newest" | "popular" | "reward-high" | "difficulty">("newest")
 
   const isLoadedRef = useRef(false)
 
-  // Load initial filter states from sessionStorage to persist state within the session
+  // Load initial filter states from URL/sessionStorage to persist and share search state
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+
+      const urlSearch = params.get("q")
+      if (urlSearch) setSearchQuery(urlSearch)
+
+      const urlReward = params.get("reward")
+      if (urlReward && ["all", "XLM", "NFT", "Both"].includes(urlReward)) {
+        setRewardFilter(urlReward as "all" | "XLM" | "NFT" | "Both")
+      }
+
+      const urlStatus = params.get("status")
+      if (urlStatus && ["all", "Active", "Completed"].includes(urlStatus)) {
+        setStatusFilter(urlStatus as "all" | "Active" | "Completed")
+      }
+
+      const urlDifficulty = params.get("difficulty")
+      if (urlDifficulty && ["all", "Easy", "Medium", "Hard"].includes(urlDifficulty)) {
+        setDifficultyFilter(urlDifficulty as "all" | "Easy" | "Medium" | "Hard")
+      }
+
+      const urlCategory = params.get("category")
+      if (urlCategory && ["all", "Urban", "Campus", "Office", "Museum", "General"].includes(urlCategory)) {
+        setCategoryFilter(urlCategory as "all" | "Urban" | "Campus" | "Office" | "Museum" | "General")
+      }
+
+      const urlSort = params.get("sortBy")
+      if (urlSort && ["newest", "popular", "reward-high", "difficulty"].includes(urlSort)) {
+        setSortBy(urlSort as "newest" | "popular" | "reward-high" | "difficulty")
+      }
+
       const savedSearch = sessionStorage.getItem("arcade_searchQuery")
-      if (savedSearch) setSearchQuery(savedSearch)
+      if (!urlSearch && savedSearch) setSearchQuery(savedSearch)
 
       const savedReward = sessionStorage.getItem("arcade_rewardFilter")
-      if (savedReward && ["all", "XLM", "NFT", "Both"].includes(savedReward)) {
+      if (!urlReward && savedReward && ["all", "XLM", "NFT", "Both"].includes(savedReward)) {
         setRewardFilter(savedReward as "all" | "XLM" | "NFT" | "Both")
       }
 
       const savedStatus = sessionStorage.getItem("arcade_statusFilter")
-      if (savedStatus && ["all", "Active", "Completed"].includes(savedStatus)) {
+      if (!urlStatus && savedStatus && ["all", "Active", "Completed"].includes(savedStatus)) {
         setStatusFilter(savedStatus as "all" | "Active" | "Completed")
       }
       isLoadedRef.current = true
@@ -410,6 +442,19 @@ export default function GameArcade() {
     }
   }, [statusFilter])
 
+  useEffect(() => {
+    if (!isLoadedRef.current || typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    params.set("q", searchQuery)
+    params.set("reward", rewardFilter)
+    params.set("status", statusFilter)
+    params.set("difficulty", difficultyFilter)
+    params.set("category", categoryFilter)
+    params.set("sortBy", sortBy)
+    const next = `${window.location.pathname}?${params.toString()}`
+    window.history.replaceState(null, "", next)
+  }, [searchQuery, rewardFilter, statusFilter, difficultyFilter, categoryFilter, sortBy])
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   // Load hunts using Infinite Query with cursor-based pagination
@@ -420,11 +465,11 @@ export default function GameArcade() {
     isFetchingNextPage,
     isLoading: isLoadingHunts,
   } = useInfiniteQuery({
-    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy],
+    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, difficultyFilter, categoryFilter, searchQuery, sortBy],
     queryFn: async ({ pageParam }) => {
       const cursorVal = pageParam !== null ? pageParam : "";
       const res = await fetch(
-        `/api/v1/hunts?limit=12&cursor=${cursorVal}&status=${statusFilter}&reward=${rewardFilter}&search=${encodeURIComponent(
+        `/api/v1/hunts?limit=12&cursor=${cursorVal}&status=${statusFilter}&reward=${rewardFilter}&difficulty=${difficultyFilter}&category=${categoryFilter}&search=${encodeURIComponent(
           searchQuery
         )}&sortBy=${sortBy}`
       );
@@ -483,6 +528,15 @@ export default function GameArcade() {
   const allHuntsList = useMemo(() => {
     return fetchAllHunts();
   }, [infiniteData]);
+
+  const searchSuggestions = useMemo(() => {
+    const uniqueTitles = Array.from(new Set(allHuntsList.map((hunt) => hunt.title)))
+    const normalized = searchQuery.trim().toLowerCase()
+    if (!normalized) return uniqueTitles.slice(0, 8)
+    return uniqueTitles
+      .filter((title) => title.toLowerCase().includes(normalized))
+      .slice(0, 8)
+  }, [allHuntsList, searchQuery])
 
   const recentlyCompleted = useRecentlyCompleted(allHuntsList);
 
@@ -588,7 +642,16 @@ export default function GameArcade() {
   // Clear scroll position when filter state changes
   useEffect(() => {
     sessionStorage.removeItem("arcade_scroll_y")
-  }, [statusFilter, rewardFilter, searchQuery, sortBy])
+  }, [statusFilter, rewardFilter, difficultyFilter, categoryFilter, searchQuery, sortBy])
+
+  const clearAllFilters = () => {
+    setSearchQuery("")
+    setRewardFilter("all")
+    setStatusFilter("Active")
+    setDifficultyFilter("all")
+    setCategoryFilter("all")
+    setSortBy("newest")
+  }
 
   const handleWalletSelect = () => {
     setIsConnectingWallet(true)
@@ -819,28 +882,66 @@ export default function GameArcade() {
               </div>
 
               {/* Search and Sort */}
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                <select
+                  value={difficultyFilter}
+                  onChange={(e) => setDifficultyFilter(e.target.value as "all" | "Easy" | "Medium" | "Hard")}
+                  className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
+                >
+                  <option value="all">All Difficulty</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value as "all" | "Urban" | "Campus" | "Office" | "Museum" | "General")}
+                  className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Urban">Urban</option>
+                  <option value="Campus">Campus</option>
+                  <option value="Office">Office</option>
+                  <option value="Museum">Museum</option>
+                  <option value="General">General</option>
+                </select>
+
                 <div className="relative flex-1 sm:w-64">
                   <Input
-                    placeholder="Search title..."
+                    list="hunt-search-suggestions"
+                    placeholder="Search title or description..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-[#3737A4] focus:ring-[#3737A4] pl-3 h-10 rounded-xl"
                   />
+                  <datalist id="hunt-search-suggestions">
+                    {searchSuggestions.map((suggestion) => (
+                      <option key={suggestion} value={suggestion} />
+                    ))}
+                  </datalist>
                 </div>
                 
                 <select
                   value={sortBy}
                   onChange={(e) =>
-                    setSortBy(e.target.value as "newest" | "oldest" | "clues-high" | "clues-low")
+                    setSortBy(e.target.value as "newest" | "popular" | "reward-high" | "difficulty")
                   }
                   className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
                 >
                   <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="clues-high">Most Clues</option>
-                  <option value="clues-low">Fewest Clues</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="reward-high">Highest Reward</option>
+                  <option value="difficulty">Hardest First</option>
                 </select>
+
+                <Button
+                  variant="outline"
+                  onClick={clearAllFilters}
+                  className="h-10 rounded-xl border-slate-200 dark:border-slate-700"
+                >
+                  Clear Filters
+                </Button>
               </div>
 
               {isLoadingHunts ? (

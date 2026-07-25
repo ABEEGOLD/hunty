@@ -20,6 +20,8 @@ export async function GET(req: Request) {
   const limit = Math.max(1, Math.min(100, parseInt(searchParams.get("limit") || "10", 10)));
   const status = searchParams.get("status") || "Active";
   const reward = searchParams.get("reward") || "all";
+  const difficulty = searchParams.get("difficulty") || "all";
+  const category = searchParams.get("category") || "all";
   const search = searchParams.get("search") || "";
   const sortBy = searchParams.get("sortBy") || "newest";
   const requestId = req.headers.get("x-request-id") ?? undefined;
@@ -33,6 +35,8 @@ export async function GET(req: Request) {
     limit,
     status,
     reward,
+    difficulty,
+    category,
     search,
     sortBy,
     requestId,
