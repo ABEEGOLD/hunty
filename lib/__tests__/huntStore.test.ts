@@ -12,12 +12,19 @@ import {
   addHunt,
   getHuntClues,
   saveClueLocally,
+  saveCluesLocallyBatch,
   updateClueAnswer,
   takeHuntStoreSnapshot,
   restoreHuntStoreSnapshot,
   getHunt,
   getFeaturedHunts,
   setLocalFeaturedHunt,
+  getHuntProgress,
+  startHuntProgress,
+  advanceHuntProgress,
+  clearHuntProgress,
+  gcHunt,
+  MAX_CLUES_PER_HUNT,
 } from "@/lib/huntStore";
 import type { StoredHunt, Clue } from "@/lib/types";
 
@@ -397,6 +404,79 @@ describe("huntStore", () => {
       expect(updated?.cluesCount).toBe(3);
       const clues = getHuntClues(980);
       expect(clues.length).toBe(3);
+    });
+  });
+
+  describe("saveCluesLocallyBatch", () => {
+    it("saves multiple clues in one write and respects the hunt limit", () => {
+      const hunt: StoredHunt = {
+        id: 9790,
+        title: "Batch Hunt",
+        description: "Test",
+        cluesCount: 0,
+        status: "Draft",
+        rewardType: "XLM",
+      };
+      addHunt(hunt);
+
+      const ids = saveCluesLocallyBatch([
+        { huntId: 9790, question: "Q1", answer: "A1", points: 10 },
+        { huntId: 9790, question: "Q2", answer: "A2", points: 20 },
+      ]);
+
+      expect(ids).toHaveLength(2);
+      expect(getHuntById(9790)?.cluesCount).toBe(2);
+      expect(getHuntClues(9790)).toHaveLength(2);
+    });
+
+    it("rejects invalid clues before storing anything", () => {
+      const hunt: StoredHunt = {
+        id: 9789,
+        title: "Batch Hunt",
+        description: "Test",
+        cluesCount: 0,
+        status: "Draft",
+        rewardType: "XLM",
+      };
+      addHunt(hunt);
+
+      expect(() =>
+        saveCluesLocallyBatch([
+          { huntId: 9789, question: "Valid", answer: "A1", points: 10 },
+          { huntId: 9789, question: "", answer: "A2", points: 10 },
+        ]),
+      ).toThrow(/question is required/i);
+
+      expect(getHuntById(9789)?.cluesCount).toBe(0);
+      expect(getHuntClues(9789)).toHaveLength(0);
+    });
+
+    it("enforces the per-hunt clue limit", () => {
+      const hunt: StoredHunt = {
+        id: 9788,
+        title: "Batch Hunt",
+        description: "Test",
+        cluesCount: 0,
+        status: "Draft",
+        rewardType: "XLM",
+      };
+      addHunt(hunt);
+
+      for (let i = 0; i < MAX_CLUES_PER_HUNT - 1; i++) {
+        saveClueLocally({
+          huntId: 9788,
+          question: `Seed ${i}`,
+          answer: `Seed ${i}`,
+          points: 10,
+        });
+      }
+
+      expect(() =>
+        saveCluesLocallyBatch([
+          { huntId: 9788, question: "Overflow", answer: "A", points: 10 },
+          { huntId: 9788, question: "Overflow 2", answer: "B", points: 10 },
+        ]),
+      ).toThrow(/at most/i);
     });
   });
 
@@ -1146,6 +1226,63 @@ describe("huntStore", () => {
       restoreHuntStoreSnapshot(snapshot);
       clues = getHuntClues(941);
       expect(clues[0].answer).toBe("Original A");
+    });
+  });
+
+  describe("hunt progress", () => {
+    it("creates and advances progress snapshots", () => {
+      const initial = startHuntProgress(9777);
+      expect(initial.currentClueIndex).toBe(0);
+      expect(getHuntProgress(9777).huntId).toBe(9777);
+
+      const advanced = advanceHuntProgress(9777, 2, 3);
+      expect(advanced.currentClueIndex).toBe(2);
+      expect(advanced.completed).toBe(false);
+
+      const completed = advanceHuntProgress(9777, 3, 3);
+      expect(completed.completed).toBe(true);
+      expect(completed.completedAt).toBeDefined();
+
+      clearHuntProgress(9777);
+      expect(localStorage.getItem("hunty_hunt_progress_9777")).toBeNull();
+    });
+  });
+
+  describe("gcHunt", () => {
+    it("removes hunt-scoped storage only for cancelled hunts", () => {
+      const hunt: StoredHunt = {
+        id: 9776,
+        title: "Cancelled Hunt",
+        description: "Test",
+        cluesCount: 1,
+        status: "Cancelled",
+        rewardType: "XLM",
+      };
+      addHunt(hunt);
+      localStorage.setItem("hunt_clue_start_9776_1", "123");
+      localStorage.setItem("hunt_reward_claimed_9776", "true");
+
+      const result = gcHunt(9776);
+      expect(result.removedKeys.length).toBeGreaterThan(0);
+      expect(localStorage.getItem("hunt_clue_start_9776_1")).toBeNull();
+      expect(localStorage.getItem("hunt_reward_claimed_9776")).toBeNull();
+    });
+
+    it("does not remove data for active hunts", () => {
+      const hunt: StoredHunt = {
+        id: 9775,
+        title: "Active Hunt",
+        description: "Test",
+        cluesCount: 1,
+        status: "Active",
+        rewardType: "XLM",
+      };
+      addHunt(hunt);
+      localStorage.setItem("hunt_clue_start_9775_1", "123");
+
+      const result = gcHunt(9775);
+      expect(result.removedKeys).toHaveLength(0);
+      expect(localStorage.getItem("hunt_clue_start_9775_1")).toBe("123");
     });
   });
 

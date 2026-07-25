@@ -2,6 +2,7 @@ import Server, { TransactionBuilder, Operation } from "@stellar/stellar-sdk"
 import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config"
 import { withSorobanRpcRetry } from "../soroban/rpcRetry"
 import { RegistrationError } from "@/lib/contracts/errors"
+import { getHuntProgress } from "@/lib/huntStore"
 
 import type { PlayerProgress, RegistrationStatus, RegistrationResult } from "@/lib/types"
 
@@ -281,6 +282,7 @@ export async function getPlayerProgress(
         const hasPoints = localStorage.getItem(userPointsKey) !== null;
         const registeredKey = `hunt_registered_${huntId}_${playerAddress}`;
         const isRegistered = localStorage.getItem(registeredKey) === "true";
+        const progress = getHuntProgress(huntId)
         
         if (hasPoints || isRegistered) {
           // If the player has points or is registered, they are registered
@@ -290,8 +292,8 @@ export async function getPlayerProgress(
           return {
             hunt_id: huntId,
             player: playerAddress,
-            current_clue_index: 0, // Not strictly used for the claim check
-            completed: isCompleted,
+            current_clue_index: progress.currentClueIndex,
+            completed: isCompleted || progress.completed,
             reward_claimed: isClaimed,
           };
         }

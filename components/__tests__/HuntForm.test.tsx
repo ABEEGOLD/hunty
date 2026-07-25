@@ -27,11 +27,13 @@ vi.mock("@/lib/ipfs", () => ({
 }))
 
 vi.mock("@/lib/contracts/hunt", () => ({
-  addClue: vi.fn().mockResolvedValue({ success: true }),
+  addCluesBatch: vi.fn().mockResolvedValue({ txHash: "mock-tx", clueCount: 1 }),
 }))
 
 vi.mock("@/lib/huntStore", () => ({
-  saveClueLocally: vi.fn().mockReturnValue(1),
+  saveCluesLocallyBatch: vi.fn().mockReturnValue([1]),
+  takeHuntStoreSnapshot: vi.fn().mockReturnValue({ hunts: [], clues: [] }),
+  restoreHuntStoreSnapshot: vi.fn(),
   updateClueAnswer: vi.fn(),
 }))
 
