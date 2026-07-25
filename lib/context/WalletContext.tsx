@@ -23,6 +23,7 @@ import {
   setStoredWalletSession,
   type WalletProvider,
 } from "@/lib/walletAdapter"
+import { useWalletStore } from "@/lib/wallets/walletStore"
 
 const STORAGE_KEY = "freighter_public_key"
 
@@ -57,6 +58,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [publicKey, setPublicKey] = useState<string>("")
   const [connected, setConnected] = useState(false)
   const [walletProvider, setWalletProvider] = useState<WalletProvider | null>(null)
+
+  const { setConnected: storeSetConnected, setDisconnected: storeSetDisconnected } =
+    useWalletStore()
 
   // On client mount: restore persisted session and verify it's still valid
   useEffect(() => {
@@ -188,6 +192,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setPublicKey(address)
         setWalletProvider("freighter")
         setConnected(true)
+        storeSetConnected(address, "freighter")
         return {}
       }
 
@@ -197,6 +202,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setPublicKey(address)
       setWalletProvider(provider)
       setConnected(true)
+      storeSetConnected(address, provider)
       return {}
     } catch (err) {
       return {
@@ -206,7 +212,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             : "Unexpected error during connection.",
       }
     }
-  }, [])
+  }, [storeSetConnected])
 
   const disconnect = useCallback(() => {
     clearStoredWalletSession()
@@ -214,7 +220,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setPublicKey("")
     setWalletProvider(null)
     setConnected(false)
-  }, [])
+    storeSetDisconnected()
+  }, [storeSetDisconnected])
 
   const value = useMemo<WalletContextValue>(
     () => ({

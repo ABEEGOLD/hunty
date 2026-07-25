@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import Coin from "./icons/Coin";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import { useWallet } from "@/lib/context/WalletContext";
-import { WalletBottomSheet } from "./WalletBottomSheet";
+import { WalletSelectionModal } from "./WalletSelectionModal";
 import { ThemeToggle } from "./ThemeToggle";
 import {
   Copy,
@@ -564,8 +564,8 @@ export function Header({ balance = "0" }: { balance?: string }) {
         balance={balance}
       />
 
-      {/* Wallet bottom sheet */}
-      <WalletBottomSheet
+      {/* Wallet selection modal */}
+      <WalletSelectionModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConnect={(provider) => connect(provider)}

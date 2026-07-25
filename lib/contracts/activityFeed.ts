@@ -32,7 +32,7 @@ const MOCK_ADDRESSES = [
   "GJKL3ASDFGHJKLZXCVBNMQWERTYUIOP0987654321ASDFGHJKLZXCVBNM",
 ]
 
-const EVENT_TYPES: ActivityEventType[] = ["HuntCompleted", "ClueCompleted"]
+const EVENT_TYPES: ActivityEventType[] = ["HuntCompleted", "ClueCompleted", "HuntSponsored"]
 
 /**
  * Generates a deterministic but varied set of mock activity events
@@ -55,14 +55,21 @@ function generateMockEvents(limit: number): ActivityEvent[] {
     // Space events out over the last 30 minutes
     const timestamp = now - i * 90 - Math.floor(i * 47)
 
-    events.push({
+    const eventData: ActivityEvent = {
       id: `mock-event-${i}`,
       address,
       huntTitle: hunt.title,
       huntId: hunt.id,
       timestamp,
       type,
-    })
+    }
+
+    // Add amount for sponsored events
+    if (type === "HuntSponsored") {
+      eventData.amount = Math.floor(Math.random() * 50) + 10
+    }
+
+    events.push(eventData)
   }
 
   return events.slice(0, limit)

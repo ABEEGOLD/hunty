@@ -12,6 +12,8 @@ import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { Header } from "@/components/Header";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
+import { getHuntProgress, startHuntProgress } from "@/lib/huntStore";
+import { recordHuntCompletion } from "@/lib/contracts/player-stats";
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys";
 import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig";
 import {
@@ -51,6 +53,7 @@ export function PlayGame({
   const [huntEnded, setHuntEnded] = useState(false);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const attemptIdRef = useRef<string | null>(null);
+  const [huntProgress, setHuntProgress] = useState(() => (huntId != null ? getHuntProgress(huntId) : null));
 
   const solvedCount = solvedClues.size;
 
@@ -92,7 +95,20 @@ export function PlayGame({
   const error: string | null = queryError instanceof Error ? queryError.message : queryError ? "Failed to fetch clues" : null;
   const fetchedClues = fetched?.clues ?? null;
   const huntInfo = fetched?.huntInfo ?? null;
-  const hunts = huntId != null ? (fetchedClues ?? []) : (huntsProp ?? []);
+  const currentUnlockedIndex = huntProgress?.currentClueIndex ?? 0;
+  const hunts =
+    huntId != null
+      ? (fetchedClues ?? []).map((clue, index) =>
+          huntInfo?.sequential && index > currentUnlockedIndex
+            ? {
+                ...clue,
+                title: "Locked until the previous clue is solved.",
+                hint: undefined,
+                hintCost: undefined,
+              }
+            : clue,
+        )
+      : (huntsProp ?? []);
   const hasHunts = hunts.length > 0;
 
   useEffect(() => {
@@ -101,6 +117,11 @@ export function PlayGame({
     setSolvedClues(new Set());
     setAttemptId(null);
     attemptIdRef.current = null;
+    if (huntId != null) {
+      setHuntProgress(startHuntProgress(huntId))
+    } else {
+      setHuntProgress(null)
+    }
   }, [huntId]);
 
   useEffect(() => {
@@ -143,10 +164,24 @@ export function PlayGame({
     setScore((prev) => prev + points);
   };
 
-  const handleClueUnlock = (clueIndex: number) => {
+  const handleClueUnlock = (clueIndex: number, pointsAwarded = 0) => {
     const clue = hunts[clueIndex];
     if (clue) {
       setSolvedClues((prev) => new Set(prev).add(clue.id));
+    }
+
+    if (huntId != null) {
+      setHuntProgress((current) => {
+        if (!current) return current
+        const nextIndex = Math.max(current.currentClueIndex, clueIndex + 1)
+        const completed = nextIndex >= hunts.length
+        return {
+          ...current,
+          currentClueIndex: nextIndex,
+          completed,
+          completedAt: completed ? Date.now() : current.completedAt,
+        }
+      })
     }
 
     if (clueIndex < hunts.length - 1) {
@@ -168,17 +203,29 @@ export function PlayGame({
       if (huntId) {
         localStorage.setItem(`hunt_completed_${huntId}`, "true");
       }
+      const finalScore = score + pointsAwarded;
       if (playerAddress && attemptIdRef.current && huntId != null) {
         const activeAttempt = getActiveAttempt(playerAddress, huntId);
         completeHuntAttempt(
           playerAddress,
           attemptIdRef.current,
-          activeAttempt?.totalPoints ?? score
+          finalScore
         );
         attemptIdRef.current = null;
         setAttemptId(null);
       }
-      onGameComplete(score);
+      if (huntId && playerAddress && huntProgress && !huntProgress.completed) {
+        const completionTimeSeconds = Math.max(
+          0,
+          Math.round((Date.now() - huntProgress.startedAt) / 1000),
+        )
+        recordHuntCompletion(playerAddress, {
+          huntId,
+          pointsEarned: finalScore,
+          completionTimeSeconds,
+        })
+      }
+      onGameComplete(finalScore);
     }
   };
 
@@ -327,7 +374,7 @@ export function PlayGame({
                 playerAddress={playerAddress}
                 attemptId={attemptId ?? undefined}
                 onScoreUpdate={handleScoreUpdate}
-                onUnlock={() => handleClueUnlock(currentCardIndex)}
+                onUnlock={(pointsAwarded) => handleClueUnlock(currentCardIndex, pointsAwarded)}
                 currentIndex={currentCardIndex + 1}
                 totalHunts={hunts.length}
                 points={hunts[currentCardIndex]?.points}
