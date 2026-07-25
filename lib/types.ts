@@ -15,6 +15,10 @@ export interface StoredHunt {
   title: string
   description: string
   cluesCount: number
+  /** Broad hunt category used in discovery filters. */
+  category?: "Urban" | "Campus" | "Office" | "Museum" | "General"
+  /** Overall hunt difficulty tag used in discovery filters. */
+  difficulty?: "Easy" | "Medium" | "Hard"
   status: HuntStatus
   rewardType: "XLM" | "NFT" | "Both"
   /** Total reward pool value used for creator-side sorting. */
