@@ -365,6 +365,59 @@ export function getFeaturedHunts(limit = 3): StoredHunt[] {
     .map((s) => s.hunt)
 }
 
+/** Duplicate a hunt, returning the new hunt or undefined if original not found. */
+export function duplicateHunt(huntId: number): StoredHunt | undefined {
+  const original = getHuntById(huntId)
+  if (!original) return undefined
+
+  const hunts = readHunts()
+  const newId = hunts.length > 0 ? Math.max(...hunts.map((h) => h.id)) + 1 : 1
+  const nowSeconds = Math.floor(Date.now() / 1000)
+
+  const duplicate: StoredHunt = {
+    id: newId,
+    title: `Copy of ${original.title}`,
+    description: original.description,
+    cluesCount: 0,
+    status: "Draft",
+    rewardType: original.rewardType,
+    rewardPool: undefined,
+    rewards: undefined,
+    rewardEscrowTxHash: undefined,
+    rewardEscrowBalance: undefined,
+    playerCount: 0,
+    maxCapacity: original.maxCapacity,
+    createdAt: nowSeconds,
+    startTime: undefined,
+    endTime: undefined,
+    creatorEmail: original.creatorEmail,
+    emailNotifications: original.emailNotifications,
+    is_private: original.is_private,
+    coverImageCid: original.coverImageCid,
+    isFeaturedOfWeek: false,
+  }
+
+  addHunt(duplicate)
+
+  const originalClues = getHuntClues(huntId)
+  for (const clue of originalClues) {
+    saveClueLocally({
+      huntId: newId,
+      question: clue.question,
+      answer: clue.answer,
+      points: clue.points,
+      hint: clue.hint,
+      hintCost: clue.hintCost,
+      difficulty: clue.difficulty,
+      latitude: clue.latitude,
+      longitude: clue.longitude,
+      geofenceRadiusMeters: clue.geofenceRadiusMeters,
+    })
+  }
+
+  return duplicate
+}
+
 /** Set/unset a hunt as the featured Hunt of the Week in local storage. */
 export function setLocalFeaturedHunt(huntId: number | null): void {
   const hunts = readHunts().map((h) => ({

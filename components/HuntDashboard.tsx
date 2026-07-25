@@ -18,7 +18,7 @@ import { ActivateHuntModal } from "@/components/ActivateHuntModal"
 import { RewardPoolManager } from "@/components/RewardPoolManager"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { CreatorAnalytics } from "@/components/CreatorAnalytics"
-import { deleteHunts, archiveHunts } from "@/lib/huntStore"
+import { deleteHunts, archiveHunts, duplicateHunt } from "@/lib/huntStore"
 import {
   HUNT_HISTORY_STATUS_FILTERS,
   type HuntHistorySortOption,
@@ -165,6 +165,18 @@ export function HuntDashboard({
     event.stopPropagation()
     navigator.clipboard.writeText(id.toString())
     toast.success("Copied Hunt ID to clipboard!")
+  }
+
+  const handleDuplicate = (event: ReactMouseEvent<HTMLElement>, hunt: StoredHunt) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const duplicated = duplicateHunt(hunt.id)
+    if (duplicated) {
+      toast.success(`"${duplicated.title}" created`)
+      onRefresh()
+    } else {
+      toast.error("Failed to duplicate hunt")
+    }
   }
 
   const handleActivateClick = (hunt: StoredHunt) => {
@@ -441,6 +453,15 @@ export function HuntDashboard({
                         {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
                       </span>
                       <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => handleDuplicate(e, hunt)}
+                          className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-white/20 dark:text-slate-300 dark:hover:bg-white/5"
+                        >
+                          <Copy className="mr-1 h-3 w-3" />
+                          Duplicate
+                        </Button>
                         {isDraft && (
                           <Button
                             size="sm"
