@@ -4,9 +4,19 @@ import { useCallback, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Pencil, BarChart3, HelpCircle } from "lucide-react"
+import { ArrowLeft, Pencil, BarChart3, HelpCircle, Archive, Trash2, RefreshCw, CheckCircle, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
@@ -15,7 +25,7 @@ import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { useWallet } from "@/lib/context/WalletContext"
 import type { StoredHunt } from "@/lib/types"
-import { getHuntsByCreator } from "@/lib/huntStore"
+import { getHuntsByCreator, getArchivedHunts, getSoftDeletedHunts, archiveHunts, unarchiveHunts, softDeleteHunts, restoreHunts, permanentDeleteHunts } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
@@ -39,14 +49,27 @@ export default function CreatorPage() {
   const router = useRouter()
   const { connected, publicKey, connect } = useWallet()
   const [hunts, setHunts] = useState<StoredHunt[]>([])
+  const [archivedHunts, setArchivedHunts] = useState<StoredHunt[]>([])
+  const [softDeletedHunts, setSoftDeletedHunts] = useState<StoredHunt[]>([])
   const [rewardHistory, setRewardHistory] = useState<Awaited<ReturnType<typeof fetchCreatorRewardHistory>>>([])
+  const [activeTab, setActiveTab] = useState<"active" | "archived" | "deleted">("active")
+  const [selectedHunts, setSelectedHunts] = useState<number[]>([])
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    action: "archive" | "unarchive" | "soft-delete" | "restore" | "permanent-delete"
+    huntIds: number[]
+  }>({ open: false, action: "archive", huntIds: [] })
 
   const loadHunts = useCallback(() => {
     if (!publicKey) {
       setHunts([])
+      setArchivedHunts([])
+      setSoftDeletedHunts([])
       return
     }
     setHunts(getHuntsByCreator())
+    setArchivedHunts(getArchivedHunts())
+    setSoftDeletedHunts(getSoftDeletedHunts())
   }, [publicKey])
 
   useEffect(() => {
@@ -86,6 +109,73 @@ export default function CreatorPage() {
     // Completed: no navigation or could open a read-only summary
   }
 
+  const handleAction = (action: "archive" | "unarchive" | "soft-delete" | "restore" | "permanent-delete", huntIds: number[]) => {
+    setConfirmDialog({ open: true, action, huntIds })
+  }
+
+  const confirmAction = () => {
+    const { action, huntIds } = confirmDialog
+
+    switch (action) {
+      case "archive":
+        archiveHunts(huntIds)
+        break
+      case "unarchive":
+        unarchiveHunts(huntIds)
+        break
+      case "soft-delete":
+        softDeleteHunts(huntIds)
+        break
+      case "restore":
+        restoreHunts(huntIds)
+        break
+      case "permanent-delete":
+        permanentDeleteHunts(huntIds)
+        break
+    }
+
+    setConfirmDialog({ open: false, action: "archive", huntIds: [] })
+    setSelectedHunts([])
+    loadHunts()
+  }
+
+  const toggleHuntSelection = (huntId: number) => {
+    setSelectedHunts(prev =>
+      prev.includes(huntId) ? prev.filter(id => id !== huntId) : [...prev, huntId]
+    )
+  }
+
+  const getActionMessage = () => {
+    const { action, huntIds } = confirmDialog
+    const count = huntIds.length
+
+    switch (action) {
+      case "archive":
+        return `Archive ${count} hunt${count > 1 ? 's' : ''}? They will be hidden from the public but data will be preserved.`
+      case "unarchive":
+        return `Unarchive ${count} hunt${count > 1 ? 's' : ''}? They will be visible to the public again.`
+      case "soft-delete":
+        return `Soft delete ${count} hunt${count > 1 ? 's' : ''}? They will be moved to trash and can be restored within 30 days.`
+      case "restore":
+        return `Restore ${count} hunt${count > 1 ? 's' : ''}? They will be moved back to your active hunts.`
+      case "permanent-delete":
+        return `Permanently delete ${count} hunt${count > 1 ? 's' : ''}? This action cannot be undone and all data will be lost.`
+    }
+  }
+
+  const getCurrentHunts = () => {
+    switch (activeTab) {
+      case "active":
+        return hunts.filter(h => !h.isArchived)
+      case "archived":
+        return archivedHunts
+      case "deleted":
+        return softDeletedHunts
+      default:
+        return hunts
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-12">
       <OnboardingTour tourType="creator" />
@@ -117,9 +207,123 @@ export default function CreatorPage() {
             Take Tour
           </Button>
         </h1>
-        <p className="mb-8 text-slate-600">
+        <p className="mb-6 text-slate-600">
           View and manage hunts you have created. Draft hunts open in Edit; Active hunts open Live Statistics.
         </p>
+
+        {/* Tabs */}
+        <div className="mb-6 flex gap-2 border-b border-slate-200">
+          <button
+            onClick={() => { setActiveTab("active"); setSelectedHunts([]) }}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "active"
+                ? "border-[#3737A4] text-[#3737A4]"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Active ({hunts.filter(h => !h.isArchived).length})
+          </button>
+          <button
+            onClick={() => { setActiveTab("archived"); setSelectedHunts([]) }}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "archived"
+                ? "border-[#3737A4] text-[#3737A4]"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Archived ({archivedHunts.length})
+          </button>
+          <button
+            onClick={() => { setActiveTab("deleted"); setSelectedHunts([]) }}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "deleted"
+                ? "border-[#3737A4] text-[#3737A4]"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Trash ({softDeletedHunts.length})
+          </button>
+        </div>
+
+        {/* Bulk actions */}
+        {selectedHunts.length > 0 && (
+          <div className="mb-4 flex items-center gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <span className="text-sm text-slate-600">{selectedHunts.length} selected</span>
+            {activeTab === "active" && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("archive", selectedHunts)}
+                  className="gap-1"
+                >
+                  <Archive className="w-4 h-4" />
+                  Archive
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("soft-delete", selectedHunts)}
+                  className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
+              </>
+            )}
+            {activeTab === "archived" && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("unarchive", selectedHunts)}
+                  className="gap-1"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Unarchive
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("soft-delete", selectedHunts)}
+                  className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
+              </>
+            )}
+            {activeTab === "deleted" && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("restore", selectedHunts)}
+                  className="gap-1"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Restore
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAction("permanent-delete", selectedHunts)}
+                  className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Permanent Delete
+                </Button>
+              </>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setSelectedHunts([])}
+            >
+              Clear selection
+            </Button>
+          </div>
+        )}
 
         {!connected ? (
           <Card className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
@@ -155,10 +359,11 @@ export default function CreatorPage() {
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {hunts.map((hunt) => {
+              {getCurrentHunts().map((hunt) => {
                 const isDraft = hunt.status === "Draft"
                 const isActive = hunt.status === "Active"
                 const isClickable = isDraft || isActive
+                const isSelected = selectedHunts.includes(hunt.id)
 
                 return (
                   <Card
@@ -167,14 +372,24 @@ export default function CreatorPage() {
                       isClickable
                         ? "cursor-pointer hover:shadow-md"
                         : "opacity-90"
-                    }`}
-                    onClick={() => isClickable && handleCardClick(hunt)}
+                    } ${isSelected ? "ring-2 ring-[#3737A4]" : ""}`}
                   >
                     <div className="p-5">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <CardTitle className="line-clamp-2 text-lg">
-                          {hunt.title}
-                        </CardTitle>
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              e.stopPropagation()
+                              toggleHuntSelection(hunt.id)
+                            }}
+                            className="w-4 h-4 rounded border-slate-300 text-[#3737A4] focus:ring-[#3737A4]"
+                          />
+                          <CardTitle className="line-clamp-2 text-lg">
+                            {hunt.title}
+                          </CardTitle>
+                        </div>
                         <StatusBadge status={hunt.status} />
                       </div>
                       <CardDescription className="mb-4 line-clamp-3 text-sm text-slate-600">
@@ -184,19 +399,110 @@ export default function CreatorPage() {
                         <span className="text-xs text-slate-500">
                           {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
                         </span>
-                        {isDraft && (
-                          <span className="flex items-center gap-1 text-xs text-amber-700">
-                            <Pencil className="h-3 w-3" />
-                            Edit
-                          </span>
-                        )}
-                        {isActive && (
-                          <span className="flex items-center gap-1 text-xs text-emerald-700">
-                            <BarChart3 className="h-3 w-3" />
-                            Live Statistics
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {isDraft && (
+                            <span className="flex items-center gap-1 text-xs text-amber-700">
+                              <Pencil className="h-3 w-3" />
+                              Edit
+                            </span>
+                          )}
+                          {isActive && (
+                            <span className="flex items-center gap-1 text-xs text-emerald-700">
+                              <BarChart3 className="h-3 w-3" />
+                              Live Statistics
+                            </span>
+                          )}
+                          {/* Individual action buttons */}
+                          {activeTab === "active" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("archive", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-slate-500 hover:text-slate-700"
+                              >
+                                <Archive className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("soft-delete", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          {activeTab === "archived" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("unarchive", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-slate-500 hover:text-slate-700"
+                                title="Unarchive"
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("soft-delete", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          {activeTab === "deleted" && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("restore", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-emerald-500 hover:text-emerald-700"
+                                title="Restore"
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAction("permanent-delete", [hunt.id])
+                                }}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                title="Permanent Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
+                      {hunt.deletedAt && (
+                        <div className="mt-2 text-xs text-orange-600 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          Expires in {Math.ceil((hunt.deletedAt + (hunt.recoveryWindow || 30 * 86400) - Math.floor(Date.now() / 1000)) / 86400)} days
+                        </div>
+                      )}
                     </div>
                   </Card>
                 )
@@ -214,6 +520,38 @@ export default function CreatorPage() {
             </div>
           </>
         )}
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                {confirmDialog.action === "permanent-delete" && <AlertTriangle className="h-5 w-5 text-red-600" />}
+                {confirmDialog.action === "archive" && <Archive className="h-5 w-5 text-slate-600" />}
+                {confirmDialog.action === "unarchive" && <RefreshCw className="h-5 w-5 text-slate-600" />}
+                {confirmDialog.action === "soft-delete" && <Trash2 className="h-5 w-5 text-orange-600" />}
+                {confirmDialog.action === "restore" && <CheckCircle className="h-5 w-5 text-emerald-600" />}
+                {confirmDialog.action.charAt(0).toUpperCase() + confirmDialog.action.slice(1).replace("-", " ")}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {getActionMessage()}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmAction}
+                className={
+                  confirmDialog.action === "permanent-delete" || confirmDialog.action === "soft-delete"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-[#3737A4] hover:bg-slate-800"
+                }
+              >
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )

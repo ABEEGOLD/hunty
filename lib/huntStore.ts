@@ -138,9 +138,9 @@ function writeHunts(hunts: StoredHunt[]): void {
   }
 }
 
-/** All hunts (for Game Arcade: filter by status === "Active"). Private hunts are excluded. */
+/** All hunts (for Game Arcade: filter by status === "Active"). Private, archived, and soft-deleted hunts are excluded. */
 export function getAllHunts(): StoredHunt[] {
-  return readHunts().filter((h) => !h.is_private)
+  return readHunts().filter((h) => !h.is_private && !h.isArchived && !h.deletedAt)
 }
 
 /** All hunts including private ones (for creator dashboard). */
@@ -148,9 +148,9 @@ export function getAllHuntsIncludingPrivate(): StoredHunt[] {
   return readHunts()
 }
 
-/** Creator hunts for dashboard (all stored hunts including private; creator filter can be added later). */
+/** Creator hunts for dashboard (all stored hunts including private; excludes soft-deleted). */
 export function getCreatorHunts(): StoredHunt[] {
-  return readHunts()
+  return readHunts().filter((h) => !h.deletedAt)
 }
 
 /** Get hunts for a creator (creator public-key filter not implemented yet; returns all hunts). */
@@ -203,12 +203,74 @@ export function deleteHunts(ids: number[]): void {
   writeClues(remainingClues)
 }
 
-/** Archive (Cancel) multiple hunts by IDs. */
+/** Archive (hide from public) multiple hunts by IDs. Data is preserved. */
 export function archiveHunts(ids: number[]): void {
-  const hunts = readHunts().map((h) => 
-    ids.includes(h.id) ? { ...h, status: "Cancelled" as HuntStatus } : h
+  const hunts = readHunts().map((h) =>
+    ids.includes(h.id) ? { ...h, isArchived: true } : h
   )
   writeHunts(hunts)
+}
+
+/** Unarchive (restore to public) multiple hunts by IDs. */
+export function unarchiveHunts(ids: number[]): void {
+  const hunts = readHunts().map((h) =>
+    ids.includes(h.id) ? { ...h, isArchived: false } : h
+  )
+  writeHunts(hunts)
+}
+
+/** Soft delete multiple hunts by IDs with 30-day recovery window. */
+export function softDeleteHunts(ids: number[]): void {
+  const now = Math.floor(Date.now() / 1000)
+  const recoveryWindow = 30 * 86400 // 30 days in seconds
+  const hunts = readHunts().map((h) =>
+    ids.includes(h.id) ? { ...h, deletedAt: now, recoveryWindow } : h
+  )
+  writeHunts(hunts)
+}
+
+/** Restore soft-deleted hunts by IDs. */
+export function restoreHunts(ids: number[]): void {
+  const hunts = readHunts().map((h) =>
+    ids.includes(h.id) ? { ...h, deletedAt: undefined, recoveryWindow: undefined } : h
+  )
+  writeHunts(hunts)
+}
+
+/** Permanently delete hunts (irreversible). */
+export function permanentDeleteHunts(ids: number[]): void {
+  const hunts = readHunts().filter((h) => !ids.includes(h.id))
+  writeHunts(hunts)
+
+  // Also clean up clues for these hunts
+  const allClues = readClues()
+  const remainingClues = allClues.filter((c) => !ids.includes(c.huntId))
+  writeClues(remainingClues)
+}
+
+/** Get archived hunts. */
+export function getArchivedHunts(): StoredHunt[] {
+  return readHunts().filter((h) => h.isArchived)
+}
+
+/** Get soft-deleted hunts that are still within recovery window. */
+export function getSoftDeletedHunts(): StoredHunt[] {
+  const now = Math.floor(Date.now() / 1000)
+  return readHunts().filter((h) => {
+    if (!h.deletedAt) return false
+    const recoveryDeadline = h.deletedAt + (h.recoveryWindow || 30 * 86400)
+    return now < recoveryDeadline
+  })
+}
+
+/** Get hunts that are past recovery window (eligible for cleanup). */
+export function getExpiredSoftDeletedHunts(): StoredHunt[] {
+  const now = Math.floor(Date.now() / 1000)
+  return readHunts().filter((h) => {
+    if (!h.deletedAt) return false
+    const recoveryDeadline = h.deletedAt + (h.recoveryWindow || 30 * 86400)
+    return now >= recoveryDeadline
+  })
 }
 
 /** Get a single hunt by ID */
