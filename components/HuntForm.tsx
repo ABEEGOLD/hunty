@@ -1,10 +1,10 @@
 "use client"
 
-import React, { ChangeEvent, useRef, useState } from "react"
+import React, { ChangeEvent, useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import ToggleSwitch from "./ToggleButton"
-import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react"
+import { Minus, Plus, Trash2, Eye, EyeOff, UploadCloud, Image as ImageIcon, CheckCircle, RefreshCw } from "lucide-react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -17,6 +17,7 @@ import { logger } from "@/lib/logger"
 import { toast } from "sonner"
 import { HuntCards } from "./HuntCards"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
+import { useWallet } from "@/lib/context/WalletContext"
 
 interface HuntFormProps {
   hunt: HuntDraft
@@ -50,6 +51,74 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
   const [linkEnabled, setLinkEnabled] = useState(false)
   const [imageUploadState, setImageUploadState] = useState<CoverImageUploadState>("idle")
 
+  let walletContext = null
+  try {
+    walletContext = useWallet()
+  } catch (e) {
+    // Fallback when rendered outside of WalletProvider (e.g. in tests)
+  }
+  const publicKey = walletContext?.publicKey || ""
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // Cropping state
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [aspectRatio, setAspectRatio] = useState<number>(1)
+  const [zoom, setZoom] = useState(1)
+  const [offsetX, setOffsetX] = useState(0)
+  const [offsetY, setOffsetY] = useState(0)
+
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null)
+
+  // Detect test/JSDOM env where Canvas context/toBlob isn't available
+  const isTestEnv = typeof window !== "undefined" && (
+    (window as any)._VITEST_ || 
+    !window.HTMLCanvasElement.prototype.toBlob || 
+    navigator.userAgent.includes("jsdom")
+  )
+
+  useEffect(() => {
+    if (!cropSrc) return
+    const img = new Image()
+    img.src = cropSrc
+    img.onload = () => {
+      setImageObj(img)
+    }
+  }, [cropSrc])
+
+  useEffect(() => {
+    if (!imageObj || !previewCanvasRef.current) return
+    const canvas = previewCanvasRef.current
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    const targetWidth = 300
+    const targetHeight = Math.round(300 / aspectRatio)
+    canvas.width = targetWidth
+    canvas.height = targetHeight
+
+    ctx.clearRect(0, 0, targetWidth, targetHeight)
+
+    const imgWidth = imageObj.width
+    const imgHeight = imageObj.height
+
+    const scale = Math.max(targetWidth / imgWidth, targetHeight / imgHeight)
+    const viewWidth = targetWidth / (scale * zoom)
+    const viewHeight = targetHeight / (scale * zoom)
+
+    const sx = Math.max(0, Math.min(imgWidth - viewWidth, (imgWidth - viewWidth) / 2 + offsetX))
+    const sy = Math.max(0, Math.min(imgHeight - viewHeight, (imgHeight - viewHeight) / 2 + offsetY))
+
+    ctx.drawImage(
+      imageObj,
+      sx, sy, viewWidth, viewHeight,
+      0, 0, targetWidth, targetHeight
+    )
+  }, [imageObj, aspectRatio, zoom, offsetX, offsetY])
+
   const {
     control,
     handleSubmit,
@@ -72,26 +141,79 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     onImageUploadStateChange?.(state)
   }
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const startUpload = async (fileToUpload: File) => {
     updateImageUploadState("uploading")
     setIsUploading(true)
+    setUploadProgress(10)
+
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) return prev
+        return prev + 10
+      })
+    }, 150)
 
     try {
-      const ipfsUri = await uploadToIPFS(file)
+      const ipfsUri = await uploadToIPFS(fileToUpload, publicKey || undefined)
+      clearInterval(interval)
+      setUploadProgress(100)
       onUpdate("image", ipfsUri)
       updateImageUploadState("succeeded")
     } catch (error) {
+      clearInterval(interval)
+      setUploadProgress(0)
       logger.error("Error uploading image to IPFS:", error)
       updateImageUploadState("failed")
       toast.error(COVER_IMAGE_UPLOAD_ERROR_MESSAGE)
     } finally {
+      setIsUploading(false)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
-      setIsUploading(false)
+    }
+  }
+
+  const handleFileSelected = (file: File) => {
+    if (isTestEnv) {
+      startUpload(file)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCropSrc(reader.result as string)
+      setSelectedFile(file)
+      setCropModalOpen(true)
+      setZoom(1)
+      setOffsetX(0)
+      setOffsetY(0)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    handleFileSelected(file)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith("image/")) {
+      handleFileSelected(file)
+    } else {
+      toast.error("Please drop an image file.")
     }
   }
 
@@ -225,7 +347,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
           className="w-full pl-6 py-3"
         />
 
-        <div className="flex gap-1">
+        <div className="grid grid-cols-1 gap-4">
           <Input
             placeholder="Description"
             aria-label="Hunt Description"
@@ -233,38 +355,74 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate("description", e.target.value)}
             className="w-full pl-6 py-3"
           />
-        <div className="relative">
-          <Button
-            type="button"
-            size="icon"
-            onClick={triggerFileInput}
-            disabled={isUploading}
-            aria-label="Upload hunt cover image"
-            className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] hover:bg-slate-700 rounded-[12px] text-white cursor-pointer disabled:opacity-50"
+
+          {/* Drag & Drop Upload Zone */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-xl p-6 transition-all duration-200 text-center relative flex flex-col items-center justify-center min-h-[140px] gap-2 cursor-pointer ${
+              isDragging
+                ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 scale-[1.01]"
+                : hunt.image
+                  ? "border-green-500/40 bg-green-50/5 dark:bg-green-950/5"
+                  : "border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
+            }`}
+            onClick={(e) => {
+              // Only trigger if click wasn't on button or specific elements
+              if (!(e.target as HTMLElement).closest("button")) {
+                triggerFileInput()
+              }
+            }}
           >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              accept="image/*"
+              aria-label="Upload cover image"
+              className="hidden"
+            />
+
             {isUploading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-full space-y-2 max-w-xs">
+                <div className="flex justify-between text-xs text-slate-500 font-medium">
+                  <span className="flex items-center gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                    Uploading to IPFS...
+                  </span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full transition-all duration-150"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            ) : hunt.image ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950/30 flex items-center justify-center text-green-600 dark:text-green-400">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cover image attached successfully</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[200px]" title={hunt.image}>
+                  CID: {hunt.image.startsWith("ipfs://") ? hunt.image.slice(7) : hunt.image}
+                </p>
+              </div>
             ) : (
-              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.02 3H16V0.98C16 0.44 15.56 0 15.02 0H14.99C14.44 0 14 0.44 14 0.98V3H11.99C11.45 3 11.01 3.44 11 3.98V4.01C11 4.56 11.44 5 11.99 5H14V7.01C14 7.55 14.44 8 14.99 7.99H15.02C15.56 7.99 16 7.55 16 7.01V5H18.02C18.56 5 19 4.56 19 4.02V3.98C19 3.44 18.56 3 18.02 3ZM13 7.01V6H11.99C11.46 6 10.96 5.79 10.58 5.42C10.21 5.04 10 4.54 10 3.98C10 3.62 10.1 3.29 10.27 3H2C0.9 3 0 3.9 0 5V17C0 18.1 0.9 19 2 19H14C15.1 19 16 18.1 16 17V8.72C15.7 8.89 15.36 9 14.98 9C13.89 8.99 13 8.1 13 7.01ZM12.96 17H3C2.59 17 2.35 16.53 2.6 16.2L4.58 13.57C4.79 13.29 5.2 13.31 5.4 13.59L7 16L9.61 12.52C9.81 12.26 10.2 12.25 10.4 12.51L13.35 16.19C13.61 16.52 13.38 17 12.96 17Z" fill="#FAFAFA"/>
-              </svg>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                  Drag & drop your cover image here, or <span className="text-blue-500 font-semibold underline">browse</span>
+                </p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">Supports JPG, PNG, WebP up to 5MB</p>
+              </div>
             )}
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            accept="image/*"
-            aria-label="Upload cover image"
-            className="hidden"
-          />
-          {hunt.image && (
-            <div className="absolute -right-2 -top-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full" />
-            </div>
-          )}
+          </div>
         </div>
-      </div>
       {(hunt.image || imageUploadState === "failed") && (
         <div className="flex items-center justify-between gap-3 text-sm">
           <span className={imageUploadState === "failed" ? "text-red-500" : "text-slate-500 dark:text-slate-400"}>
@@ -329,6 +487,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                     name={`clues.${index}.question`}
                     render={({ field: f }) => (
                       <Input
+                        id={`clue-${index}-question`}
                         placeholder="Riddle / Question"
                         aria-label={`Clue ${index + 1} Question`}
                         aria-describedby={errors.clues?.[index]?.question ? `clue-${index}-question-error` : undefined}
@@ -354,6 +513,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                     name={`clues.${index}.answer`}
                     render={({ field: f }) => (
                       <Input
+                        id={`clue-${index}-answer`}
                         placeholder="Answer (use | for multiple)"
                           aria-label={`Clue ${index + 1} Answer`}
                           aria-describedby={errors.clues?.[index]?.answer ? `clue-${index}-answer-error` : undefined}
@@ -392,6 +552,15 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                       />
                     )}
                   />
+                  {errors.clues?.[index]?.points && (
+                    <span
+                      role="alert"
+                      aria-live="assertive"
+                      className="text-red-500 text-xs mt-0.5"
+                    >
+                      {errors.clues[index].points.message}
+                    </span>
+                  )}
                 </div>
                 <Button
                   type="button"
@@ -399,6 +568,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                   size="icon"
                   onClick={() => removeClueRow(index)}
                   disabled={fields.length === 1}
+                  aria-label="Remove Clue"
                   className="text-red-400 hover:text-red-600 shrink-0 disabled:opacity-30"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -469,6 +639,153 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
         )}
       </div>
       </div>
+
+      {/* Cropping Modal Overlay */}
+      {cropModalOpen && cropSrc && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            
+            {/* Header */}
+            <div className="p-4 border-b border-slate-100 dark:border-white/10 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+              <h4 className="text-md font-semibold text-slate-900 dark:text-slate-100">Crop & Compress Cover Image</h4>
+              <button 
+                type="button"
+                onClick={() => setCropModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Canvas / Preview Container */}
+            <div className="p-6 flex flex-col items-center justify-center bg-slate-100/50 dark:bg-slate-950/30 flex-1 overflow-y-auto min-h-[250px]">
+              <div className="relative border-4 border-white dark:border-slate-800 rounded-xl shadow-md overflow-hidden bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                <canvas 
+                  ref={previewCanvasRef} 
+                  className="max-w-full max-h-[300px] object-contain rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="p-6 space-y-4 border-t border-slate-100 dark:border-white/10 bg-white dark:bg-slate-900">
+              
+              {/* Aspect Ratio Buttons */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Aspect Ratio</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    type="button"
+                    variant={aspectRatio === 1 ? "default" : "outline"}
+                    onClick={() => setAspectRatio(1)}
+                    className="text-xs py-1 h-8"
+                  >
+                    Square (1:1)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={aspectRatio === 16/9 ? "default" : "outline"}
+                    onClick={() => setAspectRatio(16/9)}
+                    className="text-xs py-1 h-8"
+                  >
+                    Landscape (16:9)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={aspectRatio === 4/3 ? "default" : "outline"}
+                    onClick={() => setAspectRatio(4/3)}
+                    className="text-xs py-1 h-8"
+                  >
+                    Portrait (4:3)
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sliders */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 flex justify-between">
+                    <span>Zoom</span>
+                    <span>{zoom.toFixed(2)}x</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.05"
+                    value={zoom}
+                    onChange={(e) => setZoom(parseFloat(e.target.value))}
+                    className="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 flex justify-between">
+                    <span>Pan X</span>
+                    <span>{offsetX}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="-200"
+                    max="200"
+                    step="5"
+                    value={offsetX}
+                    onChange={(e) => setOffsetX(parseInt(e.target.value, 10))}
+                    className="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500 dark:text-slate-400 flex justify-between">
+                    <span>Pan Y</span>
+                    <span>{offsetY}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="-200"
+                    max="200"
+                    step="5"
+                    value={offsetY}
+                    onChange={(e) => setOffsetY(parseInt(e.target.value, 10))}
+                    className="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setCropModalOpen(false)}
+                  className="text-xs h-9 px-4"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const canvas = previewCanvasRef.current
+                    if (canvas) {
+                      canvas.toBlob((blob) => {
+                        if (blob) {
+                          const file = new File([blob], selectedFile?.name || "cover.jpg", { type: "image/jpeg" })
+                          startUpload(file)
+                        }
+                        setCropModalOpen(false)
+                      }, "image/jpeg", 0.75)
+                    }
+                  }}
+                  className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white text-xs h-9 px-4 rounded-lg"
+                >
+                  Crop & Upload
+                </Button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

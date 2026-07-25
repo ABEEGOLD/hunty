@@ -8,8 +8,6 @@ import { PageSkeleton } from "@/components/PageSkeleton"
 import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 import Providers from "./providers"
 import PWAInstallPrompt from "@/components/PWAInstallPrompt"
-import { PageSkeleton } from "@/components/PageSkeleton"
-import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 
 export const viewport: Viewport = {
   themeColor: "#7c3aed",

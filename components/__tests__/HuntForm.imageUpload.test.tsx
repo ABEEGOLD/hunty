@@ -43,7 +43,7 @@ vi.mock("@/lib/txToast", () => ({
 }))
 
 vi.mock("@/components/HuntCards", () => ({
-  HuntCards: () => <div data-testid="hunt-cards-preview" />,
+  HuntCards: () => React.createElement("div", { "data-testid": "hunt-cards-preview" }),
 }))
 
 const baseHunt: HuntDraft = {

@@ -189,7 +189,8 @@ export function GameCompleteModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md text-center">
         <DialogHeader>
           <DialogTitle className="bg-gradient-to-br from-[#2F2FFF] to-[#E87785] bg-clip-text text-transparent text-2xl font-bold mb-4 text-center">Game Complete</DialogTitle>
@@ -359,5 +360,6 @@ export function GameCompleteModal({
         newTier={levelUpData.newTier}
       />
     )}
+    </>
   )
 }
