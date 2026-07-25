@@ -9,8 +9,10 @@ import {
   getConfig,
   setConfig,
 } from "@/lib/anti-cheat"
+import { NotFoundError, ValidationError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
-export async function GET(req: Request) {
+export const GET = withErrorHandling(async (req: Request) => {
   const { searchParams } = new URL(req.url)
   const type = searchParams.get("type") || "flagged"
   const wallet = searchParams.get("wallet") || undefined
@@ -27,23 +29,23 @@ export async function GET(req: Request) {
     case "config":
       return NextResponse.json({ config: getConfig() })
     default:
-      return NextResponse.json({ error: "Invalid type parameter" }, { status: 400 })
+      throw new ValidationError("Invalid type parameter", { type })
   }
-}
+})
 
-export async function POST(req: Request) {
+export const POST = withErrorHandling(async (req: Request) => {
   let body: { action?: string; wallet?: string; ip?: string; reason?: string; bannedBy?: string; config?: Record<string, unknown> }
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    throw new ValidationError("Invalid request body")
   }
 
   const { action } = body
 
   if (action === "ban") {
     if (!body.wallet) {
-      return NextResponse.json({ error: "wallet is required to ban" }, { status: 400 })
+      throw new ValidationError("wallet is required to ban", { field: "wallet" })
     }
     banUser(body.wallet, body.ip || "", body.reason || "Manual ban by admin", body.bannedBy || "admin")
     return NextResponse.json({ success: true })
@@ -51,11 +53,11 @@ export async function POST(req: Request) {
 
   if (action === "unban") {
     if (!body.wallet) {
-      return NextResponse.json({ error: "wallet is required to unban" }, { status: 400 })
+      throw new ValidationError("wallet is required to unban", { field: "wallet" })
     }
     const result = unbanUser(body.wallet)
     if (!result) {
-      return NextResponse.json({ error: "User not found in bans" }, { status: 404 })
+      throw new NotFoundError("User not found in bans", { wallet: body.wallet })
     }
     return NextResponse.json({ success: true })
   }
@@ -65,8 +67,8 @@ export async function POST(req: Request) {
       setConfig(body.config as Parameters<typeof setConfig>[0])
       return NextResponse.json({ success: true, config: getConfig() })
     }
-    return NextResponse.json({ error: "config is required" }, { status: 400 })
+    throw new ValidationError("config is required", { field: "config" })
   }
 
-  return NextResponse.json({ error: "Invalid action" }, { status: 400 })
-}
+  throw new ValidationError("Invalid action", { action })
+})

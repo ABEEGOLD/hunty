@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
 import fs from "fs"
 import path from "path"
+import { ValidationError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
 const FILE_PATH = path.join(process.cwd(), "lib", "featuredHuntServer.json")
 
@@ -31,17 +33,20 @@ function writeFeaturedId(id: number | null): void {
   }
 }
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const featuredHuntId = readFeaturedId()
   return NextResponse.json({ featuredHuntId })
-}
+})
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  let body: { huntId?: number | null }
   try {
-    const { huntId } = await req.json() as { huntId: number | null }
-    writeFeaturedId(huntId)
-    return NextResponse.json({ success: true, featuredHuntId: huntId })
+    body = (await req.json()) as { huntId: number | null }
   } catch {
-    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 })
+    throw new ValidationError("Invalid request payload")
   }
-}
+
+  const { huntId } = body
+  writeFeaturedId(huntId ?? null)
+  return NextResponse.json({ success: true, featuredHuntId: huntId ?? null })
+})

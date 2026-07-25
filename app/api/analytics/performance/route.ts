@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
+import { ValidationError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
 const PERFORMANCE_STORE_PATH = path.join(
   process.cwd(),
@@ -82,49 +84,44 @@ function summarizeMetrics(metrics: StoredMetric[]) {
   })
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = (await request.json()) as {
-      name?: string
-      value?: number
-      rating?: string
-      timestamp?: number
-      url?: string
-    }
-    const { name, value, rating, timestamp, url } = body
-
-    if (!name || typeof value !== "number") {
-      return NextResponse.json(
-        { error: "Invalid metric payload" },
-        { status: 400 }
-      )
-    }
-
-    const store = await readStore()
-    store.metrics.push({
-      name,
-      value,
-      rating: rating ?? "needs-improvement",
-      timestamp: timestamp ?? Date.now(),
-      url: url ?? "unknown",
-    })
-
-    if (store.metrics.length > 10000) {
-      store.metrics = store.metrics.slice(-10000)
-    }
-
-    await writeStore(store)
-
-    return NextResponse.json({ success: true })
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to record metric" },
-      { status: 500 }
-    )
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  let body: {
+    name?: string
+    value?: number
+    rating?: string
+    timestamp?: number
+    url?: string
   }
-}
+  try {
+    body = await request.json()
+  } catch {
+    throw new ValidationError("Invalid metric payload")
+  }
+  const { name, value, rating, timestamp, url } = body
 
-export async function GET(request: NextRequest) {
+  if (!name || typeof value !== "number") {
+    throw new ValidationError("Invalid metric payload", { name, value })
+  }
+
+  const store = await readStore()
+  store.metrics.push({
+    name,
+    value,
+    rating: rating ?? "needs-improvement",
+    timestamp: timestamp ?? Date.now(),
+    url: url ?? "unknown",
+  })
+
+  if (store.metrics.length > 10000) {
+    store.metrics = store.metrics.slice(-10000)
+  }
+
+  await writeStore(store)
+
+  return NextResponse.json({ success: true })
+})
+
+export const GET = withErrorHandling(async (request: NextRequest) => {
   const url = new URL(request.url)
   const metricName = url.searchParams.get("metric")
   const limit = Math.min(Number(url.searchParams.get("limit")) || 100, 1000)
@@ -140,4 +137,4 @@ export async function GET(request: NextRequest) {
   const summary = summarizeMetrics(store.metrics)
 
   return NextResponse.json({ metrics: recent, summary })
-}
+})

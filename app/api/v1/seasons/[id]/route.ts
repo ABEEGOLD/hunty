@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { getSeasonById, updateSeasonStatus, archiveSeason, getCurrentSeasonLeaderboard } from "@/lib/seasonStore";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+import { NotFoundError, ValidationError } from "@/lib/api/errors";
+import { withErrorHandling } from "@/lib/api/withErrorHandling";
+
+type Context = { params: Promise<{ id: string }> };
 
 /**
  * GET /api/v1/seasons/[id]
  * Get a specific season by ID
  */
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const GET = withErrorHandling<Context>(async (req, { params }) => {
   const ip = getIP(req);
   const { success, reset } = rateLimit(ip, { limit: 100, windowMs: 60 * 1000 });
 
@@ -21,38 +22,30 @@ export async function GET(
   const seasonId = parseInt(id, 10);
 
   if (isNaN(seasonId)) {
-    return NextResponse.json({ error: "Invalid season ID" }, { status: 400 });
+    throw new ValidationError("Invalid season ID", { id });
   }
 
-  try {
-    const season = getSeasonById(seasonId);
-    if (!season) {
-      return NextResponse.json({ error: "Season not found" }, { status: 404 });
-    }
-
-    const leaderboard = getCurrentSeasonLeaderboard();
-    const now = Math.floor(Date.now() / 1000);
-    const timeRemaining = season.status === "Active" ? Math.max(0, season.endTime - now) : 0;
-
-    return NextResponse.json({
-      season,
-      leaderboard,
-      timeRemaining,
-    });
-  } catch (error) {
-    console.error(`Error fetching season ${seasonId}:`, error);
-    return NextResponse.json({ error: "Failed to fetch season" }, { status: 500 });
+  const season = getSeasonById(seasonId);
+  if (!season) {
+    throw new NotFoundError("Season not found", { seasonId });
   }
-}
+
+  const leaderboard = getCurrentSeasonLeaderboard();
+  const now = Math.floor(Date.now() / 1000);
+  const timeRemaining = season.status === "Active" ? Math.max(0, season.endTime - now) : 0;
+
+  return NextResponse.json({
+    season,
+    leaderboard,
+    timeRemaining,
+  });
+});
 
 /**
  * PATCH /api/v1/seasons/[id]
  * Update season status or other fields (admin only)
  */
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const PATCH = withErrorHandling<Context>(async (req, { params }) => {
   const ip = getIP(req);
   const { success, reset } = rateLimit(ip, { limit: 10, windowMs: 60 * 1000 });
 
@@ -64,33 +57,34 @@ export async function PATCH(
   const seasonId = parseInt(id, 10);
 
   if (isNaN(seasonId)) {
-    return NextResponse.json({ error: "Invalid season ID" }, { status: 400 });
+    throw new ValidationError("Invalid season ID", { id });
   }
 
+  let body: { status?: string };
   try {
-    const body = await req.json();
-    const { status } = body;
-
-    if (status) {
-      updateSeasonStatus(seasonId, status);
-    }
-
-    const updatedSeason = getSeasonById(seasonId);
-    return NextResponse.json({ season: updatedSeason });
-  } catch (error) {
-    console.error(`Error updating season ${seasonId}:`, error);
-    return NextResponse.json({ error: "Failed to update season" }, { status: 500 });
+    body = await req.json();
+  } catch {
+    throw new ValidationError("Invalid request body");
   }
-}
+  const { status } = body;
+
+  if (status) {
+    updateSeasonStatus(seasonId, status);
+  }
+
+  const updatedSeason = getSeasonById(seasonId);
+  if (!updatedSeason) {
+    throw new NotFoundError("Season not found", { seasonId });
+  }
+
+  return NextResponse.json({ season: updatedSeason });
+});
 
 /**
  * POST /api/v1/seasons/[id]/archive
  * Archive a season with its final leaderboard
  */
-export async function POST(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const POST = withErrorHandling<Context>(async (req, { params }) => {
   const ip = getIP(req);
   const { success, reset } = rateLimit(ip, { limit: 5, windowMs: 60 * 1000 });
 
@@ -102,21 +96,21 @@ export async function POST(
   const seasonId = parseInt(id, 10);
 
   if (isNaN(seasonId)) {
-    return NextResponse.json({ error: "Invalid season ID" }, { status: 400 });
+    throw new ValidationError("Invalid season ID", { id });
   }
 
+  let body: { finalLeaderboard?: unknown };
   try {
-    const body = await req.json();
-    const { finalLeaderboard } = body;
-
-    if (!Array.isArray(finalLeaderboard)) {
-      return NextResponse.json({ error: "finalLeaderboard must be an array" }, { status: 400 });
-    }
-
-    const archived = archiveSeason(seasonId, finalLeaderboard);
-    return NextResponse.json({ archived }, { status: 200 });
-  } catch (error) {
-    console.error(`Error archiving season ${seasonId}:`, error);
-    return NextResponse.json({ error: "Failed to archive season" }, { status: 500 });
+    body = await req.json();
+  } catch {
+    throw new ValidationError("Invalid request body");
   }
-}
+  const { finalLeaderboard } = body;
+
+  if (!Array.isArray(finalLeaderboard)) {
+    throw new ValidationError("finalLeaderboard must be an array", { field: "finalLeaderboard" });
+  }
+
+  const archived = archiveSeason(seasonId, finalLeaderboard);
+  return NextResponse.json({ archived }, { status: 200 });
+});

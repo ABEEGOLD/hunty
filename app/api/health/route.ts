@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   return NextResponse.json(
     {
       status: "ok",
@@ -15,4 +16,4 @@ export async function GET() {
       },
     }
   );
-}
+});

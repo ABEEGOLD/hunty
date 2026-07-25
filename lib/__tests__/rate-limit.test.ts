@@ -162,11 +162,14 @@ describe("rateLimitResponse", () => {
     vi.useRealTimers();
   });
 
-  it("returns an error message in the JSON body", async () => {
+  it("returns an error message and code in the JSON body", async () => {
     const reset = Date.now() + 60000;
     const response = rateLimitResponse(reset);
     const body = await response.json();
-    expect(body).toEqual({ error: "Too many requests. Please try again later." });
+    expect(body).toEqual({
+      error: "Too many requests. Please try again later.",
+      code: "RATE_LIMITED",
+    });
   });
 
   it("returns a JSON content-type header", () => {

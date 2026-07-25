@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { ServiceUnavailableError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
 const ANDROID_SHA256_CERT_FINGERPRINTS = process.env.ANDROID_SHA256_CERT_FINGERPRINTS
 const ANDROID_PACKAGE_NAME = process.env.ANDROID_PACKAGE_NAME || "com.yourorg.hunty"
@@ -10,24 +12,17 @@ function parseFingerprints(value: string) {
     .filter(Boolean)
 }
 
-export function GET() {
+export const GET = withErrorHandling(async () => {
   if (!ANDROID_SHA256_CERT_FINGERPRINTS) {
-    return NextResponse.json(
-      {
-        error:
-          "Android App Links are not configured. Add ANDROID_SHA256_CERT_FINGERPRINTS (comma-separated SHA-256 cert fingerprints) to environment variables.",
-      },
-      { status: 503 }
+    throw new ServiceUnavailableError(
+      "Android App Links are not configured. Add ANDROID_SHA256_CERT_FINGERPRINTS (comma-separated SHA-256 cert fingerprints) to environment variables."
     )
   }
 
   const fingerprints = parseFingerprints(ANDROID_SHA256_CERT_FINGERPRINTS)
 
   if (fingerprints.length === 0) {
-    return NextResponse.json(
-      { error: "ANDROID_SHA256_CERT_FINGERPRINTS is set but empty." },
-      { status: 503 }
-    )
+    throw new ServiceUnavailableError("ANDROID_SHA256_CERT_FINGERPRINTS is set but empty.")
   }
 
   return NextResponse.json(
@@ -47,5 +42,4 @@ export function GET() {
       },
     }
   )
-}
-
+})
