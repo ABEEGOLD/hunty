@@ -4,6 +4,9 @@
  */
 
 import type { HuntStatus, StoredHunt, Clue } from "@/lib/types"
+import { applyHuntScheduleTransitions } from "@/lib/huntScheduling"
+import { normalizeHuntStatus } from "@/lib/huntStatus"
+import { migrateHuntScheduleFieldsInCollection } from "@/lib/huntScheduleMigration"
 
 export type { HuntStatus, StoredHunt, Clue }
 
@@ -123,7 +126,7 @@ function readHunts(): StoredHunt[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return [...SEED_HUNTS]
     const parsed = JSON.parse(raw) as StoredHunt[]
-    return Array.isArray(parsed) ? parsed : [...SEED_HUNTS]
+    return Array.isArray(parsed) ? migrateHuntScheduleFieldsInCollection(parsed) : migrateHuntScheduleFieldsInCollection([...SEED_HUNTS])
   } catch {
     return [...SEED_HUNTS]
   }
@@ -140,23 +143,24 @@ function writeHunts(hunts: StoredHunt[]): void {
 
 /** All hunts (for Game Arcade: filter by status === "Active"). Private hunts are excluded. */
 export function getAllHunts(): StoredHunt[] {
-  return readHunts().filter((h) => !h.is_private)
+  return applyHuntScheduleTransitions(readHunts()).filter((h) => !h.is_private)
 }
 
 /** All hunts including private ones (for creator dashboard). */
 export function getAllHuntsIncludingPrivate(): StoredHunt[] {
-  return readHunts()
+  return applyHuntScheduleTransitions(readHunts())
 }
 
 /** Creator hunts for dashboard (all stored hunts including private; creator filter can be added later). */
 export function getCreatorHunts(): StoredHunt[] {
-  return readHunts()
+  return applyHuntScheduleTransitions(readHunts())
 }
 
 /** Get hunts for a creator (creator public-key filter not implemented yet; returns all hunts). */
 export function getHuntsByCreator(creator?: string): StoredHunt[] {
-  if (!creator) return readHunts()
-  return readHunts().filter((hunt) => {
+  const hunts = applyHuntScheduleTransitions(readHunts())
+  if (!creator) return hunts
+  return hunts.filter((hunt) => {
     const withCreator = hunt as StoredHunt & { creator?: string }
     return !withCreator.creator || withCreator.creator === creator
   })
@@ -213,7 +217,7 @@ export function archiveHunts(ids: number[]): void {
 
 /** Get a single hunt by ID */
 export function getHuntById(id: number): StoredHunt | undefined {
-  return readHunts().find((h) => h.id === id)
+  return applyHuntScheduleTransitions(readHunts()).find((h) => h.id === id)
 }
 
 /** Get reward-pool related data for a hunt. */
@@ -281,7 +285,11 @@ export function isPoolLow(huntId: number): boolean {
 export function addHunt(hunt: StoredHunt): void {
   const hunts = readHunts()
   if (hunts.some((h) => h.id === hunt.id)) return
-  writeHunts([...hunts, hunt])
+  const normalized = {
+    ...hunt,
+    status: normalizeHuntStatus(hunt.status) as StoredHunt["status"],
+  }
+  writeHunts([...hunts, normalized])
 }
 
 /** Get all clues for a specific hunt. */

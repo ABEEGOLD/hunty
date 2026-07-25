@@ -19,6 +19,12 @@ export function formatTimestamp(unixSeconds: number): string {
   }).format(date)
 }
 
+export function formatTimestampWithTimezone(unixSeconds: number): string {
+  const date = new Date(unixSeconds * 1000)
+  const timeZoneName = Intl.DateTimeFormat(undefined, { timeZoneName: "short" }).formatToParts(date).find((part) => part.type === "timeZoneName")?.value ?? "UTC"
+  return `${formatTimestamp(unixSeconds)} ${timeZoneName}`
+}
+
 /**
  * Format a Unix timestamp (seconds) into a short date string.
  * Example: "Feb 10, 2026"

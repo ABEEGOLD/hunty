@@ -18,6 +18,7 @@ Hunty is a cross-platform scavenger-hunt platform and dApp that combines web, mo
 ## Key Features
 
 - Create, publish, and manage hunts from a creator dashboard.
+- Schedule hunts with start/end datetimes, timezone-aware display, countdowns for upcoming hunts, and reminder emails before launch.
 - Play hunts with location and clue validation, progress tracking, and completion flows.
 - Mint and claim NFT rewards and on-chain token payouts for completed hunts.
 - Community and leaderboard features for social play and competition.
@@ -72,7 +73,13 @@ pnpm run build:ios:preview
 pnpm run update:preview
 ```
 
-5. Run tests:
+5. Configure reminder emails (optional but recommended for scheduled start reminders):
+
+```bash
+export RESEND_API_KEY=your_api_key
+```
+
+6. Run tests:
 
 ```bash
 pnpm test
@@ -81,6 +88,10 @@ pnpm run e2e
 ```
 
 The local coverage command writes an HTML report to `coverage/index.html`.
+
+### Hunt scheduling
+
+Creators can now define a hunt start and end time in their local timezone. The app stores those values in UTC internally and displays them for viewers in their browser timezone. Scheduled hunts automatically transition through `scheduled` → `active` → `ended`, and the reminder API can send a start-notice email to the creator ahead of launch.
 
 ## Docker development
 

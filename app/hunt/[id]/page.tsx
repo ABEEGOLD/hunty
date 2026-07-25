@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { getAllHunts, getHunt } from "@/lib/huntStore";
 import type { HuntStatus } from "@/lib/types";
-import { formatTimestamp } from "@/lib/dateUtils";
+import { formatTimestampWithTimezone } from "@/lib/dateUtils";
+import { getDisplayHuntStatus } from "@/lib/huntStatus";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import HuntDetailClient from "./share";
@@ -88,22 +89,36 @@ async function HuntPageContent({ id }: { id: string }) {
   const huntDetails = await getHunt(id);
   if (!huntDetails) return notFound();
 
-  const statusStyles: Record<string, { label: HuntStatus; classes: string }> = {
+  const normalizedStatus = String(huntDetails.status || "draft").toLowerCase()
+  const statusLabel = getDisplayHuntStatus(huntDetails.status)
+  const statusStyles: Record<string, { label: string; classes: string }> = {
     active: {
       label: "Active",
       classes: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
     },
-    upcoming: {
-      label: "Draft",
+    scheduled: {
+      label: "Scheduled",
       classes: "bg-amber-500/10 text-amber-400 border border-amber-500/30",
     },
     ended: {
+      label: "Ended",
+      classes: "bg-zinc-500/10 text-zinc-400 border border-zinc-500/30",
+    },
+    draft: {
+      label: "Draft",
+      classes: "bg-sky-500/10 text-sky-400 border border-sky-500/30",
+    },
+    completed: {
       label: "Completed",
       classes: "bg-zinc-500/10 text-zinc-400 border border-zinc-500/30",
     },
+    cancelled: {
+      label: "Cancelled",
+      classes: "bg-rose-500/10 text-rose-400 border border-rose-500/30",
+    },
   };
 
-  const status = statusStyles[huntDetails.status] ?? statusStyles["upcoming"];
+  const status = statusStyles[normalizedStatus] ?? statusStyles.draft;
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://hunty.app"
 
@@ -126,7 +141,7 @@ async function HuntPageContent({ id }: { id: string }) {
             {huntDetails?.status === "Active" && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             )}
-            {status.label}
+            {statusLabel}
           </span>
         </div>
 
@@ -150,22 +165,31 @@ async function HuntPageContent({ id }: { id: string }) {
           </div>
           <div className="col-span-2 sm:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-5">
             <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Status</p>
-            <p className="text-white font-semibold text-lg capitalize">{huntDetails.status}</p>
+            <p className="text-white font-semibold text-lg capitalize">{statusLabel}</p>
           </div>
           {huntDetails.startTime && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
               <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Starts</p>
-              <p className="text-white font-semibold text-sm">{formatTimestamp(huntDetails.startTime)}</p>
+              <p className="text-white font-semibold text-sm">{formatTimestampWithTimezone(huntDetails.startTime)}</p>
             </div>
           )}
           {huntDetails.endTime && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
               <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Ends</p>
-              <p className="text-white font-semibold text-sm">{formatTimestamp(huntDetails.endTime)}</p>
+              <p className="text-white font-semibold text-sm">{formatTimestampWithTimezone(huntDetails.endTime)}</p>
             </div>
           )}
-          {huntDetails.status === "Active" && huntDetails.endTime && (
-            <HuntCountdown endTime={huntDetails.endTime} />
+          {(normalizedStatus === "scheduled" || normalizedStatus === "active") && (huntDetails.startAt ?? huntDetails.startTime) && (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">{normalizedStatus === "scheduled" ? "Starts in" : "Live"}</p>
+              <p className="font-semibold text-sm text-amber-400">
+                {normalizedStatus === "scheduled" ? (
+                  <HuntCountdown endTime={huntDetails.startAt ?? huntDetails.startTime!} />
+                ) : (
+                  "This hunt is live now"
+                )}
+              </p>
+            </div>
           )}
         </div>
 

@@ -34,6 +34,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { toast } from "sonner"
 import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import { buildDraftHuntsFromTemplate, getStarterTemplateBySlug } from "@/lib/huntTemplates"
+import { formatTimestampWithTimezone } from "@/lib/dateUtils"
 
 const EMPTY_HUNT_DRAFT: HuntDraft = {
   id: 1,
@@ -52,6 +53,8 @@ function CreateGameContent() {
   const [gameName, setGameName] = useLocalStorage("draft-gameName", "Hunty")
   const [startDate, setStartDate] = useLocalStorage("draft-startDate", "")
   const [endDate, setEndDate] = useLocalStorage("draft-endDate", "")
+  const [startDateTime, setStartDateTime] = useLocalStorage("draft-startDateTime", "")
+  const [endDateTime, setEndDateTime] = useLocalStorage("draft-endDateTime", "")
   const [showPublishModal, setShowPublishModal] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [direction, setDirection] = useState(0)
@@ -156,8 +159,8 @@ function CreateGameContent() {
   const formSchema = z
     .object({
       gameName: z.string().min(4, "Title length must be > 3 chars."),
-      startDate: z.string().min(1, "Start date is required."),
-      endDate: z.string().min(1, "End date is required."),
+      startDate: z.string().min(1, "Start date/time is required."),
+      endDate: z.string().min(1, "End date/time is required."),
       creatorEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
       emailNotifications: z.boolean(),
       timerEnabled: z.boolean(),
@@ -180,8 +183,10 @@ function CreateGameContent() {
     )
     .refine(
       (data) => {
+        const s = new Date(data.startDate)
         const e = new Date(data.endDate)
-        if (!isNaN(e.getTime())) return e.getTime() > Date.now()
+        if (!isNaN(s.getTime()) && !isNaN(e.getTime())) return s.getTime() > Date.now() - 60_000 && e.getTime() > s.getTime()
+        return false
         return false
       },
       {
@@ -209,8 +214,8 @@ function CreateGameContent() {
     mode: "all",
     defaultValues: {
       gameName,
-      startDate,
-      endDate,
+      startDate: startDateTime || startDate,
+      endDate: endDateTime || endDate,
       creatorEmail,
       emailNotifications,
       timerEnabled,
@@ -223,8 +228,8 @@ function CreateGameContent() {
 
   useEffect(() => {
     setValue("gameName", gameName)
-    setValue("startDate", startDate)
-    setValue("endDate", endDate)
+    setValue("startDate", startDateTime || startDate)
+    setValue("endDate", endDateTime || endDate)
     setValue("creatorEmail", creatorEmail)
     setValue("emailNotifications", emailNotifications)
     setValue("timerEnabled", timerEnabled)
@@ -237,6 +242,8 @@ function CreateGameContent() {
     gameName,
     startDate,
     endDate,
+    startDateTime,
+    endDateTime,
     creatorEmail,
     emailNotifications,
     timerEnabled,
@@ -358,12 +365,14 @@ function CreateGameContent() {
         },
       );
 
+      const nextStatus = start_time > Math.floor(Date.now() / 1000) ? "scheduled" : "active"
+
       addStoredHunt({
         id: localId,
         title: formValues.gameName,
         description,
         cluesCount: formValues.hunts.length,
-        status: "Draft",
+        status: nextStatus,
         rewardType: formValues.rewardType,
         rewardPool,
         rewards: formValues.rewards.map(({ place, amount }) => ({ place, amount })),
@@ -656,17 +665,21 @@ function CreateGameContent() {
                           <ToggleButton isActive={isPrivate} onClick={() => setIsPrivate(!isPrivate)} />
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-start justify-between gap-4">
                           <label className="block text-xl font-normal text-[#808080]">
-                            Start Date
+                            Start Date & Time
                           </label>
                           <div className="flex flex-col gap-1 items-end">
                             <Input
-                              type="date"
-                              value={startDate}
-                              onChange={(e) => setStartDate(e.target.value)}
-                              className="h-11 w-[140px] text-center"
+                              type="datetime-local"
+                              value={startDateTime || startDate}
+                              onChange={(e) => {
+                                setStartDateTime(e.target.value)
+                                setStartDate(e.target.value)
+                              }}
+                              className="h-11 w-[220px] text-center"
                             />
+                            <span className="text-xs text-slate-500">{startDateTime || startDate ? formatTimestampWithTimezone(Math.floor(new Date(startDateTime || startDate).getTime() / 1000)) : "Choose your local time"}</span>
                             {errors.startDate && (
                               <span className="text-red-500 text-sm">
                                 {errors.startDate.message}
@@ -675,17 +688,21 @@ function CreateGameContent() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-start justify-between gap-4">
                           <label className="block text-xl font-normal text-[#808080]">
-                            End Date
+                            End Date & Time
                           </label>
                           <div className="flex flex-col gap-1 items-end">
                             <Input
-                              type="date"
-                              value={endDate}
-                              onChange={(e) => setEndDate(e.target.value)}
-                              className="h-11 w-[140px] text-center"
+                              type="datetime-local"
+                              value={endDateTime || endDate}
+                              onChange={(e) => {
+                                setEndDateTime(e.target.value)
+                                setEndDate(e.target.value)
+                              }}
+                              className="h-11 w-[220px] text-center"
                             />
+                            <span className="text-xs text-slate-500">{endDateTime || endDate ? formatTimestampWithTimezone(Math.floor(new Date(endDateTime || endDate).getTime() / 1000)) : "Choose your local time"}</span>
                             {errors.endDate && (
                               <span className="text-red-500 text-sm">
                                 {errors.endDate.message}
