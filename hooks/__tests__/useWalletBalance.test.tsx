@@ -233,6 +233,65 @@ describe("useWalletBalance", () => {
     expect(result.current.isStale).toBe(false)
   })
 
+  it("shows the loading placeholder while the balance loads, even once NFTs resolve", async () => {
+    // Regression: isLoading required *both* queries to be pending. The NFT
+    // source resolves almost immediately, so the placeholder never appeared
+    // and users saw an em dash while Horizon was still in flight.
+    let releaseBalance: (v: ReturnType<typeof snapshot>) => void = () => {}
+    mockFetchBalance.mockImplementation(
+      () => new Promise((resolve) => { releaseBalance = resolve }),
+    )
+    const { result } = renderBalance()
+
+    await waitFor(() => expect(result.current.nftCount).toBe(3))
+    expect(result.current.xlm).toBeNull()
+    expect(result.current.isLoading).toBe(true)
+
+    await act(async () => { releaseBalance(snapshot(24.2453)) })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.xlm).toBe(24.2453)
+  })
+
+  it("offers a retry when the balance fails, even though the NFT count loaded", async () => {
+    // Regression: canRetry used to require both halves to be missing, so a
+    // successful NFT read suppressed the retry for a failed balance.
+    mockFetchBalance.mockRejectedValue(new WalletBalanceError("network", "offline"))
+    vi.useFakeTimers()
+    const { result } = renderBalance()
+    try {
+      await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+      await vi.waitFor(() => expect(result.current.error).not.toBeNull())
+    } finally {
+      vi.useRealTimers()
+    }
+
+    expect(result.current.nftCount).toBe(3)
+    expect(result.current.xlm).toBeNull()
+    expect(result.current.canRetry).toBe(true)
+    // Nothing was ever loaded for the balance, so it cannot be "stale".
+    expect(result.current.isStale).toBe(false)
+  })
+
+  it("marks a previously loaded balance stale rather than offering a retry", async () => {
+    const { result } = renderBalance()
+    await waitFor(() => expect(result.current.xlm).toBe(24.2453))
+
+    mockFetchBalance.mockRejectedValue(new WalletBalanceError("network", "offline"))
+    vi.useFakeTimers()
+    try {
+      await act(async () => {
+        result.current.refresh()
+        await vi.advanceTimersByTimeAsync(10_000)
+      })
+      await vi.waitFor(() => expect(result.current.isStale).toBe(true))
+    } finally {
+      vi.useRealTimers()
+    }
+
+    expect(result.current.xlm).toBe(24.2453)
+    expect(result.current.canRetry).toBe(false)
+  })
+
   it("still shows the balance when only the NFT count fails", async () => {
     mockFetchNfts.mockRejectedValue(new Error("indexer down"))
     vi.useFakeTimers()

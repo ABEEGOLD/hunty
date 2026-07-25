@@ -40,7 +40,6 @@ export function WalletBalance({
 }: WalletBalanceProps) {
   const {
     address,
-    xlm,
     formattedXlm,
     tokens,
     nftCount,
@@ -49,6 +48,7 @@ export function WalletBalance({
     isOptimistic,
     error,
     isStale,
+    canRetry,
     refresh,
   } = useWalletBalance()
 
@@ -72,12 +72,9 @@ export function WalletBalance({
     )
   }
 
-  // Nothing has ever loaded successfully — offer a way out rather than a zero.
-  const hasNoValue = xlm == null && nftCount == null
-
   const visibleTokens = showTokens ? tokens : []
 
-  const statusLabel = hasNoValue
+  const statusLabel = canRetry
     ? "Wallet balance unavailable"
     : `Balance ${formattedXlm} XLM` +
       visibleTokens.map((token) => `, ${token.balance} ${token.assetCode}`).join("") +
@@ -137,7 +134,7 @@ export function WalletBalance({
         </span>
       )}
 
-      {hasNoValue && error && (
+      {canRetry && error && (
         <button
           type="button"
           onClick={refresh}

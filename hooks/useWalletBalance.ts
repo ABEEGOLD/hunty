@@ -48,7 +48,12 @@ export type WalletBalanceState = {
   nftCount: number | null
   /** True when Horizon has no record of the account (never funded). */
   unfunded: boolean
-  /** First load with nothing to display yet. */
+  /**
+   * The XLM balance is not known yet and has not failed — show a placeholder.
+   * Deliberately keyed to the balance query alone: the NFT count comes from a
+   * different source that can resolve far sooner, and letting it satisfy the
+   * loading check meant the placeholder never appeared in practice.
+   */
   isLoading: boolean
   /** A refresh is in flight while a previous value is already on screen. */
   isRefreshing: boolean
@@ -56,8 +61,18 @@ export type WalletBalanceState = {
   isOptimistic: boolean
   /** User-facing failure message, or `null` when the last read succeeded. */
   error: string | null
-  /** The latest read failed but a previous value is still being shown. */
+  /**
+   * A read failed *and* a previously loaded balance is still on screen, so the
+   * value shown is real but possibly out of date. False when the balance never
+   * loaded at all — nothing can be stale if it was never fresh.
+   */
   isStale: boolean
+  /**
+   * A read failed and left nothing to display, so the user needs a way out.
+   * Independent of the NFT count: a successful NFT read must not hide the
+   * retry affordance for a balance that failed.
+   */
+  canRetry: boolean
   /** Epoch millis of the last successful read, or `null`. */
   lastUpdated: number | null
   /** Forces an immediate refetch of both balance and NFT count. */
@@ -190,7 +205,14 @@ export function useWalletBalance(options: { address?: string } = {}): WalletBala
   // NFT-count failure only surfaces when the balance itself loaded fine.
   const failure = balanceQuery.error ?? nftQuery.error
   const error = failure ? describeWalletBalanceError(failure) : null
-  const hasValue = balanceData != null || nftData != null
+
+  // Each half is judged on its own query. Mixing them meant a fast-resolving
+  // NFT count could mask the balance's real state — hiding the placeholder
+  // while it loaded, and hiding the retry control when it failed.
+  const balanceFailed = balanceQuery.error != null
+  const nftFailed = nftQuery.error != null
+  const hasBalance = balanceData != null
+  const hasNft = nftData != null
 
   return {
     address,
@@ -199,11 +221,12 @@ export function useWalletBalance(options: { address?: string } = {}): WalletBala
     tokens: balanceData?.tokens ?? EMPTY_TOKENS,
     nftCount: nftData?.count ?? null,
     unfunded: balanceData?.unfunded ?? false,
-    isLoading: enabled && !hasValue && (balanceQuery.isPending || nftQuery.isPending),
-    isRefreshing: hasValue && (balanceQuery.isFetching || nftQuery.isFetching),
+    isLoading: enabled && !hasBalance && !balanceFailed,
+    isRefreshing: (hasBalance || hasNft) && (balanceQuery.isFetching || nftQuery.isFetching),
     isOptimistic: Boolean(balanceData?.optimistic || nftData?.optimistic),
     error,
-    isStale: Boolean(error) && hasValue,
+    isStale: balanceFailed && hasBalance,
+    canRetry: (balanceFailed && !hasBalance) || (nftFailed && !hasNft && !hasBalance),
     lastUpdated: balanceData?.fetchedAt ?? null,
     refresh,
     applyOptimisticDelta,

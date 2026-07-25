@@ -27,6 +27,7 @@ function state(overrides: Partial<ReturnType<typeof useWalletBalance>> = {}) {
     isOptimistic: false,
     error: null,
     isStale: false,
+    canRetry: false,
     lastUpdated: Date.now(),
     refresh,
     applyOptimisticDelta: vi.fn(),
@@ -109,6 +110,7 @@ describe("WalletBalance", () => {
         formattedXlm: "—",
         error: "Can't reach the Stellar network.",
         isStale: false,
+        canRetry: true,
       }),
     )
 
@@ -119,6 +121,49 @@ describe("WalletBalance", () => {
     await user.click(retry)
 
     expect(refresh).toHaveBeenCalledTimes(1)
+  })
+
+  it("still offers a retry when the balance failed but the NFT count loaded", () => {
+    // Regression: the retry used to require *both* values to be missing, so a
+    // successful NFT read hid the only escape hatch from a failed balance.
+    mockUseWalletBalance.mockReturnValue(
+      state({
+        xlm: null,
+        formattedXlm: "—",
+        nftCount: 3,
+        error: "Can't reach the Stellar network.",
+        isStale: false,
+        canRetry: true,
+      }),
+    )
+
+    render(<WalletBalance />)
+
+    expect(screen.getByRole("button", { name: /retry loading balance/i })).toBeInTheDocument()
+    // The NFT count is real data and stays on screen.
+    expect(screen.getByTestId("wallet-balance-nfts")).toHaveTextContent("3")
+  })
+
+  it("does not claim a never-loaded balance is out of date", () => {
+    // Regression: isStale was true whenever *any* query had data, so a loaded
+    // NFT count made an absent balance render as "may be out of date".
+    mockUseWalletBalance.mockReturnValue(
+      state({
+        xlm: null,
+        formattedXlm: "—",
+        nftCount: 3,
+        error: "Can't reach the Stellar network.",
+        isStale: false,
+        canRetry: true,
+      }),
+    )
+
+    render(<WalletBalance />)
+
+    expect(screen.queryByTestId("wallet-balance-stale")).not.toBeInTheDocument()
+    expect(screen.getByRole("status")).not.toHaveAccessibleName(
+      expect.stringContaining("out of date") as unknown as string,
+    )
   })
 
   it("labels an account that has never been funded", () => {
