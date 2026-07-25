@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import confetti from "canvas-confetti";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
@@ -51,6 +51,20 @@ interface HuntCardsProps {
 
 const DEFAULT_POINTS = 10;
 
+const shakeVariants = {
+  shake: {
+    x: [0, -10, 10, -10, 10, -5, 5, 0],
+    transition: { duration: 0.5 },
+  },
+  idle: { x: 0 },
+};
+
+const slideVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
+
 export const HuntCards: React.FC<HuntCardsProps> = ({
   hunts,
   isActive = true,
@@ -94,6 +108,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [keyboardInsetHeight, setKeyboardInsetHeight] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const [shake, setShake] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -263,11 +278,19 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         } else {
           setError("Try Again");
           setSuccess(false);
+          if (!prefersReducedMotion) {
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+          }
         }
       }
     } catch (err) {
       if (err instanceof AnswerIncorrectError) {
         setError("Try Again");
+        if (!prefersReducedMotion) {
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
       } else {
         setError(err instanceof Error ? err.message : "Submission failed. Try again.");
       }
@@ -426,7 +449,12 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           backdropFilter: "saturate(180%) blur(18px)",
         }}
       >
-        <Input
+        <motion.div
+          animate={shake ? "shake" : "idle"}
+          variants={shakeVariants}
+          className="flex-1"
+        >
+          <Input
           placeholder={isActive && !preview ? "Enter answer" : "Locked"}
           className={cn(
             "flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-full text-sm transition-colors",
@@ -438,6 +466,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           onFocus={handleInputFocus}
           disabled={isLocked}
         />
+        </motion.div>
         <Button
           className={cn(
             "bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] hover:bg-purple-700 text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0",
@@ -456,24 +485,54 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
       {/* Feedback */}
       <div className="bg-white dark:bg-slate-900 rounded-b-xl sm:rounded-b-2xl -mt-4 pb-4 px-4 sm:px-6 min-h-[36px] print:hidden">
-        {huntEnded && (
-          <div className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base">
-            <span>🏁</span>
-            Hunt Ended
-          </div>
-        )}
-        {!huntEnded && success && (
-          <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base animate-bounce">
-            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            Solved!
-          </div>
-        )}
-        {!huntEnded && !success && isPending && (
-          <p className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm">Submitting...</p>
-        )}
-        {!huntEnded && !success && !isPending && error && (
-          <p className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm">{error}</p>
-        )}
+        <AnimatePresence mode="wait">
+          {huntEnded && (
+            <motion.div
+              key="ended"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base"
+            >
+              <span>🏁</span>
+              Hunt Ended
+            </motion.div>
+          )}
+          {!huntEnded && success && (
+            <motion.div
+              key="success"
+              initial={prefersReducedMotion ? false : slideVariants.initial}
+              animate={prefersReducedMotion ? {} : slideVariants.animate}
+              exit={prefersReducedMotion ? {} : slideVariants.exit}
+              className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base"
+            >
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              Solved!
+            </motion.div>
+          )}
+          {!huntEnded && !success && isPending && (
+            <motion.p
+              key="pending"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm"
+            >
+              Submitting...
+            </motion.p>
+          )}
+          {!huntEnded && !success && !isPending && error && (
+            <motion.p
+              key="error"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
+              className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

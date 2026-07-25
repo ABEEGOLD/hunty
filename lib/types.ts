@@ -289,7 +289,7 @@ export interface RewardHistoryEntry {
 
 // ─── Activity Feed ───────────────────────────────────────────────────────────
 
-export type ActivityEventType = "HuntCompleted" | "ClueCompleted"
+export type ActivityEventType = "HuntCompleted" | "ClueCompleted" | "HuntSponsored"
 
 export interface ActivityEvent {
   id: string
@@ -301,6 +301,8 @@ export interface ActivityEvent {
   huntId: number
   timestamp: number
   type: ActivityEventType
+  /** Amount for sponsored events */
+  amount?: number
 }
 
 // ─── Component-level Hunt (used by PlayGame, HuntForm, GamePreview, HuntCards) ─
