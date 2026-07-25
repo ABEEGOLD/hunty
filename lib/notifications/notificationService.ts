@@ -1,9 +1,13 @@
 import { toast } from "sonner"
 import type { LeaderboardRankNotification } from "./types"
-import { shouldNotifyForRankChange } from "./notificationPreferences"
+import { shouldNotifyForRankChange, getNotificationPreferences } from "./notificationPreferences"
 import { saveNotifications } from "./rankTracker"
 
-export function handleRankNotifications(notifications: LeaderboardRankNotification[]): void {
+export function handleRankNotifications(
+  notifications: LeaderboardRankNotification[],
+  /** Wallet address of the current user — required to send push for overtake events */
+  currentWalletAddress?: string
+): void {
   if (notifications.length === 0) return
 
   const filtered = notifications.filter((n) => {
@@ -16,6 +20,38 @@ export function handleRankNotifications(notifications: LeaderboardRankNotificati
   }
 
   saveNotifications(notifications)
+
+  // Fire a Web Push for overtake events if the user opted in
+  const prefs = getNotificationPreferences()
+  if (prefs.pushEnabled && prefs.pushOvertake && currentWalletAddress) {
+    const overtakes = filtered.filter((n) => n.type === "overtaken")
+    if (overtakes.length > 0) {
+      // Use the first overtake for context (the player cares about the most recent)
+      const n = overtakes[0]
+      sendOvertakePush(currentWalletAddress, n).catch(() => {
+        // Non-fatal — toast already shown
+      })
+    }
+  }
+}
+
+async function sendOvertakePush(
+  walletAddress: string,
+  notification: LeaderboardRankNotification
+): Promise<void> {
+  await fetch("/api/push/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "leaderboard_overtake",
+      walletAddresses: [walletAddress],
+      context: {
+        huntId: notification.huntId,
+        huntName: notification.huntTitle,
+        overtakerName: notification.overtakenBy ?? "another player",
+      },
+    }),
+  })
 }
 
 function showRankToast(notification: LeaderboardRankNotification): void {

@@ -66,7 +66,7 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
         try {
           const rankChanges = detectRankChanges(huntId, huntTitle, walletAddress, rawData as unknown as LeaderboardEntry[])
           if (rankChanges.length > 0) {
-            handleRankNotifications(rankChanges)
+            handleRankNotifications(rankChanges, walletAddress)
           }
         } catch (err) {
           logger.error("Failed to detect rank changes:", err)

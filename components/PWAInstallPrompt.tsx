@@ -1,8 +1,25 @@
 "use client"
 
-// PWA install prompt component — placeholder for PWA install UI
-// This component can be expanded to show a custom install prompt when the
-// beforeinstallprompt event fires on supported browsers.
+import { useEffect } from "react"
+import { registerServiceWorker } from "@/lib/notifications/webPush"
+import { logger } from "@/lib/logger"
+
+/**
+ * PWAInstallPrompt
+ *
+ * Registers the Hunty service worker on mount so that Web Push subscriptions
+ * can be created at any time without needing to prompt for installation first.
+ *
+ * The install prompt UI can be added here later by listening to the
+ * `beforeinstallprompt` event.
+ */
 export default function PWAInstallPrompt() {
+  useEffect(() => {
+    registerServiceWorker().catch((err) => {
+      logger.warn("[PWAInstallPrompt] Service worker registration failed:", err)
+    })
+  }, [])
+
+  // No visible UI — purely a side-effect component for now
   return null
 }

@@ -1,93 +1,108 @@
 import { NextRequest, NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import {
+  upsertSubscription,
+  removeSubscription,
+  removeSubscriptionsForWallet,
+  getAllSubscriptions,
+  getSubscriptionCount,
+} from "@/lib/notifications/subscriptionStore"
+import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit"
 
-interface PushTokenRecord {
-  token: string
-  walletAddress: string
-  registeredAt: number
-}
-
-const tokensStore: PushTokenRecord[] = []
-
+/**
+ * POST /api/push-tokens
+ * Register a Web Push subscription for a wallet address.
+ *
+ * Body: { subscription: PushSubscriptionJSON, walletAddress: string }
+ */
 export async function POST(request: NextRequest) {
+  const ip = getIP(request)
+  const { success, reset } = rateLimit(ip, { limit: 20, windowMs: 60 * 1000 })
+  if (!success) return rateLimitResponse(reset)
+
   try {
     const body = await request.json()
-    const { token, walletAddress } = body
+    const { subscription, walletAddress, preferences } = body
 
-    if (!token || typeof token !== "string") {
+    if (!subscription || typeof subscription !== "object" || !subscription.endpoint) {
       return NextResponse.json(
-        { error: "Push token is required" },
+        { error: "A valid PushSubscription object is required" },
         { status: 400 }
       )
     }
 
     if (!walletAddress || typeof walletAddress !== "string") {
       return NextResponse.json(
-        { error: "Wallet address is required" },
+        { error: "walletAddress is required" },
         { status: 400 }
       )
     }
 
-    const existingIndex = tokensStore.findIndex(
-      (t) => t.token === token || t.walletAddress === walletAddress
-    )
-
-    if (existingIndex !== -1) {
-      tokensStore[existingIndex] = { token, walletAddress, registeredAt: Date.now() }
-    } else {
-      tokensStore.push({ token, walletAddress, registeredAt: Date.now() })
-    }
+    upsertSubscription(subscription as PushSubscriptionJSON, walletAddress, preferences)
+    logger.info("[push-tokens] Subscription registered for:", walletAddress)
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    logger.error("Failed to register push token:", error)
+    logger.error("[push-tokens] Failed to register subscription:", error)
     return NextResponse.json(
-      { error: "Failed to register push token" },
+      { error: "Failed to register push subscription" },
       { status: 500 }
     )
   }
 }
 
+/**
+ * DELETE /api/push-tokens
+ * Unregister a push subscription.
+ *
+ * Body: { walletAddress?: string, endpoint?: string }
+ * At least one of walletAddress or endpoint is required.
+ */
 export async function DELETE(request: NextRequest) {
+  const ip = getIP(request)
+  const { success, reset } = rateLimit(ip, { limit: 20, windowMs: 60 * 1000 })
+  if (!success) return rateLimitResponse(reset)
+
   try {
     const body = await request.json()
-    const { token, walletAddress } = body
+    const { walletAddress, endpoint } = body
 
-    if (!token && !walletAddress) {
+    if (!walletAddress && !endpoint) {
       return NextResponse.json(
-        { error: "Token or wallet address is required" },
+        { error: "walletAddress or endpoint is required" },
         { status: 400 }
       )
     }
 
-    if (token) {
-      const idx = tokensStore.findIndex((t) => t.token === token)
-      if (idx !== -1) tokensStore.splice(idx, 1)
-    } else if (walletAddress) {
-      for (let i = tokensStore.length - 1; i >= 0; i--) {
-        if (tokensStore[i].walletAddress === walletAddress) {
-          tokensStore.splice(i, 1)
-        }
-      }
+    if (endpoint && typeof endpoint === "string") {
+      removeSubscription(endpoint)
+    } else if (walletAddress && typeof walletAddress === "string") {
+      removeSubscriptionsForWallet(walletAddress)
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    logger.error("Failed to unregister push token:", error)
+    logger.error("[push-tokens] Failed to remove subscription:", error)
     return NextResponse.json(
-      { error: "Failed to unregister push token" },
+      { error: "Failed to remove push subscription" },
       { status: 500 }
     )
   }
 }
 
+/**
+ * GET /api/push-tokens
+ * Returns the total number of active subscriptions (admin diagnostic).
+ * Does not expose subscription details for privacy.
+ */
 export async function GET() {
   try {
-    return NextResponse.json({ tokens: tokensStore })
+    const count = getSubscriptionCount()
+    return NextResponse.json({ count })
   } catch (error) {
-    logger.error("Failed to fetch push tokens:", error)
+    logger.error("[push-tokens] Failed to fetch subscription count:", error)
     return NextResponse.json(
-      { error: "Failed to fetch push tokens" },
+      { error: "Failed to fetch subscriptions" },
       { status: 500 }
     )
   }
