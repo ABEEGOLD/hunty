@@ -8,7 +8,7 @@ import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from 
 
 // ─── Hunt ────────────────────────────────────────────────────────────────────
 
-export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled"
+export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled" | "PendingReview"
 
 export interface StoredHunt {
   id: number
