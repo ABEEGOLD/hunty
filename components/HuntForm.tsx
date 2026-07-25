@@ -226,13 +226,13 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
         />
 
         <div className="flex gap-1">
-          <Input
-            placeholder="Description"
-            aria-label="Hunt Description"
-            value={hunt.description}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate("description", e.target.value)}
-            className="w-full pl-6 py-3"
-          />
+        <Input
+          placeholder="Description"
+          aria-label="Hunt Description"
+          value={hunt.description}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate("description", e.target.value)}
+          className="w-full pl-6 py-3"
+        />
         <div className="relative">
           <Button
             type="button"

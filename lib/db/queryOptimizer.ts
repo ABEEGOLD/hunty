@@ -1,4 +1,5 @@
 import { getAllHunts, getHuntById, type StoredHunt } from "@/lib/huntStore"
+import type { HuntDifficulty } from "@/lib/types"
 
 type CacheEntry<T> = {
   value: T
@@ -101,6 +102,7 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
   reward?: string | null
   search?: string | null
   sortBy?: string | null
+  difficulty?: string | null
   requestId?: string
 }) {
   const {
@@ -110,15 +112,23 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
     reward = "all",
     search = "",
     sortBy = "newest",
+    difficulty = "all",
     requestId,
   } = params
   trackPotentialNPlusOne("listPublicActiveHuntsByCursorOptimized", requestId)
 
+  // Whitelist accepted difficulty values; anything else is treated as "all".
+  const VALID_DIFFICULTIES: HuntDifficulty[] = ["Easy", "Medium", "Hard", "Expert"]
+  const normalizedDifficulty =
+    difficulty && VALID_DIFFICULTIES.includes(difficulty as HuntDifficulty)
+      ? (difficulty as HuntDifficulty)
+      : "all"
+
   return withTimedQuery(
     "listPublicActiveHuntsByCursorOptimized",
-    { cursor, limit, status, reward, search, sortBy },
+    { cursor, limit, status, reward, search, sortBy, difficulty: normalizedDifficulty },
     () => {
-      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}`
+      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}:${normalizedDifficulty}`
       const cached = readCache<{ data: StoredHunt[]; nextCursor: number | null; total: number }>(cacheKey)
       if (cached) return cached
 
@@ -150,7 +160,12 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
           hunt.title.toLowerCase().includes(search.toLowerCase()) ||
           hunt.description.toLowerCase().includes(search.toLowerCase())
 
-        return matchesStatus && matchesReward && matchesSearch
+        // Difficulty filter: "all" matches every hunt (including unrated),
+        // a specific value matches only hunts that explicitly set it.
+        const matchesDifficulty =
+          normalizedDifficulty === "all" || hunt.difficulty === normalizedDifficulty
+
+        return matchesStatus && matchesReward && matchesSearch && matchesDifficulty
       })
 
       // Sort hunts

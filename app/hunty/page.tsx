@@ -29,11 +29,13 @@ import { GamePreview } from "@/components/GamePreview"
 import { PublishModal } from "@/components/PublishModal"
 import ToggleButton from "@/components/ToggleButton"
 import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE } from "@/lib/ipfs"
-import type { CoverImageUploadState, HuntDraft, Reward } from "@/lib/types"
+import type { CoverImageUploadState, HuntDifficulty, HuntDraft, Reward } from "@/lib/types"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import { buildDraftHuntsFromTemplate, getStarterTemplateBySlug } from "@/lib/huntTemplates"
+
+const HUNT_DIFFICULTY_OPTIONS: HuntDifficulty[] = ["Easy", "Medium", "Hard", "Expert"] as const
 
 const EMPTY_HUNT_DRAFT: HuntDraft = {
   id: 1,
@@ -52,6 +54,13 @@ function CreateGameContent() {
   const [gameName, setGameName] = useLocalStorage("draft-gameName", "Hunty")
   const [startDate, setStartDate] = useLocalStorage("draft-startDate", "")
   const [endDate, setEndDate] = useLocalStorage("draft-endDate", "")
+  // Hunt-level difficulty rating. Persisted in localStorage so the creator's
+  // last choice is restored on refresh, and surfaced once at the publish step
+  // (one rating applied to the whole hunt rather than per clue).
+  const [huntDifficulty, setHuntDifficulty] = useLocalStorage<HuntDifficulty | "">(
+    "draft-huntDifficulty",
+    ""
+  )
   const [showPublishModal, setShowPublishModal] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [direction, setDirection] = useState(0)
@@ -138,14 +147,14 @@ function CreateGameContent() {
     return null
   }
 
-  const huntItemSchema = z.object({
-    id: z.number(),
-    title: z.string().min(4, "Clue title must be at least 4 characters."),
-    description: z.string().min(8, "Clue description must be at least 8 characters."),
-    link: z.string().optional().or(z.literal("")),
-    code: z.string().optional().or(z.literal("")),
-    image: z.string().optional().or(z.literal("")),
-  })
+const huntItemSchema = z.object({
+  id: z.number(),
+  title: z.string().min(4, "Clue title must be at least 4 characters."),
+  description: z.string().min(8, "Clue description must be at least 8 characters."),
+  link: z.string().optional().or(z.literal("")),
+  code: z.string().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
+})
 
   const rewardItemSchema = z.object({
     place: z.number().int().positive(),
@@ -278,7 +287,7 @@ function CreateGameContent() {
     const newId = Math.max(...hunts.map((h) => h.id)) + 1;
     setHunts([
       ...hunts,
-      { id: newId, title: "", description: "", link: "", code: "" },
+      { id: newId, title: "", description: "", link: "", code: "" } as HuntDraft,
     ]);
   };
 
@@ -338,6 +347,9 @@ function CreateGameContent() {
             formValues.creatorEmail,
             formValues.emailNotifications,
             formValues.isPrivate,
+            // Normalize empty-string sentinel ("") from the publish-tab select back
+            // to undefined so the on-chain metadata stays clean.
+            huntDifficulty ? huntDifficulty : undefined,
           )
           const escrow = await createRewardEscrow({
             huntId: localId,
@@ -358,6 +370,9 @@ function CreateGameContent() {
         },
       );
 
+      // Same value as the contract payload above — keep these in sync.
+      const createdDifficulty = huntDifficulty ? huntDifficulty : undefined
+
       addStoredHunt({
         id: localId,
         title: formValues.gameName,
@@ -377,6 +392,7 @@ function CreateGameContent() {
         emailNotifications: formValues.emailNotifications,
         is_private: formValues.isPrivate,
         coverImageCid,
+        ...(createdDifficulty ? { difficulty: createdDifficulty } : {}),
       })
 
       setShowPublishModal(false);
@@ -654,6 +670,30 @@ function CreateGameContent() {
                             <p className="text-xs text-slate-400 mt-0.5">Hidden from the public arcade</p>
                           </div>
                           <ToggleButton isActive={isPrivate} onClick={() => setIsPrivate(!isPrivate)} />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <label
+                            htmlFor="hunt-difficulty"
+                            className="block text-xl font-normal text-[#808080]"
+                          >
+                            Difficulty
+                          </label>
+                          <select
+                            id="hunt-difficulty"
+                            value={huntDifficulty}
+                            onChange={(e) =>
+                              setHuntDifficulty(e.target.value as HuntDifficulty | "")
+                            }
+                            className="h-11 w-[160px] text-center rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/40"
+                          >
+                            <option value="">No rating</option>
+                            {HUNT_DIFFICULTY_OPTIONS.map((d) => (
+                              <option key={d} value={d}>
+                                {d}
+                              </option>
+                            ))}
+                          </select>
                         </div>
 
                         <div className="flex items-center justify-between">

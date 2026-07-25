@@ -56,6 +56,11 @@ export async function createHunt(
   emailNotifications?: boolean,
   /** When true, the hunt is hidden from the public arcade. */
   is_private?: boolean,
+  /**
+   * Creator-set difficulty rating (Easy / Medium / Hard / Expert).
+   * Persisted in contract metadata so it survives off-chain query layers.
+   */
+  difficulty?: import("@/lib/types").HuntDifficulty,
 ): Promise<CreateHuntResult> {
   if (typeof window === "undefined")
     throw new Error("Browser environment required");
@@ -77,6 +82,7 @@ export async function createHunt(
       ? { email_notifications: emailNotifications }
       : {}),
     ...(is_private ? { is_private: true } : {}),
+    ...(difficulty ? { difficulty } : {}),
   });
 
   const publicKey = await wallet.getPublicKey();

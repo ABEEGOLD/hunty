@@ -23,7 +23,7 @@ import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { Footer } from "@/components/Footer"
 import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
-import type { PlayerCountResult } from "@/lib/types"
+import type { PlayerCountResult, HuntDifficulty } from "@/lib/types"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
@@ -369,6 +369,7 @@ export default function GameArcade() {
   const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "clues-high" | "clues-low">("newest")
+  const [difficultyFilter, setDifficultyFilter] = useState<"all" | HuntDifficulty>("all")
 
   const isLoadedRef = useRef(false)
 
@@ -386,6 +387,16 @@ export default function GameArcade() {
       const savedStatus = sessionStorage.getItem("arcade_statusFilter")
       if (savedStatus && ["all", "Active", "Completed"].includes(savedStatus)) {
         setStatusFilter(savedStatus as "all" | "Active" | "Completed")
+      }
+
+      const savedDifficulty = sessionStorage.getItem("arcade_difficultyFilter")
+      if (
+        savedDifficulty &&
+        (["all", "Easy", "Medium", "Hard", "Expert"] as const).includes(
+          savedDifficulty as "all" | HuntDifficulty
+        )
+      ) {
+        setDifficultyFilter(savedDifficulty as "all" | HuntDifficulty)
       }
       isLoadedRef.current = true
     }
@@ -410,6 +421,12 @@ export default function GameArcade() {
     }
   }, [statusFilter])
 
+  useEffect(() => {
+    if (isLoadedRef.current && typeof window !== "undefined") {
+      sessionStorage.setItem("arcade_difficultyFilter", difficultyFilter)
+    }
+  }, [difficultyFilter])
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   // Load hunts using Infinite Query with cursor-based pagination
@@ -420,13 +437,13 @@ export default function GameArcade() {
     isFetchingNextPage,
     isLoading: isLoadingHunts,
   } = useInfiniteQuery({
-    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy],
+    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy, difficultyFilter],
     queryFn: async ({ pageParam }) => {
       const cursorVal = pageParam !== null ? pageParam : "";
       const res = await fetch(
         `/api/v1/hunts?limit=12&cursor=${cursorVal}&status=${statusFilter}&reward=${rewardFilter}&search=${encodeURIComponent(
           searchQuery
-        )}&sortBy=${sortBy}`
+        )}&sortBy=${sortBy}&difficulty=${difficultyFilter}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch hunts");
@@ -588,7 +605,7 @@ export default function GameArcade() {
   // Clear scroll position when filter state changes
   useEffect(() => {
     sessionStorage.removeItem("arcade_scroll_y")
-  }, [statusFilter, rewardFilter, searchQuery, sortBy])
+  }, [statusFilter, rewardFilter, searchQuery, sortBy, difficultyFilter])
 
   const handleWalletSelect = () => {
     setIsConnectingWallet(true)
@@ -828,7 +845,22 @@ export default function GameArcade() {
                     className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-[#3737A4] focus:ring-[#3737A4] pl-3 h-10 rounded-xl"
                   />
                 </div>
-                
+
+                <select
+                  value={difficultyFilter}
+                  onChange={(e) =>
+                    setDifficultyFilter(e.target.value as "all" | HuntDifficulty)
+                  }
+                  aria-label="Filter by difficulty"
+                  className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
+                >
+                  <option value="all">All Levels</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                  <option value="Expert">Expert</option>
+                </select>
+
                 <select
                   value={sortBy}
                   onChange={(e) =>

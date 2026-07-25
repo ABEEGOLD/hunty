@@ -22,6 +22,7 @@ export async function GET(req: Request) {
   const reward = searchParams.get("reward") || "all";
   const search = searchParams.get("search") || "";
   const sortBy = searchParams.get("sortBy") || "newest";
+  const difficulty = searchParams.get("difficulty") || "all";
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
   if (cursorParam && cursorParam !== "null" && cursorParam !== "" && (cursor == null || Number.isNaN(cursor))) {
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
     reward,
     search,
     sortBy,
+    difficulty,
     requestId,
   });
 

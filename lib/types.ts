@@ -10,6 +10,14 @@ import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from 
 
 export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled"
 
+/**
+ * Hunt-level difficulty rating set by the creator so players can gauge
+ * challenge before joining. Independent of `ClueDifficulty` which rates
+ * individual clues. Older hunts without a difficulty field render as
+ * unrated (no badge).
+ */
+export type HuntDifficulty = "Easy" | "Medium" | "Hard" | "Expert"
+
 export interface StoredHunt {
   id: number
   title: string
@@ -43,6 +51,11 @@ export interface StoredHunt {
   coverImageCid?: string
   /** Active editorial banner showcase at the top of the Arcade. */
   isFeaturedOfWeek?: boolean
+  /**
+   * Creator-set difficulty rating surfaced on cards and the Arcade filter.
+   * Optional for backward compatibility with pre-existing StoredHunt records.
+   */
+  difficulty?: HuntDifficulty
 }
 
 export type HuntInfo = {
@@ -55,6 +68,7 @@ export type HuntInfo = {
   endTime?: number
   creatorEmail?: string
   emailNotifications?: boolean
+  difficulty?: HuntDifficulty
 }
 
 // ─── Clue ────────────────────────────────────────────────────────────────────
@@ -315,7 +329,12 @@ export interface HuntCard {
   hint?: string
   hintCost?: number
   points?: number
-  difficulty?: ClueDifficulty
+  /**
+   * Hunt-level difficulty rating surfaced as a badge on the card.
+   * HuntCards historically also accepts legacy ClueDifficulty values
+   * (passed in from individual clue views), so both are allowed here.
+   */
+  difficulty?: HuntDifficulty | ClueDifficulty
 }
 
 export interface HuntDraft {
