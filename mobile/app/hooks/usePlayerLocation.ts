@@ -37,7 +37,9 @@ export function usePlayerLocation(): LocationState {
       setPermissionGranted(true);
 
       try {
-        const initial = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const initial = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
         setLocation({ latitude: initial.coords.latitude, longitude: initial.coords.longitude });
         setError(null);
       } catch {

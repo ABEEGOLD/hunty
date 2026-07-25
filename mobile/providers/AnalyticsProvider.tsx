@@ -86,7 +86,9 @@ export function AnalyticsProvider({ children, appStartTime }: AnalyticsProviderP
     }
 
     void init();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [appStartTime]);
 
   // Auto-track screen views via Expo Router pathname
@@ -115,7 +117,7 @@ export function AnalyticsProvider({ children, appStartTime }: AnalyticsProviderP
     (action: string, target?: string, value?: string | number | boolean) => {
       trackUserAction(action, target, value);
     },
-    []
+    [],
   );
 
   const report = useCallback((error: Error, context?: Record<string, unknown>) => {
@@ -143,9 +145,5 @@ export function AnalyticsProvider({ children, appStartTime }: AnalyticsProviderP
     enableAnalytics,
   };
 
-  return (
-    <AnalyticsContext.Provider value={value}>
-      {children}
-    </AnalyticsContext.Provider>
-  );
+  return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
 }

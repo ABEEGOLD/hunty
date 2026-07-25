@@ -31,8 +31,8 @@ pnpm test:e2e
 
 ## Covered flows
 
-| Flow | File | Verifies |
-|------|------|----------|
+| Flow          | File                                  | Verifies                                                  |
+| ------------- | ------------------------------------- | --------------------------------------------------------- |
 | Feed & wallet | `.maestro/flows/feed-and-wallet.yaml` | Hunts feed loads, hunt detail opens, wallet modal appears |
 
 ## Test IDs

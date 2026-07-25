@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "@providers/ThemeProvider";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '@providers/ThemeProvider';
 
 type Props = {
   title: string;
@@ -12,9 +12,7 @@ export function SettingsSection({ title, children }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, { color: colors.secondary }]}>
-        {title.toUpperCase()}
-      </Text>
+      <Text style={[styles.title, { color: colors.secondary }]}>{title.toUpperCase()}</Text>
       <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.border }]}>
         {children}
       </View>
@@ -28,14 +26,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: '600',
     letterSpacing: 1.2,
     marginBottom: 8,
     paddingHorizontal: 16,
   },
   card: {
     borderRadius: 16,
-    overflow: "hidden",
+    overflow: 'hidden',
     borderWidth: 1,
     gap: 1,
   },

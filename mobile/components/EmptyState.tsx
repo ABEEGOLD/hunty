@@ -15,18 +15,18 @@ interface EmptyStateProps {
   action?: EmptyStateAction;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon,
-  title,
-  description,
-  action,
-}) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action }) => {
   const { colors } = useTheme();
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.illustration}>
-        <View style={[styles.iconCircle, { backgroundColor: colors.border + '40', borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.iconCircle,
+            { backgroundColor: colors.border + '40', borderColor: colors.border },
+          ]}
+        >
           <ThemedCustomText style={styles.iconText}>{icon}</ThemedCustomText>
         </View>
       </View>

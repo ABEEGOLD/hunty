@@ -152,7 +152,9 @@ export function WalletSecurityProvider({ children }: { children: React.ReactNode
     return false;
   };
 
-  const authenticate = async (reason = 'Confirm wallet action'): Promise<{ authenticated: boolean; requiresPin: boolean }> => {
+  const authenticate = async (
+    reason = 'Confirm wallet action',
+  ): Promise<{ authenticated: boolean; requiresPin: boolean }> => {
     setAuthError(null);
 
     if (isAuthenticated) {

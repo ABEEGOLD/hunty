@@ -4,7 +4,13 @@ import { getActiveHuntsNetworkFirst } from '@services/huntsApi';
 import { ThemedCustomText, ThemedView } from '@components/themed';
 
 export function GraphQLHuntsFeed() {
-  const { data: hunts = [], isLoading, isError, refetch, isRefetching } = useQuery({
+  const {
+    data: hunts = [],
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useQuery({
     queryKey: ['hunts', 'graphql'],
     queryFn: getActiveHuntsNetworkFirst,
   });

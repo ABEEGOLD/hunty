@@ -33,7 +33,7 @@ export function useHaptics(options: UseHapticsOptions = {}) {
         action();
       }
     },
-    [cooldownMs, hapticsEnabled]
+    [cooldownMs, hapticsEnabled],
   );
 
   const safeJoinSuccess = useCallback(() => {
@@ -60,14 +60,14 @@ export function useHaptics(options: UseHapticsOptions = {}) {
     (type: 'success' | 'warning' | 'error') => {
       executeWithCooldown(() => triggerNotification(type));
     },
-    [executeWithCooldown]
+    [executeWithCooldown],
   );
 
   const safeImpact = useCallback(
     (style: 'light' | 'medium' | 'heavy') => {
       executeWithCooldown(() => triggerImpact(style));
     },
-    [executeWithCooldown]
+    [executeWithCooldown],
   );
 
   const safeSelection = useCallback(() => {

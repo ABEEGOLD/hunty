@@ -20,7 +20,7 @@ export default function PlayScreen() {
   // Network status
   const [isOnline, setIsOnline] = useState(true);
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOnline(state.isConnected && state.isInternetReachable);
     });
     return () => unsubscribe();
@@ -39,13 +39,8 @@ export default function PlayScreen() {
     shareLocation,
     setShareLocation,
   } = usePlayerLocation();
-  const {
-    currentProgress,
-    updateClueIndex,
-    markCompleted,
-    markClueCompleted,
-    clearProgress,
-  } = usePlayerStore();
+  const { currentProgress, updateClueIndex, markCompleted, markClueCompleted, clearProgress } =
+    usePlayerStore();
 
   const [answer, setAnswer] = useState('');
   const [clues, setClues] = useState<Clue[]>([]);
@@ -131,7 +126,11 @@ export default function PlayScreen() {
       }
 
       if (fromQr) {
-        const qrCheck = await verifyQrAgainstClue(submittedAnswer, activeClue, currentProgress.hunt_id);
+        const qrCheck = await verifyQrAgainstClue(
+          submittedAnswer,
+          activeClue,
+          currentProgress.hunt_id,
+        );
         if (!qrCheck.match) {
           showToast({ message: qrCheck.reason, type: 'error' });
           setError(qrCheck.reason);
@@ -179,15 +178,25 @@ export default function PlayScreen() {
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.heroCard, { backgroundColor: colors.primary + '10', borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.heroCard,
+            { backgroundColor: colors.primary + '10', borderColor: colors.border },
+          ]}
+        >
           <ThemedCustomText variant="h2" color="primary" weight="800">
             Active Hunt Session
           </ThemedCustomText>
           <ThemedCustomText variant="body">{progressLabel}</ThemedCustomText>
         </View>
 
-        <View style={[styles.locationCard, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-          <View style={styles.locationHeader}> 
+        <View
+          style={[
+            styles.locationCard,
+            { backgroundColor: colors.background, borderColor: colors.border },
+          ]}
+        >
+          <View style={styles.locationHeader}>
             <ThemedCustomText variant="label" weight="700">
               Location services
             </ThemedCustomText>
@@ -241,7 +250,7 @@ export default function PlayScreen() {
               <ThemedCustomText variant="label" color={isActive ? 'primary' : 'text'} weight="700">
                 {isActive ? 'Current clue' : isUnlocked ? 'Unlocked clue' : 'Locked clue'}
               </ThemedCustomText>
-              
+
               {/* Render dynamic clue text elegantly with Markdown renderer */}
               <View style={styles.clueQuestion}>
                 <ClueMarkdownRenderer text={clue.question} />
@@ -255,49 +264,54 @@ export default function PlayScreen() {
         })}
 
         {!allSolved && activeClue ? (
-        <>
-          <OfflineBanner />
-          <View style={[styles.answerPanel, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            <ThemedCustomText variant="h3" weight="700">
-              Submit answer
-            </ThemedCustomText>
-            <ThemedCustomText variant="caption" style={styles.answerCopy}>
-              The final correct answer will move you into wallet approval and Soroban consensus.
-            </ThemedCustomText>
-            <TextInput
-              value={answer}
-              onChangeText={(value) => {
-                setAnswer(value);
-                if (error) {
-                  setError('');
-                }
-              }}
-              placeholder="Type the exact checkpoint answer"
-              placeholderTextColor="#94a3b8"
-              style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {error ? (
-              <ThemedCustomText variant="caption" color="error">
-                {error}
+          <>
+            <OfflineBanner />
+            <View
+              style={[
+                styles.answerPanel,
+                { backgroundColor: colors.background, borderColor: colors.border },
+              ]}
+            >
+              <ThemedCustomText variant="h3" weight="700">
+                Submit answer
               </ThemedCustomText>
-            ) : null}
-            <ThemedButton
-              text={isSubmitting ? 'Checking GPS...' : 'Submit answer'}
-              loading={isSubmitting}
-              fullWidth
-              onPress={handleSubmit}
-            />
-            <ThemedButton
-              text="Scan QR checkpoint"
-              variant="secondary"
-              fullWidth
-              onPress={() => setScannerOpen(true)}
-            />
-            <ThemedButton text="Abandon hunt" variant="ghost" fullWidth onPress={clearProgress} />
-          </View>
-        </>
+              <ThemedCustomText variant="caption" style={styles.answerCopy}>
+                The final correct answer will move you into wallet approval and Soroban consensus.
+              </ThemedCustomText>
+              <TextInput
+                value={answer}
+                onChangeText={(value) => {
+                  setAnswer(value);
+                  if (error) {
+                    setError('');
+                  }
+                }}
+                placeholder="Type the exact checkpoint answer"
+                placeholderTextColor="#94a3b8"
+                style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              {error ? (
+                <ThemedCustomText variant="caption" color="error">
+                  {error}
+                </ThemedCustomText>
+              ) : null}
+              <ThemedButton
+                text={isSubmitting ? 'Checking GPS...' : 'Submit answer'}
+                loading={isSubmitting}
+                fullWidth
+                onPress={handleSubmit}
+              />
+              <ThemedButton
+                text="Scan QR checkpoint"
+                variant="secondary"
+                fullWidth
+                onPress={() => setScannerOpen(true)}
+              />
+              <ThemedButton text="Abandon hunt" variant="ghost" fullWidth onPress={clearProgress} />
+            </View>
+          </>
         ) : null}
       </ScrollView>
 

@@ -8,10 +8,10 @@
  *   const { currentProgress, setProgress } = usePlayerStore()
  */
 
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import * as SecureStore from "expo-secure-store";
-import type { PlayerProgress } from "@lib/types";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import * as SecureStore from 'expo-secure-store';
+import type { PlayerProgress } from '@lib/types';
 
 // ─── Wallet Store ─────────────────────────────────────────────────────────────
 
@@ -42,14 +42,13 @@ interface WalletState {
 export const useWalletStore = create<WalletState>()(
   persist(
     (set) => ({
-      walletAddress: "",
+      walletAddress: '',
       walletBalance: null,
       isConnected: false,
       network: 'unknown',
       watchOnlyAddress: '',
 
-      setWallet: (address) =>
-        set({ walletAddress: address, isConnected: Boolean(address) }),
+      setWallet: (address) => set({ walletAddress: address, isConnected: Boolean(address) }),
 
       setBalance: (balance) => set({ walletBalance: balance }),
 
@@ -60,10 +59,10 @@ export const useWalletStore = create<WalletState>()(
       clearWatchOnlyAddress: () => set({ watchOnlyAddress: '' }),
 
       clearWallet: () =>
-        set({ walletAddress: "", walletBalance: null, isConnected: false, network: 'unknown' }),
+        set({ walletAddress: '', walletBalance: null, isConnected: false, network: 'unknown' }),
     }),
     {
-      name: "hunty-wallet",
+      name: 'hunty-wallet',
       // Use SecureStore for mobile persistence
       storage: {
         getItem: async (key: string) => {
@@ -78,11 +77,12 @@ export const useWalletStore = create<WalletState>()(
         },
       } as any,
       // Persist wallet identity + network; balance is fetched on demand.
-      partialize: (state) => ({
-        walletAddress: state.walletAddress,
-        network: state.network,
-        watchOnlyAddress: state.watchOnlyAddress,
-      } as any),
+      partialize: (state) =>
+        ({
+          walletAddress: state.walletAddress,
+          network: state.network,
+          watchOnlyAddress: state.watchOnlyAddress,
+        }) as any,
     },
   ),
 );
@@ -149,7 +149,7 @@ export const usePlayerStore = create<PlayerState>()(
       clearProgress: () => set({ currentProgress: null }),
     }),
     {
-      name: "hunty-player-progress",
+      name: 'hunty-player-progress',
       storage: {
         getItem: async (key: string) => {
           const value = await SecureStore.getItemAsync(key);
@@ -159,10 +159,7 @@ export const usePlayerStore = create<PlayerState>()(
           const converted = {
             ...parsed,
             completedClues: Object.fromEntries(
-              Object.entries(parsed.completedClues).map(([k, v]: [string, any]) => [
-                k,
-                new Set(v),
-              ]),
+              Object.entries(parsed.completedClues).map(([k, v]: [string, any]) => [k, new Set(v)]),
             ),
           };
           return JSON.stringify(converted);
@@ -203,7 +200,7 @@ export const useSettingsStore = create<SettingsState>()(
       setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
     }),
     {
-      name: "hunty-settings",
+      name: 'hunty-settings',
       storage: {
         getItem: async (key: string) => {
           const value = await SecureStore.getItemAsync(key);

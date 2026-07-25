@@ -6,7 +6,7 @@ import { useToast } from '@providers/ToastProvider';
 export const useSyncQueue = () => {
   const { showToast } = useToast();
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
       if (state.isConnected && state.isInternetReachable) {
         processQueuedAnswers()
           .then(() => {

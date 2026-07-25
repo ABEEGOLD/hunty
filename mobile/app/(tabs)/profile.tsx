@@ -65,17 +65,11 @@ async function fetchPlayerRewards(address: string): Promise<NftRewardDetail[]> {
   ];
 }
 
-function StatPill({
-  label,
-  value,
-  colors,
-}: {
-  label: string;
-  value: number;
-  colors: Colors;
-}) {
+function StatPill({ label, value, colors }: { label: string; value: number; colors: Colors }) {
   return (
-    <View style={[styles.statPill, { backgroundColor: colors.background, borderColor: colors.border }]}>
+    <View
+      style={[styles.statPill, { backgroundColor: colors.background, borderColor: colors.border }]}
+    >
       <ThemedCustomText variant="caption" style={styles.statLabel}>
         {label}
       </ThemedCustomText>
@@ -101,7 +95,12 @@ function HuntCard({ hunt, colors }: { hunt: PlayerHuntProgress; colors: Colors }
             {hunt.description}
           </ThemedCustomText>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: statusColor + '20', borderColor: statusColor }]}>
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: statusColor + '20', borderColor: statusColor },
+          ]}
+        >
           <ThemedCustomText variant="caption" weight="700" style={{ color: statusColor }}>
             {isCompleted ? 'Completed' : 'In Progress'}
           </ThemedCustomText>
@@ -129,9 +128,21 @@ function HuntCard({ hunt, colors }: { hunt: PlayerHuntProgress; colors: Colors }
 
 function NftCard({ nft, colors }: { nft: NftRewardDetail; colors: Colors }) {
   return (
-    <View style={[styles.nftCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-      <View style={[styles.nftPreview, { backgroundColor: nft.claimed ? colors.success + '20' : colors.warning + '20' }]}>
-        <View style={[styles.nftDot, { backgroundColor: nft.claimed ? colors.success : colors.warning }]} />
+    <View
+      style={[styles.nftCard, { backgroundColor: colors.background, borderColor: colors.border }]}
+    >
+      <View
+        style={[
+          styles.nftPreview,
+          { backgroundColor: nft.claimed ? colors.success + '20' : colors.warning + '20' },
+        ]}
+      >
+        <View
+          style={[
+            styles.nftDot,
+            { backgroundColor: nft.claimed ? colors.success : colors.warning },
+          ]}
+        />
       </View>
       <View style={styles.nftContent}>
         <ThemedCustomText variant="caption" color="primary">
@@ -237,7 +248,12 @@ export default function ProfileScreen() {
           <ThemedCustomText variant="caption" style={styles.centeredCaption}>
             View your hunt history, progress, and total points earned.
           </ThemedCustomText>
-          <View style={[styles.walletCard, { backgroundColor: colors.primary + '10', borderColor: colors.border }]}>
+          <View
+            style={[
+              styles.walletCard,
+              { backgroundColor: colors.primary + '10', borderColor: colors.border },
+            ]}
+          >
             <ThemedCustomText variant="caption" style={styles.walletLabel}>
               {usingWatchOnly ? 'Watch-only Address' : 'Connected Wallet'}
             </ThemedCustomText>
@@ -293,7 +309,12 @@ export default function ProfileScreen() {
                 Hunt History
               </ThemedCustomText>
               {error ? (
-                <View style={[styles.errorCard, { backgroundColor: colors.error + '20', borderColor: colors.error }]}>
+                <View
+                  style={[
+                    styles.errorCard,
+                    { backgroundColor: colors.error + '20', borderColor: colors.error },
+                  ]}
+                >
                   <ThemedCustomText variant="body" color="error">
                     {error}
                   </ThemedCustomText>

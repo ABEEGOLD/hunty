@@ -1,6 +1,6 @@
-import * as Notifications from "expo-notifications";
+import * as Notifications from 'expo-notifications';
 
-const NOTIF_ID_PREFIX = "hunt_expiry_";
+const NOTIF_ID_PREFIX = 'hunt_expiry_';
 
 /**
  * Schedule a local notification 1 hour before a hunt's endTime.
@@ -10,7 +10,7 @@ const NOTIF_ID_PREFIX = "hunt_expiry_";
 export async function scheduleHuntExpiryNotification(
   huntId: number,
   huntTitle: string,
-  endTimeSeconds: number
+  endTimeSeconds: number,
 ): Promise<void> {
   const triggerAt = (endTimeSeconds - 3600) * 1000; // 1 hour before, in ms
   if (triggerAt <= Date.now()) return;
@@ -20,7 +20,7 @@ export async function scheduleHuntExpiryNotification(
   await Notifications.scheduleNotificationAsync({
     identifier: `${NOTIF_ID_PREFIX}${huntId}`,
     content: {
-      title: "Hunt Expiring Soon ⏰",
+      title: 'Hunt Expiring Soon ⏰',
       body: `Your joined Hunt challenge "${huntTitle}" expires in 1 Hour!`,
       data: { huntId },
     },

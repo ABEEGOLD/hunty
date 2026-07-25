@@ -22,31 +22,31 @@ A production-ready EAS Build and Update system has been configured for the Hunty
 
 ### Core Configuration Files
 
-| File | Purpose | Status |
-|------|---------|--------|
-| [eas.json](./eas.json) | EAS build, update, and submit profiles | ✅ Enhanced |
-| [app.json](./app.json) | Expo app configuration with runtime versions | ✅ Updated |
-| [package.json](./package.json) | npm scripts for builds and deployments | ✅ Expanded |
-| [.env.development.example](./env.development.example) | Development environment variables | ✅ Created |
-| [.env.preview.example](./.env.preview.example) | Preview environment variables | ✅ Created |
-| [.env.production.example](./.env.production.example) | Production environment variables | ✅ Created |
+| File                                                  | Purpose                                      | Status      |
+| ----------------------------------------------------- | -------------------------------------------- | ----------- |
+| [eas.json](./eas.json)                                | EAS build, update, and submit profiles       | ✅ Enhanced |
+| [app.json](./app.json)                                | Expo app configuration with runtime versions | ✅ Updated  |
+| [package.json](./package.json)                        | npm scripts for builds and deployments       | ✅ Expanded |
+| [.env.development.example](./env.development.example) | Development environment variables            | ✅ Created  |
+| [.env.preview.example](./.env.preview.example)        | Preview environment variables                | ✅ Created  |
+| [.env.production.example](./.env.production.example)  | Production environment variables             | ✅ Created  |
 
 ### Documentation Files
 
-| File | Purpose | Status |
-|------|---------|--------|
-| [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md) | Complete setup and deployment guide | ✅ Created |
-| [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) | Credentials and signing management | ✅ Created |
-| [EAS_BUILD_UPDATE_GUIDE.md](./EAS_BUILD_UPDATE_GUIDE.md) | Build profiles and OTA updates | ✅ Existing |
-| [ANDROID_KEYSTORE.md](./ANDROID_KEYSTORE.md) | Android keystore setup | ✅ Existing |
+| File                                                             | Purpose                             | Status      |
+| ---------------------------------------------------------------- | ----------------------------------- | ----------- |
+| [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md) | Complete setup and deployment guide | ✅ Created  |
+| [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md)           | Credentials and signing management  | ✅ Created  |
+| [EAS_BUILD_UPDATE_GUIDE.md](./EAS_BUILD_UPDATE_GUIDE.md)         | Build profiles and OTA updates      | ✅ Existing |
+| [ANDROID_KEYSTORE.md](./ANDROID_KEYSTORE.md)                     | Android keystore setup              | ✅ Existing |
 
 ### Helper Scripts
 
-| Script | Purpose | Status |
-|--------|---------|--------|
-| [scripts/check-build-status.sh](./scripts/check-build-status.sh) | View recent build status | ✅ Created |
+| Script                                                           | Purpose                               | Status     |
+| ---------------------------------------------------------------- | ------------------------------------- | ---------- |
+| [scripts/check-build-status.sh](./scripts/check-build-status.sh) | View recent build status              | ✅ Created |
 | [scripts/publish-ota-update.sh](./scripts/publish-ota-update.sh) | Publish OTA updates with confirmation | ✅ Created |
-| [scripts/prepare-release.sh](./scripts/prepare-release.sh) | Coordinate release builds | ✅ Created |
+| [scripts/prepare-release.sh](./scripts/prepare-release.sh)       | Coordinate release builds             | ✅ Created |
 
 ---
 
@@ -55,6 +55,7 @@ A production-ready EAS Build and Update system has been configured for the Hunty
 ### 1. Build Profiles
 
 #### Development Profile
+
 - **Type:** Development client (debug-friendly)
 - **Distribution:** Internal (QR code)
 - **Output:** APK (Android), Simulator build (iOS)
@@ -66,6 +67,7 @@ pnpm run build:ios:dev
 ```
 
 #### Preview Profile
+
 - **Type:** Standalone app (no development client)
 - **Distribution:** Internal (QR code)
 - **Output:** APK (Android), Ad-hoc build (iOS)
@@ -77,6 +79,7 @@ pnpm run build:ios:preview
 ```
 
 #### Production Profile
+
 - **Type:** Standalone app
 - **Distribution:** App stores
 - **Output:** AAB (Android), IPA (iOS)
@@ -103,6 +106,7 @@ pnpm run update:production
 ```
 
 **Runtime versions** (in `eas.json`) ensure only compatible apps receive updates:
+
 - `1.0.0-development` — Development builds only
 - `1.0.0-preview` — Preview builds only
 - `1.0.0` — Production builds only
@@ -119,6 +123,7 @@ cp .env.production.example .env.production
 ```
 
 **Environment-specific settings:**
+
 - API endpoints (local, staging, production)
 - Stellar network (testnet, mainnet)
 - Sentry DSN (error reporting)
@@ -128,6 +133,7 @@ cp .env.production.example .env.production
 ### 4. App Store & Play Store Integration
 
 **App Store (iOS):**
+
 - Automated IPA builds
 - Direct submission to App Store Connect
 - Provisioning profile & certificate management
@@ -138,6 +144,7 @@ pnpm run submit:production:ios
 ```
 
 **Play Store (Android):**
+
 - Automated AAB builds
 - Direct submission to Play Console
 - Keystore and service account management
@@ -150,12 +157,14 @@ pnpm run submit:production:android
 ### 5. Credentials & Signing
 
 **Secure credential management:**
+
 - iOS: Provisioning profiles and code signing certificates
 - Android: Upload keystore (Java Keystore format)
 - Credentials encrypted and stored on Expo servers
 - Environment-based credential injection for CI/CD
 
 **Setup:**
+
 ```bash
 eas credentials --platform ios
 eas credentials --platform android
@@ -168,6 +177,7 @@ See [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) for detailed instruct
 ## 📦 npm Scripts
 
 ### Development & Testing
+
 ```bash
 pnpm start          # Start development server
 pnpm android        # Run on Android emulator
@@ -176,6 +186,7 @@ pnpm test           # Run tests
 ```
 
 ### EAS Management
+
 ```bash
 pnpm run eas:init          # Initialize EAS project
 pnpm run eas:credentials   # Manage credentials
@@ -185,12 +196,14 @@ pnpm run eas:secrets       # Manage EAS secrets
 ### Build Commands
 
 **Development builds (local testing):**
+
 ```bash
 pnpm run build:android:dev    # Android development APK
 pnpm run build:ios:dev        # iOS development simulator
 ```
 
 **Preview builds (QA/testing):**
+
 ```bash
 pnpm run build:android:preview
 pnpm run build:ios:preview
@@ -198,6 +211,7 @@ pnpm run build:all:preview    # Both platforms
 ```
 
 **Production builds (App Store/Play Store):**
+
 ```bash
 pnpm run build:android:prod   # Android AAB
 pnpm run build:ios:prod       # iOS IPA
@@ -238,6 +252,7 @@ eas credentials --platform ios
 ```
 
 EAS will:
+
 - Authenticate with Apple Developer
 - Create provisioning profiles
 - Generate/use code signing certificates
@@ -261,14 +276,17 @@ eas credentials --platform android
 ## 📚 Documentation
 
 ### Quick Start
+
 - [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md) — Complete setup & deployment guide
 
 ### Detailed Guides
+
 - [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) — iOS/Android credentials & signing
 - [EAS_BUILD_UPDATE_GUIDE.md](./EAS_BUILD_UPDATE_GUIDE.md) — Build profiles & OTA updates
 - [ANDROID_KEYSTORE.md](./ANDROID_KEYSTORE.md) — Android keystore generation & backup
 
 ### Common Tasks
+
 1. **First-time setup:** See [EAS_SETUP_DEPLOYMENT_GUIDE.md - Initial Setup](./EAS_SETUP_DEPLOYMENT_GUIDE.md#initial-setup)
 2. **Build for testing:** See [EAS_SETUP_DEPLOYMENT_GUIDE.md - Building Apps](./EAS_SETUP_DEPLOYMENT_GUIDE.md#building-apps)
 3. **Publish OTA update:** See [EAS_SETUP_DEPLOYMENT_GUIDE.md - OTA Updates](./EAS_SETUP_DEPLOYMENT_GUIDE.md#ota-updates)
@@ -286,6 +304,7 @@ eas credentials --platform android
 ```
 
 Output:
+
 ```
 BUILD_ID          | PLATFORM | STATUS   | DATE
 1a2b3c4d-5e6f...  | android  | finished | 2024-01-15
@@ -451,6 +470,7 @@ This uses `version` field as runtime version. Updates to `version` automatically
 ### Environment Variables
 
 **Required for all environments:**
+
 ```bash
 APP_ENV=development|preview|production
 EAS_PROJECT_ID=<your-project-id>
@@ -459,6 +479,7 @@ EXPO_UPDATE_URL=https://u.expo.dev/<project-id>
 ```
 
 **Platform-specific (iOS):**
+
 ```bash
 EXPO_APPLE_ID=<apple-id>
 EXPO_ASC_APP_ID=<app-store-connect-id>
@@ -524,6 +545,7 @@ eas credentials --platform android --list
 ## 📞 Next Steps
 
 1. **Run initial setup:**
+
    ```bash
    cd mobile
    pnpm install
@@ -564,21 +586,25 @@ eas credentials --platform android --list
 ## 📝 Summary of Changes
 
 ### Configuration Files Updated
+
 - `eas.json` — Enhanced with runtime versions and better profiles
 - `app.json` — Added runtime version configuration
 - `package.json` — Expanded with comprehensive build/update scripts
 - `.env.*.example` — Created comprehensive environment templates
 
 ### Documentation Created
+
 - `EAS_SETUP_DEPLOYMENT_GUIDE.md` — Complete setup and deployment guide (2000+ lines)
 - `EAS_CREDENTIALS_GUIDE.md` — Credentials and signing management guide (600+ lines)
 
 ### Helper Scripts Created
+
 - `scripts/check-build-status.sh` — Monitor build status
 - `scripts/publish-ota-update.sh` — Publish OTA updates
 - `scripts/prepare-release.sh` — Coordinate releases
 
 ### Total Additions
+
 - **4 configuration files** updated/created
 - **2 major documentation files** created (~2600 lines)
 - **3 helper scripts** created

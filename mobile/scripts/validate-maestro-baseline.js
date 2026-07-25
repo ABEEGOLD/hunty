@@ -49,7 +49,11 @@ for (const rel of sourceFiles) {
   }
   const src = fs.readFileSync(full, 'utf8');
   for (const id of requiredTestIds) {
-    if (src.includes(`testID="${id}"`) || src.includes(`testID={\`${id}`) || src.includes(`testID={\`hunt-feed-item-`)) {
+    if (
+      src.includes(`testID="${id}"`) ||
+      src.includes(`testID={\`${id}`) ||
+      src.includes(`testID={\`hunt-feed-item-`)
+    ) {
       continue;
     }
     if (id.startsWith('hunt-feed-item-') && src.includes('hunt-feed-item-')) continue;

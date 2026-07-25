@@ -31,7 +31,9 @@ export function PinPromptModal({ visible, title, error, onCancel, onSubmit }: Pi
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
       <View style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border }]}> 
+        <View
+          style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border }]}
+        >
           <ThemedCustomText variant="h2" style={styles.title}>
             {title}
           </ThemedCustomText>
@@ -49,7 +51,11 @@ export function PinPromptModal({ visible, title, error, onCancel, onSubmit }: Pi
             accessibilityLabel="PIN code input"
             style={[
               styles.input,
-              { borderColor: colors.border, color: colors.text, backgroundColor: colors.background },
+              {
+                borderColor: colors.border,
+                color: colors.text,
+                backgroundColor: colors.background,
+              },
             ]}
           />
 

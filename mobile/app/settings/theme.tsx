@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme, type ThemePreference } from "@providers/ThemeProvider";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme, type ThemePreference } from '@providers/ThemeProvider';
 
 const OPTIONS: {
   value: ThemePreference;
@@ -9,9 +9,14 @@ const OPTIONS: {
   description: string;
   icon: keyof typeof Ionicons.glyphMap;
 }[] = [
-  { value: "light",  label: "Light",  description: "Always use light mode",   icon: "sunny-outline" },
-  { value: "dark",   label: "Dark",   description: "Always use dark mode",    icon: "moon-outline" },
-  { value: "system", label: "System", description: "Follow device setting",   icon: "phone-portrait-outline" },
+  { value: 'light', label: 'Light', description: 'Always use light mode', icon: 'sunny-outline' },
+  { value: 'dark', label: 'Dark', description: 'Always use dark mode', icon: 'moon-outline' },
+  {
+    value: 'system',
+    label: 'System',
+    description: 'Follow device setting',
+    icon: 'phone-portrait-outline',
+  },
 ];
 
 export default function ThemeScreen() {
@@ -33,7 +38,10 @@ export default function ThemeScreen() {
               style={[
                 styles.row,
                 { backgroundColor: colors.background },
-                i < OPTIONS.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
+                i < OPTIONS.length - 1 && {
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.border,
+                },
               ]}
               onPress={() => setThemePreference(opt.value)}
               activeOpacity={0.7}
@@ -42,7 +50,7 @@ export default function ThemeScreen() {
                 style={[
                   styles.iconWrap,
                   { backgroundColor: colors.border },
-                  selected && { backgroundColor: colors.primary + "22" },
+                  selected && { backgroundColor: colors.primary + '22' },
                 ]}
               >
                 <Ionicons
@@ -65,9 +73,7 @@ export default function ThemeScreen() {
                   {opt.description}
                 </Text>
               </View>
-              {selected && (
-                <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-              )}
+              {selected && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
             </TouchableOpacity>
           );
         })}
@@ -83,7 +89,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 6,
     marginTop: 8,
   },
@@ -94,12 +100,12 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    overflow: "hidden",
+    overflow: 'hidden',
     borderWidth: 1,
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
@@ -107,8 +113,8 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   textWrap: {
@@ -116,7 +122,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   description: {
     fontSize: 12,

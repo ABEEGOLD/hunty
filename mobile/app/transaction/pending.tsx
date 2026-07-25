@@ -61,7 +61,12 @@ export default function TransactionPendingScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.hero, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '35' }]}>
+      <View
+        style={[
+          styles.hero,
+          { backgroundColor: colors.primary + '10', borderColor: colors.primary + '35' },
+        ]}
+      >
         <ThemedCustomText variant="h2" color="primary" weight="800">
           Transaction pending
         </ThemedCustomText>
@@ -88,7 +93,11 @@ export default function TransactionPendingScreen() {
                 ]}
               />
               <View style={styles.timelineText}>
-                <ThemedCustomText variant="label" weight="700" color={isActive ? 'primary' : 'text'}>
+                <ThemedCustomText
+                  variant="label"
+                  weight="700"
+                  color={isActive ? 'primary' : 'text'}
+                >
                   {isDone ? 'Completed' : isActive ? 'In progress' : 'Queued'}
                 </ThemedCustomText>
                 <ThemedCustomText variant="body">{step}</ThemedCustomText>
@@ -98,16 +107,27 @@ export default function TransactionPendingScreen() {
         })}
       </View>
 
-      <View style={[styles.noticeCard, { backgroundColor: colors.warning + '12', borderColor: colors.warning + '40' }]}>
+      <View
+        style={[
+          styles.noticeCard,
+          { backgroundColor: colors.warning + '12', borderColor: colors.warning + '40' },
+        ]}
+      >
         <ThemedCustomText variant="label" color="warning" weight="700">
           Keep this screen open
         </ThemedCustomText>
         <ThemedCustomText variant="body">
-          Closing the wallet prompt before approval will interrupt the pending flow and your registration may not reach consensus.
+          Closing the wallet prompt before approval will interrupt the pending flow and your
+          registration may not reach consensus.
         </ThemedCustomText>
       </View>
 
-      <ThemedButton text="Back to hunts" variant="ghost" fullWidth onPress={() => router.replace('/(tabs)/hunts')} />
+      <ThemedButton
+        text="Back to hunts"
+        variant="ghost"
+        fullWidth
+        onPress={() => router.replace('/(tabs)/hunts')}
+      />
     </ThemedView>
   );
 }

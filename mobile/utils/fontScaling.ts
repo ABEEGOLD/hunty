@@ -8,10 +8,10 @@ export const normalizeFont = (size: number): number => {
   const scale = SCREEN_WIDTH / 320;
   const scaleHeight = SCREEN_HEIGHT / 568;
   const maxSize = Math.max(scale, scaleHeight);
-  
+
   // Cap the maximum font size to prevent excessive scaling
   const cappedScale = Math.min(maxSize, 1.5);
-  
+
   return Math.round(PixelRatio.roundToNearestPixel(size * cappedScale));
 };
 
@@ -34,9 +34,9 @@ export const willTextClip = (text: string, fontSize: number, maxWidth: number): 
 export const getSafeFontSize = (maxWidth: number, text: string): number => {
   const maxScale = getMaxFontScale();
   const avgCharWidth = 0.6;
-  
+
   // Calculate safe font size that fits within maxWidth at max scale
   const safeFontSize = maxWidth / (text.length * avgCharWidth * maxScale);
-  
+
   return Math.min(safeFontSize, 16); // Cap at 16pt for readability
 };

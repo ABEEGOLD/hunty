@@ -130,7 +130,7 @@ describe('extractPayload', () => {
   const makeNotification = (data: Record<string, unknown>): Notifications.Notification =>
     ({
       request: { content: { data } },
-    } as unknown as Notifications.Notification);
+    }) as unknown as Notifications.Notification;
 
   it('returns null for missing data', () => {
     expect(extractPayload(makeNotification({}))).toBeNull();

@@ -18,12 +18,7 @@ export default function Dashboard() {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={
-        <HuntyRefreshControl 
-          refreshing={isRefreshing} 
-          onRefresh={onRefresh} 
-        />
-      }
+      refreshControl={<HuntyRefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.content}>
         <Text style={styles.title}>Dashboard</Text>

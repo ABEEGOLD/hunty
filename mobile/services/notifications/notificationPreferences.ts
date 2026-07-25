@@ -37,7 +37,10 @@ export const DEFAULT_PREFERENCES: NotificationPreferences = {
 
 // ─── Mapping from event type to preference category ───────────────────────────
 
-const EVENT_TO_CATEGORY: Record<NotificationEventType, keyof Omit<NotificationPreferences, 'enabled'>> = {
+const EVENT_TO_CATEGORY: Record<
+  NotificationEventType,
+  keyof Omit<NotificationPreferences, 'enabled'>
+> = {
   hunt_start: 'huntEvents',
   hunt_ending_soon: 'huntEvents',
   reward: 'rewards',

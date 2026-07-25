@@ -9,19 +9,24 @@ const ENV: Record<
   development: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL_DEVELOPMENT ?? 'http://localhost:3000/api',
     graphqlUrl: process.env.EXPO_PUBLIC_GRAPHQL_URL_DEVELOPMENT ?? 'http://localhost:4000/graphql',
-    stellarRpcUrl: process.env.EXPO_PUBLIC_STELLAR_RPC_URL_DEVELOPMENT ?? 'https://soroban-testnet.stellar.org',
+    stellarRpcUrl:
+      process.env.EXPO_PUBLIC_STELLAR_RPC_URL_DEVELOPMENT ?? 'https://soroban-testnet.stellar.org',
     stellarNetwork: process.env.EXPO_PUBLIC_STELLAR_NETWORK_DEVELOPMENT ?? 'testnet',
   },
   preview: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL_PREVIEW ?? 'https://staging-api.hunty.app',
-    graphqlUrl: process.env.EXPO_PUBLIC_GRAPHQL_URL_PREVIEW ?? 'https://staging-indexer.hunty.app/graphql',
-    stellarRpcUrl: process.env.EXPO_PUBLIC_STELLAR_RPC_URL_PREVIEW ?? 'https://soroban-testnet.stellar.org',
+    graphqlUrl:
+      process.env.EXPO_PUBLIC_GRAPHQL_URL_PREVIEW ?? 'https://staging-indexer.hunty.app/graphql',
+    stellarRpcUrl:
+      process.env.EXPO_PUBLIC_STELLAR_RPC_URL_PREVIEW ?? 'https://soroban-testnet.stellar.org',
     stellarNetwork: process.env.EXPO_PUBLIC_STELLAR_NETWORK_PREVIEW ?? 'testnet',
   },
   production: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL_PRODUCTION ?? 'https://api.hunty.app',
-    graphqlUrl: process.env.EXPO_PUBLIC_GRAPHQL_URL_PRODUCTION ?? 'https://indexer.hunty.app/graphql',
-    stellarRpcUrl: process.env.EXPO_PUBLIC_STELLAR_RPC_URL_PRODUCTION ?? 'https://soroban-mainnet.stellar.org',
+    graphqlUrl:
+      process.env.EXPO_PUBLIC_GRAPHQL_URL_PRODUCTION ?? 'https://indexer.hunty.app/graphql',
+    stellarRpcUrl:
+      process.env.EXPO_PUBLIC_STELLAR_RPC_URL_PRODUCTION ?? 'https://soroban-mainnet.stellar.org',
     stellarNetwork: process.env.EXPO_PUBLIC_STELLAR_NETWORK_PRODUCTION ?? 'mainnet',
   },
 };

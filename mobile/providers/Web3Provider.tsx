@@ -59,7 +59,11 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     const restorePersistedSession = async () => {
       const persisted = await loadSession();
       if (!isCancelled && mountedRef.current && persisted) {
-        setSession({ topic: persisted.topic, publicKey: persisted.publicKey, network: persisted.network });
+        setSession({
+          topic: persisted.topic,
+          publicKey: persisted.publicKey,
+          network: persisted.network,
+        });
         setWallet(persisted.publicKey);
         setNetwork(persisted.network.includes('main') ? 'mainnet' : 'testnet');
         // #360 — Refresh token registration after session restore
@@ -67,7 +71,9 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     void restorePersistedSession();
-    return () => { isCancelled = true; };
+    return () => {
+      isCancelled = true;
+    };
   }, [setWallet, setNetwork]);
 
   useEffect(() => {
@@ -122,7 +128,11 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
             const net = parts.length >= 2 ? parts[1] : 'testnet';
 
             if (mountedRef.current) {
-              const sessionInfo: SessionInfo = { topic: last.topic, publicKey: pubKey, network: net };
+              const sessionInfo: SessionInfo = {
+                topic: last.topic,
+                publicKey: pubKey,
+                network: net,
+              };
               setSession(sessionInfo);
               setWallet(pubKey);
               setNetwork(net.includes('main') ? 'mainnet' : 'testnet');
@@ -181,7 +191,11 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
       const net = parts.length >= 2 ? parts[1] : 'testnet';
 
       if (mountedRef.current) {
-        const sessionInfo: SessionInfo = { topic: approvedSession.topic, publicKey: pubKey, network: net };
+        const sessionInfo: SessionInfo = {
+          topic: approvedSession.topic,
+          publicKey: pubKey,
+          network: net,
+        };
         setSession(sessionInfo);
         setWallet(pubKey);
         setNetwork(net.includes('main') ? 'mainnet' : 'testnet');

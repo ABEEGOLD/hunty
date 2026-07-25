@@ -25,7 +25,7 @@ function crc32(buf) {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     table[n] = c;
   }
   let c = 0xffffffff;
@@ -56,8 +56,8 @@ function makePng(width, height, [r, g, b] = [0x1f, 0x29, 0x37]) {
   const ihdr = Buffer.allocUnsafe(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8;  // bit depth
-  ihdr[9] = 2;  // colour type: truecolour RGB
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 2; // colour type: truecolour RGB
   ihdr[10] = 0; // compression method
   ihdr[11] = 0; // filter method
   ihdr[12] = 0; // interlace method
@@ -98,7 +98,7 @@ const SCREENSHOTS = [
   // iOS — App Store Connect required sizes
   { dir: 'store/ios/iphone-67', w: 1290, h: 2796, label: 'iPhone 6.7"' },
   { dir: 'store/ios/iphone-65', w: 1284, h: 2778, label: 'iPhone 6.5"' },
-  { dir: 'store/ios/ipad-129',  w: 2048, h: 2732, label: 'iPad Pro 12.9"' },
+  { dir: 'store/ios/ipad-129', w: 2048, h: 2732, label: 'iPad Pro 12.9"' },
 
   // Android — Google Play minimum 1080×1920 for phone
   { dir: 'store/android/phone', w: 1080, h: 1920, label: 'Android Phone' },

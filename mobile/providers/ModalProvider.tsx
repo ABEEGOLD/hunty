@@ -1,10 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -74,12 +69,7 @@ interface BottomSheetWrapperProps {
   children?: React.ReactNode;
 }
 
-function BottomSheetWrapper({
-  config,
-  isVisible,
-  onClose,
-  children,
-}: BottomSheetWrapperProps) {
+function BottomSheetWrapper({ config, isVisible, onClose, children }: BottomSheetWrapperProps) {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ['25%', '50%', '75%'], []);
   const { colors, isDark } = useTheme();
@@ -87,14 +77,9 @@ function BottomSheetWrapper({
 
   const renderBackdrop = useCallback(
     (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-      />
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} />
     ),
-    []
+    [],
   );
 
   React.useEffect(() => {
@@ -120,10 +105,7 @@ function BottomSheetWrapper({
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={[
-          styles.keyboardAvoid,
-          { paddingBottom: Math.max(insets.bottom, 16) },
-        ]}
+        style={[styles.keyboardAvoid, { paddingBottom: Math.max(insets.bottom, 16) }]}
       >
         {children}
       </KeyboardAvoidingView>
@@ -145,10 +127,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
           onClose={() => closeModal(modal.id)}
         >
           {modal.type === 'confirmation' ? (
-            <ConfirmationModal
-              config={modal}
-              onClose={() => closeModal(modal.id)}
-            />
+            <ConfirmationModal config={modal} onClose={() => closeModal(modal.id)} />
           ) : (
             <View style={styles.modalContent}>
               <ThemedCustomText variant="h3" style={styles.title}>

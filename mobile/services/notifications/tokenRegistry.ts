@@ -76,8 +76,7 @@ export async function getExpoPushToken(): Promise<string | null> {
   }
 
   const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+    Constants.expoConfig?.extra?.eas?.projectId ?? process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
 
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync(
@@ -115,7 +114,11 @@ async function postTokenToBackend(
       throw new Error(`HTTP ${res.status}`);
     } catch (err) {
       if (attempt === retries) {
-        if (__DEV__) console.warn(`[TokenRegistry] Backend registration failed after ${retries} attempts:`, err);
+        if (__DEV__)
+          console.warn(
+            `[TokenRegistry] Backend registration failed after ${retries} attempts:`,
+            err,
+          );
         throw err;
       }
       // Exponential back-off: 500ms, 1000ms, 2000ms …
@@ -151,10 +154,7 @@ export async function registerPushToken(walletAddress: string): Promise<void> {
   const token = await getExpoPushToken();
   if (!token) return;
 
-  const [storedToken, storedWallet] = await Promise.all([
-    getStoredToken(),
-    getStoredTokenWallet(),
-  ]);
+  const [storedToken, storedWallet] = await Promise.all([getStoredToken(), getStoredTokenWallet()]);
 
   const alreadyRegistered = storedToken === token && storedWallet === walletAddress;
   if (alreadyRegistered) {

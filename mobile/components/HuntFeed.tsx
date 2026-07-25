@@ -5,7 +5,11 @@ import { ThemedCustomText, ThemedView } from '@components/themed';
 import { HuntFeedItem } from './HuntFeedItem';
 
 export function HuntFeed() {
-  const { data: hunts = [], isLoading, isError } = useQuery({
+  const {
+    data: hunts = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['hunts', 'feed'],
     queryFn: getActiveHuntsForFeed,
   });

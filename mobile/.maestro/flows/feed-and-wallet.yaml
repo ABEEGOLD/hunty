@@ -4,25 +4,25 @@ appId: host.exp.Exponent
 - launchApp
 - extendedWaitUntil:
     visible:
-      id: "hunts-feed"
+      id: 'hunts-feed'
     timeout: 30000
 - assertVisible:
-    id: "hunts-feed"
+    id: 'hunts-feed'
 - tapOn:
-    id: "hunt-feed-item-1"
+    id: 'hunt-feed-item-1'
 - extendedWaitUntil:
     visible:
-      id: "hunt-detail-screen"
+      id: 'hunt-detail-screen'
     timeout: 10000
 - assertVisible:
-    id: "connect-wallet-button"
+    id: 'connect-wallet-button'
 - tapOn:
-    id: "connect-wallet-button"
+    id: 'connect-wallet-button'
 - extendedWaitUntil:
     visible:
-      id: "wallet-connect-modal"
+      id: 'wallet-connect-modal'
     timeout: 5000
 - assertVisible:
-    id: "wallet-option-xbull"
+    id: 'wallet-option-xbull'
 - assertVisible:
-    id: "wallet-option-lobstr"
+    id: 'wallet-option-lobstr'

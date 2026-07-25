@@ -21,11 +21,7 @@ const WALLET_OPTIONS = [
   },
 ];
 
-export function WalletConnectModal({
-  visible,
-  onClose,
-  onConnect,
-}: WalletConnectModalProps) {
+export function WalletConnectModal({ visible, onClose, onConnect }: WalletConnectModalProps) {
   const { colors } = useTheme();
 
   return (

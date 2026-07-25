@@ -11,7 +11,10 @@ export function MemoryDiagnosticsOverlay() {
     }
 
     const refresh = () => {
-      const data = Array.from(dumpDiagnostics().entries()).map(([name, count]) => ({ name, count }));
+      const data = Array.from(dumpDiagnostics().entries()).map(([name, count]) => ({
+        name,
+        count,
+      }));
       setDiagnostics(data);
     };
 

@@ -17,7 +17,9 @@ export default function GameMapScreen() {
   const [hunts, setHunts] = useState<StoredHunt[]>([]);
 
   useEffect(() => {
-    getAllHunts().then(setHunts).catch(() => setHunts([]));
+    getAllHunts()
+      .then(setHunts)
+      .catch(() => setHunts([]));
   }, []);
 
   const zones = useMemo(() => {
@@ -122,7 +124,9 @@ export default function GameMapScreen() {
       )}
 
       {/* Legend */}
-      <View style={[styles.legend, { backgroundColor: colors.background, borderColor: colors.border }]}>
+      <View
+        style={[styles.legend, { backgroundColor: colors.background, borderColor: colors.border }]}
+      >
         {(['XLM', 'NFT', 'Both'] as const).map((type) => (
           <View key={type} style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: zoneColor(type) }]} />

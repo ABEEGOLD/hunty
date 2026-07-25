@@ -6,20 +6,20 @@ Compiled metadata and screenshot placeholders for EAS Build / Submit.
 
 ### iOS (App Store Connect)
 
-| Device | Size (px) | Path |
-|--------|-----------|------|
-| iPhone 6.7" | 1290 × 2796 | `ios/iphone-67/` |
-| iPhone 6.5" | 1284 × 2778 | `ios/iphone-65/` |
-| iPad Pro 12.9" | 2048 × 2732 | `ios/ipad-129/` |
+| Device         | Size (px)   | Path             |
+| -------------- | ----------- | ---------------- |
+| iPhone 6.7"    | 1290 × 2796 | `ios/iphone-67/` |
+| iPhone 6.5"    | 1284 × 2778 | `ios/iphone-65/` |
+| iPad Pro 12.9" | 2048 × 2732 | `ios/ipad-129/`  |
 
 Suggested filenames: `01-hunts-feed.png`, `02-hunt-detail.png`, `03-wallet-connect.png`, `04-profile.png`, `05-map-play.png`
 
 ### Android (Google Play)
 
-| Type | Size (px) | Path |
-|------|-----------|------|
-| Phone | 1080 × 1920 min | `android/phone/` |
-| Feature graphic | 1024 × 500 | `android/feature-graphic.png` |
+| Type            | Size (px)       | Path                          |
+| --------------- | --------------- | ----------------------------- |
+| Phone           | 1080 × 1920 min | `android/phone/`              |
+| Feature graphic | 1024 × 500      | `android/feature-graphic.png` |
 
 ## Icons & splash (already in repo)
 

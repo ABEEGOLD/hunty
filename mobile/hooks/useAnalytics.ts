@@ -46,14 +46,14 @@ export function useScreenAnalytics(screenName: string) {
     (action: string, target?: string, value?: string | number | boolean) => {
       trackAction(action, target ?? screenName, value);
     },
-    [screenName, trackAction]
+    [screenName, trackAction],
   );
 
   const trackError = useCallback(
     (error: Error, context?: Record<string, unknown>) => {
       report(error, { screen: screenName, ...context });
     },
-    [screenName, report]
+    [screenName, report],
   );
 
   return {
@@ -73,7 +73,7 @@ export function useScreenAnalytics(screenName: string) {
 export function useTrackableAction<T extends (...args: unknown[]) => unknown>(
   actionName: string,
   handler: T,
-  target?: string
+  target?: string,
 ): T {
   const { trackAction } = useAnalyticsContext();
 
@@ -82,6 +82,6 @@ export function useTrackableAction<T extends (...args: unknown[]) => unknown>(
       trackAction(actionName, target);
       return handler(...args);
     }) as T,
-    [actionName, handler, target, trackAction]
+    [actionName, handler, target, trackAction],
   );
 }
