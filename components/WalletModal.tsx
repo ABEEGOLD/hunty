@@ -118,6 +118,22 @@ export function WalletModal({ isOpen, onClose, onConnect }: WalletModalProps) {
               <Loader2 className="h-4 w-4 animate-spin ml-auto shrink-0" />
             )}
           </Button>
+          <Button
+            onClick={() => handleConnect("xbull")}
+            disabled={connecting}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:opacity-90 disabled:opacity-50 text-white p-4 rounded-xl flex items-center gap-3 justify-start h-auto border border-white/5"
+          >
+            <span className="text-2xl">🐂</span>
+            <div className="text-left flex-1">
+              <div className="font-semibold text-base">xBull Wallet</div>
+              <div className="text-xs opacity-75">
+                Feature-rich Stellar wallet
+              </div>
+            </div>
+            {connecting && connectingProvider === "xbull" && (
+              <Loader2 className="h-4 w-4 animate-spin ml-auto shrink-0" />
+            )}
+          </Button>
 
           {/* Waiting hint */}
           {connecting && (
