@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Pencil, BarChart3, HelpCircle } from "lucide-react"
+import { ArrowLeft, Pencil, BarChart3, HelpCircle, Code2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 
@@ -13,6 +13,7 @@ const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
 })
 import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
+import { EmbedModal } from "@/components/EmbedModal"
 import { useWallet } from "@/lib/context/WalletContext"
 import type { StoredHunt } from "@/lib/types"
 import { getHuntsByCreator } from "@/lib/huntStore"
@@ -40,7 +41,7 @@ export default function CreatorPage() {
   const { connected, publicKey, connect } = useWallet()
   const [hunts, setHunts] = useState<StoredHunt[]>([])
   const [rewardHistory, setRewardHistory] = useState<Awaited<ReturnType<typeof fetchCreatorRewardHistory>>>([])
-
+  const [embedHunt, setEmbedHunt] = useState<StoredHunt | null>(null)
   const loadHunts = useCallback(() => {
     if (!publicKey) {
       setHunts([])
@@ -158,7 +159,9 @@ export default function CreatorPage() {
               {hunts.map((hunt) => {
                 const isDraft = hunt.status === "Draft"
                 const isActive = hunt.status === "Active"
+                const isCompleted = hunt.status === "Completed"
                 const isClickable = isDraft || isActive
+                const canEmbed = isActive || isCompleted
 
                 return (
                   <Card
@@ -184,18 +187,35 @@ export default function CreatorPage() {
                         <span className="text-xs text-slate-500">
                           {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
                         </span>
-                        {isDraft && (
-                          <span className="flex items-center gap-1 text-xs text-amber-700">
-                            <Pencil className="h-3 w-3" />
-                            Edit
-                          </span>
-                        )}
-                        {isActive && (
-                          <span className="flex items-center gap-1 text-xs text-emerald-700">
-                            <BarChart3 className="h-3 w-3" />
-                            Live Statistics
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isDraft && (
+                            <span className="flex items-center gap-1 text-xs text-amber-700">
+                              <Pencil className="h-3 w-3" />
+                              Edit
+                            </span>
+                          )}
+                          {isActive && (
+                            <span className="flex items-center gap-1 text-xs text-emerald-700">
+                              <BarChart3 className="h-3 w-3" />
+                              Live Statistics
+                            </span>
+                          )}
+                          {canEmbed && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setEmbedHunt(hunt)
+                              }}
+                              className="flex items-center gap-1 text-xs text-[#3737A4] hover:underline font-medium"
+                              title="Get embed code"
+                              aria-label={`Get embed code for ${hunt.title}`}
+                            >
+                              <Code2 className="h-3 w-3" />
+                              Embed
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -215,6 +235,13 @@ export default function CreatorPage() {
           </>
         )}
       </div>
+      {embedHunt && (
+        <EmbedModal
+          hunt={embedHunt}
+          open={!!embedHunt}
+          onClose={() => setEmbedHunt(null)}
+        />
+      )}
     </div>
   )
 }
