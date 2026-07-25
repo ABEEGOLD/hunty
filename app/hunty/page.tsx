@@ -59,6 +59,7 @@ function CreateGameContent() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [timerEnabled, setTimerEnabled] = useState(false)
   const [isPrivate, setIsPrivate] = useState(false)
+  const [sequential, setSequential] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false);
   const [coverImageUploadStates, setCoverImageUploadStates] = useState<Record<number, CoverImageUploadState>>({})
   const [selectedTemplateTitle, setSelectedTemplateTitle] = useState<string | null>(null)
@@ -162,6 +163,7 @@ function CreateGameContent() {
       emailNotifications: z.boolean(),
       timerEnabled: z.boolean(),
       isPrivate: z.boolean(),
+      sequential: z.boolean(),
       rewardType: z.enum(["XLM", "NFT", "Both"] as const),
       hunts: z.array(huntItemSchema).min(3, "At least 3 clues are required."),
       rewards: z.array(rewardItemSchema).min(1, "At least one reward slot is required."),
@@ -215,6 +217,7 @@ function CreateGameContent() {
       emailNotifications,
       timerEnabled,
       isPrivate,
+      sequential,
       rewardType,
       hunts,
       rewards,
@@ -229,6 +232,7 @@ function CreateGameContent() {
     setValue("emailNotifications", emailNotifications)
     setValue("timerEnabled", timerEnabled)
     setValue("isPrivate", isPrivate)
+    setValue("sequential", sequential)
     setValue("rewardType", rewardType)
     setValue("hunts", hunts)
     setValue("rewards", rewards)
@@ -241,6 +245,7 @@ function CreateGameContent() {
     emailNotifications,
     timerEnabled,
     isPrivate,
+    sequential,
     rewardType,
     hunts,
     rewards,
@@ -338,6 +343,7 @@ function CreateGameContent() {
             formValues.creatorEmail,
             formValues.emailNotifications,
             formValues.isPrivate,
+            formValues.sequential,
           )
           const escrow = await createRewardEscrow({
             huntId: localId,
@@ -376,6 +382,7 @@ function CreateGameContent() {
         creatorEmail: formValues.creatorEmail || undefined,
         emailNotifications: formValues.emailNotifications,
         is_private: formValues.isPrivate,
+        sequential: formValues.sequential,
         coverImageCid,
       })
 
@@ -654,6 +661,16 @@ function CreateGameContent() {
                             <p className="text-xs text-slate-400 mt-0.5">Hidden from the public arcade</p>
                           </div>
                           <ToggleButton isActive={isPrivate} onClick={() => setIsPrivate(!isPrivate)} />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <label className="block text-xl font-normal text-[#808080]">
+                              Sequential Clues
+                            </label>
+                            <p className="text-xs text-slate-400 mt-0.5">Players must solve clues in order</p>
+                          </div>
+                          <ToggleButton isActive={sequential} onClick={() => setSequential(!sequential)} />
                         </div>
 
                         <div className="flex items-center justify-between">

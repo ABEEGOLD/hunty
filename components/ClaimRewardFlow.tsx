@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
-import { Loader2, ExternalLink, AlertCircle, RefreshCw, Wallet } from "lucide-react"
+import { useContext, useState, useCallback, useRef } from "react"
+import { CheckCircle2, Loader2, ExternalLink, AlertCircle, RefreshCw, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { AnimatedCheckmark } from "@/components/AnimatedCheckmark"
 import Coin from "@/components/icons/Coin"
 import { claimReward, ClaimTimeoutError, ClaimRejectedError } from "@/lib/contracts/rewardManager"
 import { getStellarExplorerUrl } from "@/lib/constants"
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { WalletContext } from "@/lib/context/WalletContext"
+import { recordNftReceived } from "@/lib/contracts/player-stats"
 
 type ClaimStage = "idle" | "preparing" | "approving" | "confirming" | "retrying" | "success" | "error"
 
@@ -31,6 +32,7 @@ const STAGE_LABELS: Record<ClaimStage, string> = {
 }
 
 export function ClaimRewardFlow({ huntId, rewardAmount, rewardType = "XLM", onClaimed }: ClaimRewardFlowProps) {
+  const wallet = useContext(WalletContext)
   const [stage, setStage] = useState<ClaimStage>("idle")
   const [txHash, setTxHash] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -68,6 +70,9 @@ export function ClaimRewardFlow({ huntId, rewardAmount, rewardType = "XLM", onCl
       setTxHash(result.txHash)
       setStage("success")
       setClaimed(true)
+      if (wallet?.publicKey && rewardType !== "XLM") {
+        recordNftReceived(wallet.publicKey)
+      }
       onClaimed?.(result.txHash)
     } catch (err) {
       if (controller.signal.aborted) return
@@ -84,7 +89,7 @@ export function ClaimRewardFlow({ huntId, rewardAmount, rewardType = "XLM", onCl
       setStage("error")
       logger.error("Claim reward failed:", err)
     }
-  }, [huntId, onClaimed])
+  }, [huntId, onClaimed, rewardType, wallet?.publicKey])
 
   const handleRetry = useCallback(() => {
     setStage("idle")
@@ -97,7 +102,7 @@ export function ClaimRewardFlow({ huntId, rewardAmount, rewardType = "XLM", onCl
     return (
       <div className="flex flex-col items-center gap-4 py-6">
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <AnimatedCheckmark asCircle className="text-green-600 dark:text-green-400" size={32} />
+          <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
         </div>
 
         <div className="text-center">

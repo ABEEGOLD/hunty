@@ -8,8 +8,13 @@ import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { addClue } from "@/lib/contracts/hunt"
-import { saveClueLocally, updateClueAnswer } from "@/lib/huntStore"
+import { addCluesBatch } from "@/lib/contracts/hunt"
+import {
+  saveCluesLocallyBatch,
+  takeHuntStoreSnapshot,
+  restoreHuntStoreSnapshot,
+  updateClueAnswer,
+} from "@/lib/huntStore"
 import { sha256Hex } from "@/lib/crypto"
 import { withTransactionToast } from "@/lib/txToast"
 import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
@@ -124,46 +129,52 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     if (!valid.length) return
 
     setIsSavingClues(true)
+    const snapshot = takeHuntStoreSnapshot()
     try {
-      for (const row of valid) {
-        const normalizedAnswer = row.answer.trim().toLowerCase()
-        // Persist locally first to obtain a stable clue id for salting
-        const newId = saveClueLocally({
-          huntId,
-          question: row.question.trim(),
-          answer: normalizedAnswer,
-          points: row.points,
-          hint: row.hint?.trim() || undefined,
-          hintCost: row.hintCost,
-          difficulty: row.difficulty,
-        })
+      const normalizedClues = valid.map((row) => ({
+        huntId,
+        question: row.question.trim(),
+        answer: row.answer.trim().toLowerCase(),
+        points: row.points,
+        hint: row.hint?.trim() || undefined,
+        hintCost: row.hintCost,
+        difficulty: row.difficulty,
+      }))
 
+      const clueIds = saveCluesLocallyBatch(normalizedClues)
+
+      await withTransactionToast(
+        async (setStage) => {
+          setStage("approving")
+          return addCluesBatch(
+            huntId,
+            normalizedClues.map(({ huntId: _huntId, ...clue }) => clue)
+          )
+        },
+        {
+          pending: "Pending — preparing clues…",
+          approving: "Approving — sign in your wallet…",
+          confirmed: "Clues confirmed!",
+        }
+      )
+
+      for (const [index, row] of valid.entries()) {
+        const normalizedAnswer = row.answer.trim().toLowerCase()
+        const newId = clueIds[index]
         const salt = `${huntId}_${newId}`
         const hashed = await sha256Hex(normalizedAnswer + salt)
-
-        await withTransactionToast(
-          async (setStage) => {
-            setStage("approving")
-            // Submit the hashed answer to the contract (expected scheme: sha256(answer + salt))
-            return addClue(huntId, row.question.trim(), hashed, row.points, row.hint?.trim() || undefined, row.hintCost, row.difficulty)
-          },
-          {
-            pending:   "Pending — preparing clue…",
-            approving: "Approving — sign in your wallet…",
-            confirmed: "Clue confirmed!",
-          }
-        )
-
-        // Update the locally stored clue to contain the hashed answer
         try {
           updateClueAnswer(huntId, newId, hashed)
         } catch (e) {
-          // non-fatal
           logger.warn("Failed to update local clue answer with hash", e)
         }
       }
+
       onCluesSaved?.(valid.length)
       reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0 }] })
+    } catch (error) {
+      restoreHuntStoreSnapshot(snapshot)
+      throw error
     } finally {
       setIsSavingClues(false)
     }
