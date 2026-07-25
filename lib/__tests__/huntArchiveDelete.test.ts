@@ -3,8 +3,8 @@
  */
 
 import {
-  archiveHunts,
-  unarchiveHunts,
+  hideHuntsFromPublic,
+  unhideHuntsFromPublic,
   softDeleteHunts,
   restoreHunts,
   permanentDeleteHunts,
@@ -34,28 +34,28 @@ describe("Hunt Archive and Delete Flow", () => {
     rewardPool: 100,
   })
 
-  test("archiveHunts should mark hunts as archived", () => {
+  test("hideHuntsFromPublic should mark hunts as archived", () => {
     const hunt1 = createTestHunt(1, "Test Hunt 1")
     const hunt2 = createTestHunt(2, "Test Hunt 2")
     
     addHunt(hunt1)
     addHunt(hunt2)
     
-    archiveHunts([1])
+    hideHuntsFromPublic([1])
     
     const archivedHunt = getHuntById(1)
     const activeHunt = getHuntById(2)
     
     expect(archivedHunt?.isArchived).toBe(true)
-    expect(activeHunt?.isArchived).toBe(false)
+    expect(activeHunt?.isArchived).toBeFalsy()
   })
 
-  test("unarchiveHunts should restore archived hunts", () => {
+  test("unhideHuntsFromPublic should restore archived hunts", () => {
     const hunt = createTestHunt(1, "Test Hunt")
     
     addHunt(hunt)
-    archiveHunts([1])
-    unarchiveHunts([1])
+    hideHuntsFromPublic([1])
+    unhideHuntsFromPublic([1])
     
     const restoredHunt = getHuntById(1)
     
@@ -109,7 +109,7 @@ describe("Hunt Archive and Delete Flow", () => {
     
     addHunt(hunt1)
     addHunt(hunt2)
-    archiveHunts([1])
+    hideHuntsFromPublic([1])
     
     const archived = getArchivedHunts()
     
@@ -138,7 +138,7 @@ describe("Hunt Archive and Delete Flow", () => {
     addHunt(hunt2)
     addHunt(hunt3)
     
-    archiveHunts([1, 2])
+    hideHuntsFromPublic([1, 2])
     
     const archived = getArchivedHunts()
     

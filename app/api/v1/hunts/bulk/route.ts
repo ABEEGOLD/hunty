@@ -22,49 +22,50 @@ export async function POST(req: Request) {
     }
 
     const ids = huntIds.map((id: string | number) => typeof id === "string" ? parseInt(id, 10) : id);
+
     if (ids.some((id: number) => isNaN(id))) {
       return NextResponse.json({ error: "Invalid hunt ID in list" }, { status: 400 });
     }
 
     if (action === "archive") {
-      const { archiveHunts } = await import("@/lib/huntStore");
-      archiveHunts(ids);
-      return NextResponse.json({ 
-        success: true, 
-        message: `${ids.length} hunt(s) archived successfully` 
+      const { hideHuntsFromPublic } = await import("@/lib/huntStore");
+      hideHuntsFromPublic(ids);
+      return NextResponse.json({
+        success: true,
+        message: `${ids.length} hunt(s) archived successfully`
       });
     } else if (action === "unarchive") {
-      const { unarchiveHunts } = await import("@/lib/huntStore");
-      unarchiveHunts(ids);
-      return NextResponse.json({ 
-        success: true, 
-        message: `${ids.length} hunt(s) unarchived successfully` 
+      const { unhideHuntsFromPublic } = await import("@/lib/huntStore");
+      unhideHuntsFromPublic(ids);
+      return NextResponse.json({
+        success: true,
+        message: `${ids.length} hunt(s) unarchived successfully`
       });
     } else if (action === "soft-delete") {
       const { softDeleteHunts } = await import("@/lib/huntStore");
       softDeleteHunts(ids);
-      return NextResponse.json({ 
-        success: true, 
-        message: `${ids.length} hunt(s) soft-deleted successfully. You can restore them within 30 days.` 
+      return NextResponse.json({
+        success: true,
+        message: `${ids.length} hunt(s) soft-deleted successfully. You can restore them within 30 days.`
       });
     } else if (action === "restore") {
       const { restoreHunts } = await import("@/lib/huntStore");
       restoreHunts(ids);
-      return NextResponse.json({ 
-        success: true, 
-        message: `${ids.length} hunt(s) restored successfully` 
+      return NextResponse.json({
+        success: true,
+        message: `${ids.length} hunt(s) restored successfully`
       });
     } else if (action === "permanent-delete") {
       if (!confirmed) {
-        return NextResponse.json({ 
-          error: "Confirmation required. Set confirmed=true to permanently delete." 
+        return NextResponse.json({
+          error: "Confirmation required. Set confirmed=true to permanently delete."
         }, { status: 400 });
       }
       const { permanentDeleteHunts } = await import("@/lib/huntStore");
       permanentDeleteHunts(ids);
-      return NextResponse.json({ 
-        success: true, 
-        message: `${ids.length} hunt(s) permanently deleted. This action cannot be undone.` 
+      return NextResponse.json({
+        success: true,
+        message: `${ids.length} hunt(s) permanently deleted. This action cannot be undone.`
       });
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });

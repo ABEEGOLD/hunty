@@ -203,16 +203,24 @@ export function deleteHunts(ids: number[]): void {
   writeClues(remainingClues)
 }
 
-/** Archive (hide from public) multiple hunts by IDs. Data is preserved. */
+/** Archive (Cancel) multiple hunts by IDs. */
 export function archiveHunts(ids: number[]): void {
+  const hunts = readHunts().map((h) =>
+    ids.includes(h.id) ? { ...h, status: "Cancelled" as HuntStatus } : h
+  )
+  writeHunts(hunts)
+}
+
+/** Hide hunts from public view (data preserved) — used by creator archive/unarchive flow. */
+export function hideHuntsFromPublic(ids: number[]): void {
   const hunts = readHunts().map((h) =>
     ids.includes(h.id) ? { ...h, isArchived: true } : h
   )
   writeHunts(hunts)
 }
 
-/** Unarchive (restore to public) multiple hunts by IDs. */
-export function unarchiveHunts(ids: number[]): void {
+/** Restore hidden hunts to public view. */
+export function unhideHuntsFromPublic(ids: number[]): void {
   const hunts = readHunts().map((h) =>
     ids.includes(h.id) ? { ...h, isArchived: false } : h
   )

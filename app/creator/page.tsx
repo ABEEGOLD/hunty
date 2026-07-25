@@ -25,7 +25,7 @@ import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { useWallet } from "@/lib/context/WalletContext"
 import type { StoredHunt } from "@/lib/types"
-import { getHuntsByCreator, getArchivedHunts, getSoftDeletedHunts, archiveHunts, unarchiveHunts, softDeleteHunts, restoreHunts, permanentDeleteHunts } from "@/lib/huntStore"
+import { getHuntsByCreator, getArchivedHunts, getSoftDeletedHunts, hideHuntsFromPublic, unhideHuntsFromPublic, softDeleteHunts, restoreHunts, permanentDeleteHunts } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
@@ -118,10 +118,10 @@ export default function CreatorPage() {
 
     switch (action) {
       case "archive":
-        archiveHunts(huntIds)
+        hideHuntsFromPublic(huntIds)
         break
       case "unarchive":
-        unarchiveHunts(huntIds)
+        unhideHuntsFromPublic(huntIds)
         break
       case "soft-delete":
         softDeleteHunts(huntIds)
