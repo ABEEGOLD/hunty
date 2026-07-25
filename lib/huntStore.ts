@@ -12,8 +12,25 @@ export type HuntStoreSnapshot = {
   clues: Clue[]
 }
 
+export interface HuntProgressSnapshot {
+  huntId: number
+  currentClueIndex: number
+  startedAt: number
+  completed: boolean
+  completedAt?: number
+}
+
+export interface HuntStorageGcResult {
+  huntId: number
+  reclaimedBytes: number
+  removedKeys: string[]
+}
+
 const STORAGE_KEY = "hunty_hunts"
 const CLUES_KEY = "hunty_clues"
+const HUNT_PROGRESS_KEY_PREFIX = "hunty_hunt_progress_"
+
+export const MAX_CLUES_PER_HUNT = 10
 
 // Seed timestamps: active hunts end 7 days from first load, completed hunts in the past.
 const NOW_SECONDS = Math.floor(Date.now() / 1000)
@@ -24,6 +41,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     title: "City Secrets",
     description: "Race across town to uncover hidden murals and landmarks.",
     cluesCount: 5,
+    category: "Urban",
+    difficulty: "Medium",
     status: "Active",
     rewardType: "XLM",
     rewardPool: 150,
@@ -43,6 +62,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     title: "Campus Quest",
     description: "Solve riddles scattered around campus before the timer ends.",
     cluesCount: 7,
+    category: "Campus",
+    difficulty: "Hard",
     status: "Active",
     rewardType: "NFT",
     rewardPool: 40,
@@ -58,6 +79,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     title: "Office Onboarding Hunt",
     description: "A playful intro game for new teammates around the office.",
     cluesCount: 4,
+    category: "Office",
+    difficulty: "Easy",
     status: "Completed",
     rewardType: "Both",
     rewardPool: 250,
@@ -73,6 +96,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     title: "Summer Treasure Hunt",
     description: "Find hidden clues in the park.",
     cluesCount: 3,
+    category: "General",
+    difficulty: "Easy",
     status: "Draft",
     rewardType: "XLM",
     rewardPool: 80,
@@ -86,6 +111,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     title: "Museum Mystery",
     description: "Discover art and history through clues.",
     cluesCount: 0,
+    category: "Museum",
+    difficulty: "Medium",
     status: "Draft",
     rewardType: "NFT",
     rewardPool: 25,
@@ -136,6 +163,85 @@ function writeHunts(hunts: StoredHunt[]): void {
   } catch {
     // ignore
   }
+}
+
+function getProgressKey(huntId: number): string {
+  return `${HUNT_PROGRESS_KEY_PREFIX}${huntId}`
+}
+
+function readProgressEntry(huntId: number): HuntProgressSnapshot | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(getProgressKey(huntId))
+    return raw ? (JSON.parse(raw) as HuntProgressSnapshot) : null
+  } catch {
+    return null
+  }
+}
+
+function writeProgressEntry(progress: HuntProgressSnapshot): void {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(getProgressKey(progress.huntId), JSON.stringify(progress))
+  } catch {
+    // ignore
+  }
+}
+
+function measureStorageEntrySize(key: string, value: string): number {
+  return new TextEncoder().encode(`${key}:${value}`).length
+}
+
+function removeStorageKeysByPrefix(prefix: string): { reclaimedBytes: number; removedKeys: string[] } {
+  if (typeof window === "undefined") {
+    return { reclaimedBytes: 0, removedKeys: [] }
+  }
+
+  const removedKeys: string[] = []
+  let reclaimedBytes = 0
+
+  const keys: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith(prefix)) {
+      keys.push(key)
+    }
+  }
+
+  for (const key of keys) {
+    const value = localStorage.getItem(key) ?? ""
+    reclaimedBytes += measureStorageEntrySize(key, value)
+    localStorage.removeItem(key)
+    removedKeys.push(key)
+  }
+
+  return { reclaimedBytes, removedKeys }
+}
+
+function validateClueDraft(clue: Omit<Clue, "id">, index: number): Omit<Clue, "id"> {
+  const question = clue.question.trim()
+  const answer = clue.answer.trim()
+
+  if (!question) {
+    throw new Error(`Clue ${index + 1} question is required.`)
+  }
+  if (!answer) {
+    throw new Error(`Clue ${index + 1} answer is required.`)
+  }
+  if (!Number.isFinite(clue.points) || clue.points <= 0) {
+    throw new Error(`Clue ${index + 1} points must be greater than 0.`)
+  }
+
+  return {
+    ...clue,
+    question,
+    answer,
+    hint: clue.hint?.trim() || undefined,
+  }
+}
+
+function getExistingClueCount(huntId: number): number {
+  return getHuntClues(huntId).length
 }
 
 /** All hunts (for Game Arcade: filter by status === "Active"). Private, archived, and soft-deleted hunts are excluded. */
@@ -209,6 +315,9 @@ export function archiveHunts(ids: number[]): void {
     ids.includes(h.id) ? { ...h, status: "Cancelled" as HuntStatus } : h
   )
   writeHunts(hunts)
+  ids.forEach((huntId) => {
+    gcHunt(huntId)
+  })
 }
 
 /** Hide hunts from public view (data preserved) — used by creator archive/unarchive flow. */
@@ -361,14 +470,41 @@ export function getHuntClues(huntId: number): Clue[] {
 
 /** Persist a new clue locally and increment the hunt's cluesCount. */
 export function saveClueLocally(clue: Omit<Clue, "id">): number {
+  const ids = saveCluesLocallyBatch([clue])
+  return ids[0]
+}
+
+/** Persist multiple new clues locally in one write. */
+export function saveCluesLocallyBatch(clues: Omit<Clue, "id">[]): number[] {
+  if (clues.length === 0) {
+    return []
+  }
+
+  const normalized = clues.map((clue, index) => validateClueDraft(clue, index))
+  const huntId = normalized[0]?.huntId
+  if (normalized.some((clue) => clue.huntId !== huntId)) {
+    throw new Error("All clues in a batch must belong to the same hunt.")
+  }
+
+  if (getExistingClueCount(huntId) + normalized.length > MAX_CLUES_PER_HUNT) {
+    throw new Error(`A hunt can have at most ${MAX_CLUES_PER_HUNT} clues.`)
+  }
+
   const all = readClues()
-  const newId = all.length > 0 ? Math.max(...all.map((c) => c.id)) + 1 : 1
-  writeClues([...all, { ...clue, id: newId }])
-  const hunts = readHunts().map((h) =>
-    h.id === clue.huntId ? { ...h, cluesCount: h.cluesCount + 1 } : h
+  const nextId = all.length > 0 ? Math.max(...all.map((c) => c.id)) + 1 : 1
+  const withIds = normalized.map((clue, index) => ({
+    ...clue,
+    id: nextId + index,
+  }))
+
+  writeClues([...all, ...withIds])
+
+  const hunts = readHunts().map((hunt) =>
+    hunt.id === huntId ? { ...hunt, cluesCount: hunt.cluesCount + withIds.length } : hunt
   )
   writeHunts(hunts)
-  return newId
+
+  return withIds.map((clue) => clue.id)
 }
 
 /** Update an existing clue's answer or other fields. Returns true if updated. */
@@ -380,6 +516,101 @@ export function updateClueAnswer(huntId: number, clueId: number, answer: string)
   updated[idx] = { ...updated[idx], answer }
   writeClues(updated)
   return true
+}
+
+/** Reads the current per-hunt progress snapshot. */
+export function getHuntProgress(huntId: number): HuntProgressSnapshot {
+  const existing = readProgressEntry(huntId)
+  if (existing) {
+    return existing
+  }
+
+  const initial: HuntProgressSnapshot = {
+    huntId,
+    currentClueIndex: 0,
+    startedAt: Date.now(),
+    completed: false,
+  }
+  writeProgressEntry(initial)
+  return initial
+}
+
+/** Records that a hunt has started for the current browser session. */
+export function startHuntProgress(huntId: number): HuntProgressSnapshot {
+  const current = getHuntProgress(huntId)
+  const next: HuntProgressSnapshot = {
+    ...current,
+    startedAt: current.startedAt || Date.now(),
+  }
+  writeProgressEntry(next)
+  return next
+}
+
+/** Advances the tracked progress to the next clue index. */
+export function advanceHuntProgress(
+  huntId: number,
+  nextClueIndex: number,
+  totalClues: number,
+): HuntProgressSnapshot {
+  const current = getHuntProgress(huntId)
+  const completed = nextClueIndex >= totalClues
+  const next: HuntProgressSnapshot = {
+    ...current,
+    currentClueIndex: Math.max(current.currentClueIndex, nextClueIndex),
+    completed,
+    completedAt: completed ? Date.now() : current.completedAt,
+  }
+  writeProgressEntry(next)
+  return next
+}
+
+/** Clears the tracked hunt progress for the current browser session. */
+export function clearHuntProgress(huntId: number): void {
+  if (typeof window === "undefined") return
+  localStorage.removeItem(getProgressKey(huntId))
+}
+
+/**
+ * Garbage-collects hunt-scoped storage after a hunt is cancelled/archived.
+ * Returns the number of bytes reclaimed and the keys removed.
+ */
+export function gcHunt(huntId: number): HuntStorageGcResult {
+  if (typeof window === "undefined") {
+    return { huntId, reclaimedBytes: 0, removedKeys: [] }
+  }
+
+  const hunt = getHuntById(huntId)
+  if (!hunt || hunt.status !== "Cancelled") {
+    return { huntId, reclaimedBytes: 0, removedKeys: [] }
+  }
+
+  const removedKeys: string[] = []
+  let reclaimedBytes = 0
+
+  const prefixes = [
+    `hunt_clue_start_${huntId}_`,
+    `hunt_clue_solved_${huntId}_`,
+    `hunt_reward_receipt_${huntId}_`,
+    `hunt_registered_${huntId}_`,
+    `hunty_hunt_progress_${huntId}`,
+    `hunt_${huntId}_my_points`,
+    `hunt_completed_${huntId}`,
+    `hunt_reward_claimed_${huntId}`,
+    `hunt_started_${huntId}`,
+    `hunt_completion_time_${huntId}`,
+    `hunt_completers_${huntId}`,
+    `hunt_stats_${huntId}_`,
+  ]
+
+  for (const prefix of prefixes) {
+    const { reclaimedBytes: prefixBytes, removedKeys: prefixKeys } = removeStorageKeysByPrefix(prefix)
+    reclaimedBytes += prefixBytes
+    removedKeys.push(...prefixKeys)
+  }
+
+  clearHuntProgress(huntId)
+
+  return { huntId, reclaimedBytes, removedKeys }
 }
 
 /** Snapshot current hunts/clues for optimistic UI rollback. */
@@ -433,6 +664,59 @@ export function getFeaturedHunts(limit = 3): StoredHunt[] {
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((s) => s.hunt)
+}
+
+/** Duplicate a hunt, returning the new hunt or undefined if original not found. */
+export function duplicateHunt(huntId: number): StoredHunt | undefined {
+  const original = getHuntById(huntId)
+  if (!original) return undefined
+
+  const hunts = readHunts()
+  const newId = hunts.length > 0 ? Math.max(...hunts.map((h) => h.id)) + 1 : 1
+  const nowSeconds = Math.floor(Date.now() / 1000)
+
+  const duplicate: StoredHunt = {
+    id: newId,
+    title: `Copy of ${original.title}`,
+    description: original.description,
+    cluesCount: 0,
+    status: "Draft",
+    rewardType: original.rewardType,
+    rewardPool: undefined,
+    rewards: undefined,
+    rewardEscrowTxHash: undefined,
+    rewardEscrowBalance: undefined,
+    playerCount: 0,
+    maxCapacity: original.maxCapacity,
+    createdAt: nowSeconds,
+    startTime: undefined,
+    endTime: undefined,
+    creatorEmail: original.creatorEmail,
+    emailNotifications: original.emailNotifications,
+    is_private: original.is_private,
+    coverImageCid: original.coverImageCid,
+    isFeaturedOfWeek: false,
+  }
+
+  addHunt(duplicate)
+
+  const originalClues = getHuntClues(huntId)
+  for (const clue of originalClues) {
+    saveClueLocally({
+      huntId: newId,
+      question: clue.question,
+      answer: clue.answer,
+      points: clue.points,
+      hint: clue.hint,
+      hintCost: clue.hintCost,
+      difficulty: clue.difficulty,
+      latitude: clue.latitude,
+      longitude: clue.longitude,
+      geofenceRadiusMeters: clue.geofenceRadiusMeters,
+    })
+  }
+
+  return duplicate
 }
 
 /** Set/unset a hunt as the featured Hunt of the Week in local storage. */

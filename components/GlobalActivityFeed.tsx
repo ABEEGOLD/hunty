@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Trophy, CheckCircle2, Loader2 } from "lucide-react";
+import { Trophy, CheckCircle2, Loader2, Heart } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,7 @@ function ActivityItem({
   prefersReducedMotion: boolean;
 }) {
   const isCompleted = event.type === "HuntCompleted";
+  const isSponsored = event.type === "HuntSponsored";
 
   return (
     <motion.div
@@ -53,11 +54,15 @@ function ActivityItem({
           "shrink-0 rounded-full p-1.5",
           isCompleted
             ? "bg-gradient-to-br from-[#39A437] to-[#194F0C] text-white"
-            : "bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white",
+            : isSponsored
+              ? "bg-gradient-to-br from-pink-500 to-pink-700 text-white"
+              : "bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white",
         )}
       >
         {isCompleted ? (
           <Trophy className="w-3.5 h-3.5" />
+        ) : isSponsored ? (
+          <Heart className="w-3.5 h-3.5" />
         ) : (
           <CheckCircle2 className="w-3.5 h-3.5" />
         )}
@@ -69,7 +74,7 @@ function ActivityItem({
           <span className="font-semibold text-[#3737A4] dark:text-blue-400">
             {anonymizeAddress(event.address)}
           </span>{" "}
-          {isCompleted ? "completed" : "solved a clue in"}{" "}
+          {isCompleted ? "completed" : isSponsored ? "sponsored" : "solved a clue in"}{" "}
           <span className="font-medium text-slate-700 dark:text-slate-300 italic">
             {event.huntTitle}
           </span>

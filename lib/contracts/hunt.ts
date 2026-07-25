@@ -1,17 +1,19 @@
-import Server, {
-  TransactionBuilder,
-  Operation,
-  Account,
-} from "@stellar/stellar-sdk";
-import { getHunt as getStoredHunt, getHuntClues } from "@/lib/huntStore";
-import { withSorobanRpcRetry } from "@/lib/soroban/rpcRetry";
-import { normalizeNetworkError, AnswerIncorrectError } from "./errors";
-import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config";
-import { getActiveWalletAdapter } from "@/lib/walletAdapter";
-import { sha256Hex } from "@/lib/crypto";
-import { logger } from "@/lib/logger";
+import Server, { TransactionBuilder, Operation, Account } from "@stellar/stellar-sdk"
+import {
+  advanceHuntProgress,
+  getHunt as getStoredHunt,
+  getHuntClues,
+  getHuntProgress,
+} from "@/lib/huntStore"
+import { withSorobanRpcRetry } from "@/lib/soroban/rpcRetry"
+import { normalizeNetworkError, AnswerIncorrectError, SequentialClueError } from "./errors"
+import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config"
+import { getActiveWalletAdapter } from "@/lib/walletAdapter"
+import { sha256Hex } from "@/lib/crypto"
+import { logger } from "@/lib/logger"
 
 import type {
+  ClueDifficulty,
   ClueInfo,
   HuntInfo,
   CreateHuntResult,
@@ -21,7 +23,7 @@ import type {
   ExtendHuntResult,
   LeaderboardEntry,
   FastestPlayerEntry,
-} from "@/lib/types";
+} from "@/lib/types"
 
 export type {
   ClueInfo,
@@ -34,6 +36,20 @@ export type {
   LeaderboardEntry,
   FastestPlayerEntry,
 };
+
+export type ClueInput = {
+  question: string
+  answer: string
+  points: number
+  hint?: string
+  hintCost?: number
+  difficulty?: ClueDifficulty
+}
+
+export type AddCluesBatchResult = {
+  txHash: string
+  clueCount: number
+}
 
 // AnswerIncorrectError is re-exported from the central errors module for
 // backwards-compatible imports (e.g. `import { AnswerIncorrectError } from "@/lib/contracts/hunt"`).
@@ -56,6 +72,7 @@ export async function createHunt(
   emailNotifications?: boolean,
   /** When true, the hunt is hidden from the public arcade. */
   is_private?: boolean,
+  sequential?: boolean
 ): Promise<CreateHuntResult> {
   if (typeof window === "undefined")
     throw new Error("Browser environment required");
@@ -77,7 +94,8 @@ export async function createHunt(
       ? { email_notifications: emailNotifications }
       : {}),
     ...(is_private ? { is_private: true } : {}),
-  });
+    ...(sequential ? { sequential: true } : {}),
+  })
 
   const publicKey = await wallet.getPublicKey();
 
@@ -214,6 +232,59 @@ export async function addClue(
   };
   if (!res2?.hash) throw new Error("Transaction submission failed");
   return { txHash: res2.hash };
+}
+
+/**
+ * Calls the smart contract's add_clues_batch(...) to persist multiple clues
+ * in a single transaction.
+ */
+export async function addCluesBatch(
+  huntId: number,
+  clues: ClueInput[],
+): Promise<AddCluesBatchResult> {
+  if (typeof window === "undefined") throw new Error("Browser environment required")
+  if (!Array.isArray(clues) || clues.length === 0) {
+    throw new Error("At least one clue is required")
+  }
+
+  const server = new Server(SOROBAN_RPC_URL)
+  const wallet = getActiveWalletAdapter()
+  const publicKey = await wallet.getPublicKey()
+  const account = (await withSorobanRpcRetry(() => server.getAccount(publicKey))) as Account
+
+  const normalizedClues = clues.map((clue) => ({
+    question: clue.question.trim(),
+    answer: clue.answer.trim(),
+    points: clue.points,
+    ...(clue.hint?.trim() ? { hint: clue.hint.trim() } : {}),
+    ...(clue.hintCost !== undefined ? { hint_cost: clue.hintCost } : {}),
+    ...(clue.difficulty ? { difficulty: clue.difficulty } : {}),
+  }))
+
+  const payload = JSON.stringify({
+    action: "add_clues_batch",
+    hunt_id: huntId,
+    clues: normalizedClues,
+  })
+  const key = `add_clues_batch:${Date.now()}`
+  const op = Operation.manageData({ name: key, value: payload })
+
+  const tx = new TransactionBuilder(account, {
+    fee: "100",
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(op)
+    .setTimeout(180)
+    .build()
+
+  const signedXdr = await wallet.signTransaction(tx.toXDR())
+
+  const result = (await withSorobanRpcRetry(() => server.submitTransaction(signedXdr))) as {
+    hash?: string
+  }
+  if (!result?.hash) throw new Error("Transaction submission failed")
+
+  return { txHash: result.hash, clueCount: normalizedClues.length }
 }
 
 /**
@@ -422,6 +493,7 @@ export async function get_hunt(huntId: number): Promise<HuntInfo> {
       description: stored.description,
       totalClues: stored.cluesCount,
       status: stored.status,
+      sequential: stored.sequential,
       creatorEmail: stored.creatorEmail,
       emailNotifications: stored.emailNotifications,
     };
@@ -537,9 +609,17 @@ export async function submitAnswer(
 ): Promise<SubmitAnswerResult> {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const clues = getHuntClues(huntId);
-  const clue = clues.find((c) => c.id === clueId);
-  if (!clue) throw new Error(`Clue ${clueId} not found for hunt ${huntId}`);
+  const clues = getHuntClues(huntId)
+  const clue = clues.find((c) => c.id === clueId)
+  if (!clue) throw new Error(`Clue ${clueId} not found for hunt ${huntId}`)
+  const clueIndex = clues.findIndex((c) => c.id === clueId)
+  const hunt = getStoredHunt(String(huntId))
+  const sequential = hunt?.sequential ?? false
+  const progress = getHuntProgress(huntId)
+
+  if (sequential && clueIndex !== progress.currentClueIndex) {
+    throw new SequentialClueError()
+  }
 
   const userAnswer = answer.trim().toLowerCase();
 
@@ -597,6 +677,8 @@ export async function submitAnswer(
       );
     }
   }
+
+  advanceHuntProgress(huntId, clueIndex + 1, clues.length)
 
   return {
     txHash: `mock_tx_${Date.now()}`,

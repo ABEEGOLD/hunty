@@ -12,11 +12,11 @@ import type { StoredHunt } from "@/lib/types"
 import {
   getCreatorHunts,
   updateHuntStatus,
-  saveClueLocally,
+  saveCluesLocallyBatch,
   takeHuntStoreSnapshot,
   restoreHuntStoreSnapshot,
 } from "@/lib/huntStore"
-import { activateHunt, addClue } from "@/lib/contracts/hunt"
+import { activateHunt, addCluesBatch } from "@/lib/contracts/hunt"
 import { withTransactionToast } from "@/lib/txToast"
 import {
   buildHuntHistoryQuery,
@@ -139,35 +139,30 @@ export function DashboardPageClient({
     async (huntId: number, clues: { question: string; answer: string; points: number }[]) => {
       const snapshot = takeHuntStoreSnapshot()
       const normalizedClues = clues.map((clue) => ({
+        huntId,
         question: clue.question.trim(),
         answer: clue.answer.trim().toLowerCase(),
         points: clue.points,
       }))
 
-      for (const clue of normalizedClues) {
-        saveClueLocally({
-          huntId,
-          question: clue.question,
-          answer: clue.answer,
-          points: clue.points,
-        })
-      }
-      refresh()
-
       try {
-        for (const clue of normalizedClues) {
-          await withTransactionToast(
-            async (setStage) => {
-              setStage("approving")
-              return addClue(huntId, clue.question, clue.answer, clue.points)
-            },
-            {
-              pending: `Pending â€” preparing clue "${clue.question.slice(0, 30)}â€¦"`,
-              approving: "Approving â€” sign in your walletâ€¦",
-              confirmed: "Clue confirmed!",
-            }
-          )
-        }
+        saveCluesLocallyBatch(normalizedClues)
+        refresh()
+
+        await withTransactionToast(
+          async (setStage) => {
+            setStage("approving")
+            return addCluesBatch(
+              huntId,
+              normalizedClues.map(({ huntId: _huntId, ...clue }) => clue)
+            )
+          },
+          {
+            pending: `Pending â€” preparing ${normalizedClues.length} clue${normalizedClues.length === 1 ? "" : "s"}â€¦`,
+            approving: "Approving â€” sign in your walletâ€¦",
+            confirmed: "Clues confirmed!",
+          }
+        )
       } catch (error) {
         restoreHuntStoreSnapshot(snapshot)
         refresh()
