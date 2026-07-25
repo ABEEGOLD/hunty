@@ -37,6 +37,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 2 * 86400,
     startTime: NOW_SECONDS - 86400,
     endTime: NOW_SECONDS + 7 * 86400,
+    category: "city",
+    tags: ["mural", "landmarks", "downtown", "walking"],
   },
   {
     id: 2,
@@ -52,6 +54,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 4 * 86400,
     startTime: NOW_SECONDS - 2 * 86400,
     endTime: NOW_SECONDS + 3 * 86400,
+    category: "education",
+    tags: ["campus", "riddles", "timed", "beginner"],
   },
   {
     id: 3,
@@ -67,6 +71,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 12 * 86400,
     startTime: NOW_SECONDS - 10 * 86400,
     endTime: NOW_SECONDS - 5 * 86400,
+    category: "family",
+    tags: ["team", "indoor", "onboarding"],
   },
   {
     id: 4,
@@ -80,6 +86,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     rewardDistribution: [],
     playerCount: 0,
     createdAt: NOW_SECONDS - 3 * 86400,
+    category: "nature",
+    tags: ["park", "outdoor", "treasure"],
   },
   {
     id: 5,
@@ -93,6 +101,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     rewardDistribution: [],
     playerCount: 0,
     createdAt: NOW_SECONDS - 86400,
+    category: "art",
+    tags: ["museum", "history", "art"],
   },
 ]
 
@@ -309,6 +319,24 @@ export function updateClueAnswer(huntId: number, clueId: number, answer: string)
   const updated = [...all]
   updated[idx] = { ...updated[idx], answer }
   writeClues(updated)
+  return true
+}
+
+/** Patch discovery metadata (category / tags) on a hunt. */
+export function updateHuntDiscovery(
+  huntId: number,
+  patch: { category?: StoredHunt["category"]; tags?: string[] },
+): boolean {
+  const hunts = readHunts()
+  const idx = hunts.findIndex((h) => h.id === huntId)
+  if (idx === -1) return false
+  const updated = [...hunts]
+  updated[idx] = {
+    ...updated[idx],
+    ...(patch.category !== undefined ? { category: patch.category } : {}),
+    ...(patch.tags !== undefined ? { tags: patch.tags } : {}),
+  }
+  writeHunts(updated)
   return true
 }
 

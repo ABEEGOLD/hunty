@@ -4,6 +4,9 @@
  */
 
 import type { ReactNode } from "react"
+import type { HuntCategoryId } from "./categories"
+import type { CollaboratorRole, HuntCollaborator } from "./collaboration"
+import type { AnswerStrictness } from "./fuzzyAnswer"
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
 
 // ─── Hunt ────────────────────────────────────────────────────────────────────
@@ -43,6 +46,14 @@ export interface StoredHunt {
   coverImageCid?: string
   /** Active editorial banner showcase at the top of the Arcade. */
   isFeaturedOfWeek?: boolean
+  /** Predefined discovery category. */
+  category?: HuntCategoryId
+  /** Free-form discovery tags (normalized kebab-case). */
+  tags?: string[]
+  /** Primary owner wallet (Stellar G-address). */
+  ownerAddress?: string
+  /** Collaborators snapshot (authoritative list may live in collaboration store). */
+  collaborators?: HuntCollaborator[]
 }
 
 export type HuntInfo = {
@@ -77,6 +88,10 @@ export interface Clue {
   longitude?: number
   /** Allowed distance from the clue center in metres. Defaults to 100m. */
   geofenceRadiusMeters?: number
+  /** Creator-specified accepted alternative answers (plaintext). */
+  alternativeAnswers?: string[]
+  /** Fuzzy matching strictness for this clue. Defaults to "normal". */
+  answerStrictness?: AnswerStrictness
 }
 
 export type ClueInfo = {
@@ -96,7 +111,11 @@ export interface ClueRow {
   hint?: string
   hintCost?: number
   difficulty?: ClueDifficulty
+  alternativeAnswers?: string[]
+  answerStrictness?: AnswerStrictness
 }
+
+export type { HuntCategoryId, CollaboratorRole, AnswerStrictness }
 
 // ─── Transaction Results ─────────────────────────────────────────────────────
 

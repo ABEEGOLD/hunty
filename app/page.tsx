@@ -14,7 +14,10 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
 import { Header } from "@/components/Header"
+import { HuntCategoryFilter } from "@/components/HuntCategoryFilter"
+import { CategoryBadge } from "@/components/CategoryPicker"
 import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
+import type { HuntCategoryId } from "@/lib/categories"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
@@ -108,6 +111,7 @@ function ActiveHuntCard({
           <CardTitle className="text-lg font-semibold line-clamp-2 dark:text-slate-100 flex-1">
             {hunt.title}
           </CardTitle>
+          <CategoryBadge categoryId={hunt.category} />
           {playerCount?.isTrending && (
             <span
               className="shrink-0 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-700"
@@ -120,6 +124,15 @@ function ActiveHuntCard({
         <CardDescription className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
           {hunt.description}
         </CardDescription>
+        {hunt.tags && hunt.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {hunt.tags.slice(0, 4).map((tag) => (
+              <span key={tag} className="text-[10px] text-slate-500 dark:text-slate-400">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="flex items-center justify-between mt-4">
           <div className="flex gap-2 items-center flex-wrap">
             <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-medium text-[#3737A4]">
@@ -369,6 +382,8 @@ export default function GameArcade() {
   const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "clues-high" | "clues-low">("newest")
+  const [categoryFilter, setCategoryFilter] = useState<HuntCategoryId | "all">("all")
+  const [tagFilter, setTagFilter] = useState("")
 
   const isLoadedRef = useRef(false)
 
@@ -387,6 +402,14 @@ export default function GameArcade() {
       if (savedStatus && ["all", "Active", "Completed"].includes(savedStatus)) {
         setStatusFilter(savedStatus as "all" | "Active" | "Completed")
       }
+
+      const savedCategory = sessionStorage.getItem("arcade_categoryFilter")
+      if (savedCategory) {
+        setCategoryFilter(savedCategory === "all" ? "all" : (savedCategory as HuntCategoryId))
+      }
+      const savedTag = sessionStorage.getItem("arcade_tagFilter")
+      if (savedTag) setTagFilter(savedTag)
+
       isLoadedRef.current = true
     }
   }, [])
@@ -410,6 +433,18 @@ export default function GameArcade() {
     }
   }, [statusFilter])
 
+  useEffect(() => {
+    if (isLoadedRef.current && typeof window !== "undefined") {
+      sessionStorage.setItem("arcade_categoryFilter", categoryFilter)
+    }
+  }, [categoryFilter])
+
+  useEffect(() => {
+    if (isLoadedRef.current && typeof window !== "undefined") {
+      sessionStorage.setItem("arcade_tagFilter", tagFilter)
+    }
+  }, [tagFilter])
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   // Load hunts using Infinite Query with cursor-based pagination
@@ -420,13 +455,13 @@ export default function GameArcade() {
     isFetchingNextPage,
     isLoading: isLoadingHunts,
   } = useInfiniteQuery({
-    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy],
+    queryKey: ["hunts", "infinite", statusFilter, rewardFilter, searchQuery, sortBy, categoryFilter, tagFilter],
     queryFn: async ({ pageParam }) => {
       const cursorVal = pageParam !== null ? pageParam : "";
       const res = await fetch(
         `/api/v1/hunts?limit=12&cursor=${cursorVal}&status=${statusFilter}&reward=${rewardFilter}&search=${encodeURIComponent(
           searchQuery
-        )}&sortBy=${sortBy}`
+        )}&sortBy=${sortBy}&category=${categoryFilter}&tag=${encodeURIComponent(tagFilter)}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch hunts");
@@ -588,7 +623,7 @@ export default function GameArcade() {
   // Clear scroll position when filter state changes
   useEffect(() => {
     sessionStorage.removeItem("arcade_scroll_y")
-  }, [statusFilter, rewardFilter, searchQuery, sortBy])
+  }, [statusFilter, rewardFilter, searchQuery, sortBy, categoryFilter, tagFilter])
 
   const handleWalletSelect = () => {
     setIsConnectingWallet(true)
@@ -822,7 +857,7 @@ export default function GameArcade() {
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-64">
                   <Input
-                    placeholder="Search title..."
+                    placeholder="Search title or tag..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-[#3737A4] focus:ring-[#3737A4] pl-3 h-10 rounded-xl"
@@ -852,6 +887,14 @@ export default function GameArcade() {
               )}
             </div>
           </div>
+
+          <HuntCategoryFilter
+            category={categoryFilter}
+            onCategoryChange={setCategoryFilter}
+            tagQuery={tagFilter}
+            onTagQueryChange={setTagFilter}
+            className="mb-6"
+          />
 
           {isLoadingHunts ? (
             <HuntCardSkeletonGrid />

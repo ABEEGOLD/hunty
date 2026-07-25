@@ -101,6 +101,8 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
   reward?: string | null
   search?: string | null
   sortBy?: string | null
+  category?: string | null
+  tag?: string | null
   requestId?: string
 }) {
   const {
@@ -110,20 +112,23 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
     reward = "all",
     search = "",
     sortBy = "newest",
+    category = "all",
+    tag = "",
     requestId,
   } = params
   trackPotentialNPlusOne("listPublicActiveHuntsByCursorOptimized", requestId)
 
   return withTimedQuery(
     "listPublicActiveHuntsByCursorOptimized",
-    { cursor, limit, status, reward, search, sortBy },
+    { cursor, limit, status, reward, search, sortBy, category, tag },
     () => {
-      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}`
+      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}:${category ?? "all"}:${tag ?? ""}`
       const cached = readCache<{ data: StoredHunt[]; nextCursor: number | null; total: number }>(cacheKey)
       if (cached) return cached
 
       // Get all hunts (which already filters out private hunts)
       const allHunts = getAllHunts()
+      const tagNeedle = (tag ?? "").trim().toLowerCase()
 
       // Filter hunts based on parameters
       const filteredHunts = allHunts.filter((hunt) => {
@@ -144,13 +149,21 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
               (reward !== "Both" && hunt.rewardType === "Both") ||
               (reward === "Both" && hunt.rewardType === "Both")
 
-        // Search filter:
+        // Search filter (title, description, tags):
         const matchesSearch =
           !search ||
           hunt.title.toLowerCase().includes(search.toLowerCase()) ||
-          hunt.description.toLowerCase().includes(search.toLowerCase())
+          hunt.description.toLowerCase().includes(search.toLowerCase()) ||
+          (hunt.tags ?? []).some((t) => t.toLowerCase().includes(search.toLowerCase()))
 
-        return matchesStatus && matchesReward && matchesSearch
+        const matchesCategory =
+          !category || category === "all" || hunt.category === category
+
+        const matchesTag =
+          !tagNeedle ||
+          (hunt.tags ?? []).some((t) => t.toLowerCase().includes(tagNeedle))
+
+        return matchesStatus && matchesReward && matchesSearch && matchesCategory && matchesTag
       })
 
       // Sort hunts

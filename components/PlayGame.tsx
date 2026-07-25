@@ -22,9 +22,11 @@ import {
 } from "@/lib/huntAttemptHistory";
 
 import { HuntCards } from "./HuntCards";
+import { LiveHuntCountdown } from "./LiveHuntCountdown";
 import Replay from "./icons/Replay";
 import Share from "./icons/Share";
 import type { HuntCard as Hunt, HuntInfo } from "@/lib/types";
+import { getServerSyncedNowSeconds, syncServerTime } from "@/lib/serverTime";
 
 interface PlayGameProps {
   hunts: Hunt[];
@@ -127,17 +129,36 @@ export function PlayGame({
     }
   }, [error]);
 
-  // Check if hunt has ended
+  // Check if hunt has ended (server-synced clock)
   useEffect(() => {
-    if (huntInfo?.endTime) {
-      const now = Math.floor(Date.now() / 1000);
-      if (now >= huntInfo.endTime) {
-        setHuntEnded(true);
-      } else {
-        setHuntEnded(false);
+    let cancelled = false
+    syncServerTime().then(() => {
+      if (cancelled || !huntInfo?.endTime) return
+      if (getServerSyncedNowSeconds() >= huntInfo.endTime) {
+        setHuntEnded(true)
       }
+    })
+    return () => {
+      cancelled = true
     }
   }, [huntInfo?.endTime]);
+
+  const handleTimeExpired = () => {
+    if (huntEnded) return
+    setHuntEnded(true)
+    toast.message("Time's up — progress auto-submitted")
+    if (playerAddress && attemptIdRef.current && huntId != null) {
+      const activeAttempt = getActiveAttempt(playerAddress, huntId);
+      completeHuntAttempt(
+        playerAddress,
+        attemptIdRef.current,
+        activeAttempt?.totalPoints ?? score
+      );
+      attemptIdRef.current = null;
+      setAttemptId(null);
+    }
+    onGameComplete(score);
+  };
 
   const handleScoreUpdate = (points: number) => {
     setScore((prev) => prev + points);
@@ -288,6 +309,16 @@ export function PlayGame({
             totalClues={hunts.length}
             totalPoints={score}
           />
+
+          {(huntInfo?.endTime || huntInfo?.startTime) && (
+            <div className="max-w-md mx-auto mb-6">
+              <LiveHuntCountdown
+                startTime={huntInfo?.startTime}
+                endTime={huntInfo?.endTime}
+                onExpire={handleTimeExpired}
+              />
+            </div>
+          )}
 
           <div className="flex justify-center gap-4 mb-8">
             <Button className="bg-gradient-to-b from-[#E3225C] to-[#7B1C4A] hover:bg-pink-600 text-white px-6 py-2 rounded-full flex items-center gap-2">

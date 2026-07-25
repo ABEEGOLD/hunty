@@ -34,6 +34,8 @@ const clueSchema = z.object({
   hint: z.string(),
   hintCost: z.number().min(0),
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+  alternativeAnswers: z.string().optional(),
+  answerStrictness: z.enum(["strict", "normal", "lenient"]).optional(),
 })
 
 const cluesFormSchema = z.object({
@@ -58,7 +60,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
   } = useForm<CluesFormData>({
     resolver: zodResolver(cluesFormSchema),
     defaultValues: {
-      clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0 }],
+      clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, alternativeAnswers: "", answerStrictness: "normal" }],
     },
   })
 
@@ -109,7 +111,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
   }
 
   const addClueRow = () => {
-    append({ question: "", answer: "", points: 10, hint: "", hintCost: 0 })
+    append({ question: "", answer: "", points: 10, hint: "", hintCost: 0, alternativeAnswers: "", answerStrictness: "normal" })
   }
 
   const removeClueRow = (index: number) => {
@@ -127,6 +129,10 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     try {
       for (const row of valid) {
         const normalizedAnswer = row.answer.trim().toLowerCase()
+        const alternatives = (row.alternativeAnswers ?? "")
+          .split("|")
+          .map((a) => a.trim())
+          .filter(Boolean)
         // Persist locally first to obtain a stable clue id for salting
         const newId = saveClueLocally({
           huntId,
@@ -136,6 +142,8 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
           hint: row.hint?.trim() || undefined,
           hintCost: row.hintCost,
           difficulty: row.difficulty,
+          alternativeAnswers: alternatives.length ? alternatives : undefined,
+          answerStrictness: row.answerStrictness ?? "normal",
         })
 
         const salt = `${huntId}_${newId}`
@@ -163,7 +171,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
         }
       }
       onCluesSaved?.(valid.length)
-      reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0 }] })
+      reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, alternativeAnswers: "", answerStrictness: "normal" }] })
     } finally {
       setIsSavingClues(false)
     }
@@ -447,6 +455,37 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                       <option value="Easy">Easy</option>
                       <option value="Medium">Medium</option>
                       <option value="Hard">Hard</option>
+                    </select>
+                  )}
+                />
+              </div>
+              <div className="flex gap-2 items-center pl-6">
+                <Controller
+                  control={control}
+                  name={`clues.${index}.alternativeAnswers`}
+                  render={({ field: f }) => (
+                    <Input
+                      placeholder="Alt answers (pipe-separated)"
+                      aria-label={`Clue ${index + 1} Alternative answers`}
+                      {...f}
+                      value={f.value ?? ""}
+                      className="flex-1 pl-3 py-2 text-sm"
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={`clues.${index}.answerStrictness`}
+                  render={({ field: f }) => (
+                    <select
+                      aria-label={`Clue ${index + 1} Answer strictness`}
+                      value={f.value ?? "normal"}
+                      onChange={(e) => f.onChange(e.target.value)}
+                      className="w-28 pl-3 py-2 text-sm rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="strict">Strict</option>
+                      <option value="normal">Normal</option>
+                      <option value="lenient">Lenient</option>
                     </select>
                   )}
                 />
