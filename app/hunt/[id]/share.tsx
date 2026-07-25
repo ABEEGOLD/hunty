@@ -27,7 +27,16 @@ import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
 import { withTransactionToast } from "@/lib/txToast";
 import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
 import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
+import { SponsorHuntButton } from "@/components/SponsorHuntButton";
 import type { RewardReceipt } from "@/lib/types";
+import {
+  buildDeepLink,
+  buildHuntOgImageUrl,
+  copyShareLink,
+  shareOnTelegram,
+  shareOnTwitter,
+  shareOnWhatsApp,
+} from "@/lib/downloadAsImage";
 
 interface HuntDetailProps {
   hunt: StoredHunt;
@@ -210,11 +219,30 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
   }, [hunt.id])
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/hunt/${hunt.id}`;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const url = buildDeepLink(`/hunt/${hunt.id}`)
+    const copiedNow = await copyShareLink(url)
+    if (copiedNow) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   };
+
+  const shareText = `Join me on \"${hunt.title}\" in Hunty and crack the clues!`
+
+  const handleShareToX = () => {
+    const url = buildDeepLink(`/hunt/${hunt.id}`)
+    shareOnTwitter(shareText, url, buildHuntOgImageUrl(hunt.id))
+  }
+
+  const handleShareToTelegram = () => {
+    const url = buildDeepLink(`/hunt/${hunt.id}`)
+    shareOnTelegram(shareText, url)
+  }
+
+  const handleShareToWhatsApp = () => {
+    const url = buildDeepLink(`/hunt/${hunt.id}`)
+    shareOnWhatsApp(shareText, url)
+  }
 
   const markHuntCancelled = (huntId: number) => {
     updateHuntStatus(huntId, "Cancelled");
@@ -266,7 +294,20 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
 
         {/* Share button */}
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleShareToX} aria-label="Share hunt to X">
+              Share X
+            </Button>
+            <Button variant="outline" onClick={handleShareToTelegram} aria-label="Share hunt to Telegram">
+              Telegram
+            </Button>
+            <Button variant="outline" onClick={handleShareToWhatsApp} aria-label="Share hunt to WhatsApp">
+              WhatsApp
+            </Button>
+          </div>
+
+          <div className="flex gap-2">
           <Button onClick={handleShare}>
             {copied ? (
               <>
@@ -293,8 +334,16 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           >
             <QrCode className="w-4 h-4" />
           </Button>
+          </div>
         </div>
         <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
+
+        {hunt.rewardType !== "NFT" && (
+          <SponsorHuntButton
+            huntId={hunt.id}
+            totalPool={hunt.rewardPool ?? 0}
+          />
+        )}
 
         <HuntControls
           hunt={hunt}

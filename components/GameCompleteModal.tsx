@@ -17,8 +17,8 @@ import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig"
 import { useRef, useState } from "react"
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice"
 import { AchievementCertificate } from "@/components/AchievementCertificate"    
-import { downloadElementAsImage, shareOnTwitter, shareOnFarcaster } from "@/lib/downloadAsImage"
-import { Share2, Twitter, Download } from "lucide-react"
+import { buildDeepLink, downloadElementAsImage, shareOnTwitter, shareOnFarcaster, shareOnTelegram, shareOnWhatsApp } from "@/lib/downloadAsImage"
+import { Share2, Twitter, Download, MessageCircle } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -165,28 +165,7 @@ export function GameCompleteModal({
     }
   }, [isOpen, playerAddress, prefersReducedMotion, reward]);
 
-  useEffect(() => {
-    if (!isOpen || !playerAddress || !huntId) {
-      setLatestAttempt(null)
-      return
-    }
-
-    const latest = getPlayerAttempts(playerAddress, { status: "completed" })
-      .find((attempt) => attempt.huntId === huntId)
-
-    setLatestAttempt(latest ?? null)
-  }, [isOpen, playerAddress, huntId])
-
-  const totalHintsUsed = latestAttempt?.clues.reduce((sum, clue) => sum + (clue.hintsUsed ?? 0), 0) ?? 0
-  const completionTimeLabel = latestAttempt ? formatDuration(latestAttempt.totalTimeSeconds) : "--"
-  const rankLabel = rewardReceipt?.rank ? `#${rewardReceipt.rank}` : "#1"
-
-  const handleRateHunt = (rating: number) => {
-    setSelectedRating(rating)
-    toast.success(`Thanks for rating this hunt ${rating}/5!`)
-  }
-
-  const handleShareAchievement = async (platform?: "twitter" | "farcaster") => {    
+  const handleShareAchievement = async (platform?: "twitter" | "farcaster" | "telegram" | "whatsapp") => {    
     if (!certificateRef.current) return
 
     setIsGenerating(true)
@@ -196,12 +175,16 @@ export function GameCompleteModal({
       await downloadElementAsImage(certificateRef.current, { filename })        
 
       const shareText = `I just completed "${registrationStatus?.progressData?.hunt_id ? `Hunt #${huntId}` : "a Scavenger Hunt"}" on @huntyapp! Check it out:`  
-      const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/hunt/${huntId}` : "https://hunty.app"
+      const shareUrl = buildDeepLink(`/hunt/${huntId}`)
 
       if (platform === "twitter") {
         shareOnTwitter(shareText, shareUrl)
       } else if (platform === "farcaster") {
         shareOnFarcaster(shareText, shareUrl)
+      } else if (platform === "telegram") {
+        shareOnTelegram(shareText, shareUrl)
+      } else if (platform === "whatsapp") {
+        shareOnWhatsApp(shareText, shareUrl)
       } else {
         toast.success("Achievement image downloaded! You can now share it manually.")
       }
@@ -375,6 +358,14 @@ export function GameCompleteModal({
                 <DropdownMenuItem onClick={() => handleShareAchievement("farcaster")} className="flex items-center gap-2 cursor-pointer py-2.5">
                   <Image src="/icons/farcaster.png" alt="Farcaster" width={16} height={16} className="opacity-70" />
                   Share on Farcaster
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleShareAchievement("telegram")} className="flex items-center gap-2 cursor-pointer py-2.5">
+                  <MessageCircle className="w-4 h-4 text-cyan-600" />
+                  Share on Telegram
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleShareAchievement("whatsapp")} className="flex items-center gap-2 cursor-pointer py-2.5">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  Share on WhatsApp
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleShareAchievement()} className="flex items-center gap-2 cursor-pointer py-2.5 border-t mt-1">
                   <Download className="w-4 h-4 text-slate-500" />

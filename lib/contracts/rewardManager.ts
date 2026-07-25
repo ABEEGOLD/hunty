@@ -27,6 +27,16 @@ export type RewardEscrow = {
   createdAt: number
   distributions: RewardReceipt[]
   refunds: RewardReceipt[]
+  sponsorContributions?: SponsorContribution[]
+}
+
+export type SponsorContribution = {
+  id: string
+  huntId: number
+  sponsor: string
+  amount: number
+  txHash: string
+  createdAt: number
 }
 
 const ESCROW_KEY = "hunty_reward_escrows"
@@ -218,9 +228,58 @@ export async function createRewardEscrow(input: {
     createdAt: Date.now(),
     distributions: [],
     refunds: [],
+    sponsorContributions: [],
   }
   saveEscrow(escrow)
   return escrow
+}
+
+export async function sponsorHunt(
+  huntId: number,
+  amount: number
+): Promise<SponsorContribution> {
+  if (amount <= 0) throw new Error("Sponsorship amount must be greater than 0")
+  if (typeof window === "undefined") throw new Error("Browser environment required")
+
+  const escrow = getRewardEscrow(huntId)
+  if (!escrow) throw new Error("No reward escrow found for this hunt")
+
+  const txHash = await submitRewardReceipt("sponsor_hunt", {
+    huntId,
+    amount,
+  })
+
+  const wallet = getActiveWalletAdapter()
+  const sponsor = await wallet.getPublicKey()
+
+  const contribution: SponsorContribution = {
+    id: `sponsor_${huntId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    huntId,
+    sponsor,
+    amount,
+    txHash,
+    createdAt: Date.now(),
+  }
+
+  const next: RewardEscrow = {
+    ...escrow,
+    totalPool: escrow.totalPool + amount,
+    balance: escrow.balance + amount,
+    sponsorContributions: [...(escrow.sponsorContributions ?? []), contribution],
+  }
+  saveEscrow(next)
+
+  return contribution
+}
+
+export function getSponsorContributions(huntId: number): SponsorContribution[] {
+  const escrow = getRewardEscrow(huntId)
+  return escrow?.sponsorContributions ?? []
+}
+
+export function getSponsorTotal(huntId: number): number {
+  const contributions = getSponsorContributions(huntId)
+  return contributions.reduce((sum, c) => sum + c.amount, 0)
 }
 
 function getRewardForRank(escrow: RewardEscrow, rank: number): number {
