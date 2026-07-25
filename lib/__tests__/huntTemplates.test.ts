@@ -4,6 +4,7 @@ import {
   STARTER_HUNT_TEMPLATES,
   buildDraftHuntsFromTemplate,
   getStarterTemplateBySlug,
+  getTemplateCategories,
 } from "@/lib/huntTemplates"
 
 describe("hunt templates", () => {
@@ -14,6 +15,26 @@ describe("hunt templates", () => {
   it("ensures every starter template includes at least three sample clues", () => {
     for (const template of STARTER_HUNT_TEMPLATES) {
       expect(template.clues.length).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it("includes a Nature Walk starter template", () => {
+    const template = getStarterTemplateBySlug("nature-walk")
+
+    expect(template).toBeDefined()
+    expect(template?.title).toBe("Nature Walk")
+    expect(template?.clues.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it("exposes unique, sorted categories for the filter", () => {
+    const categories = getTemplateCategories()
+
+    expect(categories.length).toBeGreaterThan(0)
+    expect(new Set(categories).size).toBe(categories.length)
+    expect([...categories].sort((a, b) => a.localeCompare(b))).toEqual(categories)
+
+    for (const template of STARTER_HUNT_TEMPLATES) {
+      expect(categories).toContain(template.category)
     }
   })
 
