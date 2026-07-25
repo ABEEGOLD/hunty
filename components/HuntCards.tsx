@@ -22,7 +22,7 @@ interface HuntCardsProps {
   hunts: Hunt[]; // always an array of one item in active/preview mode
   isActive?: boolean;
   preview?: boolean;
-  onUnlock?: () => void;
+  onUnlock?: (pointsAwarded: number) => void;
   currentIndex?: number;
   totalHunts?: number;
   isLoading?: boolean;
@@ -232,7 +232,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         onScoreUpdate?.(updatedActualPoints);
         setTimeout(() => {
           setSuccess(false);
-          onUnlock?.();
+          onUnlock?.(actualPoints);
         }, 1200);
       } else {
         // Local fallback (test / preview mode — no wallet required)
@@ -273,7 +273,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           onScoreUpdate?.(breakdown.totalPoints);
           setTimeout(() => {
             setSuccess(false);
-            onUnlock?.();
+            onUnlock?.(actualPoints);
           }, 1200);
         } else {
           setError("Try Again");

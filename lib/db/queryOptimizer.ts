@@ -99,6 +99,8 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
   limit: number
   status?: string | null
   reward?: string | null
+  difficulty?: string | null
+  category?: string | null
   search?: string | null
   sortBy?: string | null
   requestId?: string
@@ -108,6 +110,8 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
     limit,
     status = "Active",
     reward = "all",
+    difficulty = "all",
+    category = "all",
     search = "",
     sortBy = "newest",
     requestId,
@@ -116,9 +120,9 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
 
   return withTimedQuery(
     "listPublicActiveHuntsByCursorOptimized",
-    { cursor, limit, status, reward, search, sortBy },
+    { cursor, limit, status, reward, difficulty, category, search, sortBy },
     () => {
-      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}`
+      const cacheKey = `active:${cursor ?? "start"}:${limit}:${status ?? "all"}:${reward ?? "all"}:${difficulty ?? "all"}:${category ?? "all"}:${search ?? ""}:${sortBy ?? "newest"}`
       const cached = readCache<{ data: StoredHunt[]; nextCursor: number | null; total: number }>(cacheKey)
       if (cached) return cached
 
@@ -144,21 +148,34 @@ export function listPublicActiveHuntsByCursorOptimized(params: {
               (reward !== "Both" && hunt.rewardType === "Both") ||
               (reward === "Both" && hunt.rewardType === "Both")
 
+        const matchesDifficulty =
+          difficulty === "all" || !difficulty
+            ? true
+            : (hunt.difficulty ?? "Medium").toLowerCase() === difficulty.toLowerCase()
+
+        const matchesCategory =
+          category === "all" || !category
+            ? true
+            : (hunt.category ?? "General").toLowerCase() === category.toLowerCase()
+
         // Search filter:
         const matchesSearch =
           !search ||
           hunt.title.toLowerCase().includes(search.toLowerCase()) ||
           hunt.description.toLowerCase().includes(search.toLowerCase())
 
-        return matchesStatus && matchesReward && matchesSearch
+        return matchesStatus && matchesReward && matchesDifficulty && matchesCategory && matchesSearch
       })
 
       // Sort hunts
       filteredHunts.sort((a, b) => {
         if (sortBy === "newest") return (b.startTime ?? 0) - (a.startTime ?? 0)
-        if (sortBy === "oldest") return (a.startTime ?? 0) - (b.startTime ?? 0)
-        if (sortBy === "clues-high") return b.cluesCount - a.cluesCount
-        if (sortBy === "clues-low") return a.cluesCount - b.cluesCount
+        if (sortBy === "popular") return (b.playerCount ?? 0) - (a.playerCount ?? 0)
+        if (sortBy === "reward-high") return (b.rewardPool ?? 0) - (a.rewardPool ?? 0)
+        if (sortBy === "difficulty") {
+          const rank: Record<string, number> = { Easy: 1, Medium: 2, Hard: 3 }
+          return (rank[b.difficulty ?? "Medium"] ?? 2) - (rank[a.difficulty ?? "Medium"] ?? 2)
+        }
         return 0
       })
 

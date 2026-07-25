@@ -37,6 +37,16 @@ export class AnswerIncorrectError extends Error {
 }
 
 /**
+ * Thrown when a player attempts to solve a clue before unlocking it.
+ */
+export class SequentialClueError extends Error {
+  constructor() {
+    super("This clue is locked. Solve the previous clue first.")
+    this.name = "SequentialClueError"
+  }
+}
+
+/**
  * Custom error for player registration failures.
  * Includes an optional `code` for programmatic branching.
  */
@@ -107,6 +117,8 @@ const ERROR_MESSAGE_MAP: Record<string, string> = {
   CONTRACT_UNAUTHORIZED:
     "You are not authorised to perform this action.",
   CONTRACT_CLUE_ALREADY_ANSWERED: "This clue has already been answered.",
+  CONTRACT_CLUE_LOCKED:
+    "This clue is locked. Solve the previous clue first.",
   CONTRACT_HUNT_NOT_ACTIVE: "This hunt is not currently active.",
   CONTRACT_HUNT_EXPIRED: "This hunt has expired.",
 

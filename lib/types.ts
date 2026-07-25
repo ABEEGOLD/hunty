@@ -15,8 +15,14 @@ export interface StoredHunt {
   title: string
   description: string
   cluesCount: number
+  /** Broad hunt category used in discovery filters. */
+  category?: "Urban" | "Campus" | "Office" | "Museum" | "General"
+  /** Overall hunt difficulty tag used in discovery filters. */
+  difficulty?: "Easy" | "Medium" | "Hard"
   status: HuntStatus
   rewardType: "XLM" | "NFT" | "Both"
+  /** When true, players must solve clues in order. */
+  sequential?: boolean
   /** Total reward pool value used for creator-side sorting. */
   rewardPool?: number
   /** Per-place XLM reward buckets funded by the creator. */
@@ -51,6 +57,7 @@ export type HuntInfo = {
   description: string
   totalClues: number
   status: string
+  sequential?: boolean
   startTime?: number
   endTime?: number
   creatorEmail?: string
@@ -327,6 +334,18 @@ export interface HuntDraft {
   link: string
   code: string
   image?: string
+  sequential?: boolean
+}
+
+export interface PlayerStats {
+  address: string
+  totalHuntsCompleted: number
+  totalPointsEarned: number
+  totalNftsReceived: number
+  totalCompletionTimeSeconds: number
+  completedHuntsTracked: number
+  averageCompletionTimeSeconds: number
+  lastUpdated: number
 }
 
 export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed"

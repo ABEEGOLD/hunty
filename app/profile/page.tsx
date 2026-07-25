@@ -18,6 +18,8 @@ import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { fetchPlayerRewardHistory } from "@/lib/rewardHistory"
 import { getPlayerAttempts } from "@/lib/huntAttemptHistory"
 import type { HuntAttemptRecord } from "@/lib/types"
+import { get_player_stats } from "@/lib/contracts/player-stats"
+import type { PlayerStats } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
 // #355 — Registered Hunts types and fetcher
@@ -182,6 +184,7 @@ export default function UserProfilePage() {
   const [rewardHistory, setRewardHistory] = useState<ReturnType<typeof fetchPlayerRewardHistory> extends Promise<infer U> ? U : never>([])
   const [registrations, setRegistrations] = useState<RegisteredHunt[]>([])
   const [attemptHistory, setAttemptHistory] = useState<HuntAttemptRecord[]>([])
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -191,6 +194,7 @@ export default function UserProfilePage() {
       setNftRewards([])
       setRegistrations([])
       setAttemptHistory([])
+      setPlayerStats(null)
       return
     }
 
@@ -244,11 +248,21 @@ export default function UserProfilePage() {
       }
     }
 
+    const loadPlayerStats = async () => {
+      try {
+        const stats = get_player_stats(publicKey!)
+        if (!cancelled) setPlayerStats(stats)
+      } catch (err) {
+        logger.error("Failed to load player stats:", err)
+      }
+    }
+
     load()
     loadRewards()
     loadRegistrations()
     loadRewardHistory()
     setAttemptHistory(getPlayerAttempts(publicKey))
+    loadPlayerStats()
 
     return () => {
       cancelled = true
@@ -383,11 +397,13 @@ export default function UserProfilePage() {
                     <StatPill label="NFTs Claimed" value={summary.claimedNftRewards ?? 0} />
                     <StatPill label="NFTs Unclaimed" value={summary.unclaimedNftRewards ?? 0} />
                   </div>
-                  <div className="mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                    <StatPill label="Tracked Completions" value={playerStats?.completedHuntsTracked ?? 0} />
+                    <StatPill label="Total Hunt Wins" value={playerStats?.totalHuntsCompleted ?? 0} />
+                    <StatPill label="NFTs Received" value={playerStats?.totalNftsReceived ?? 0} />
                     <StatPill
-                      label="Total XLM Earned"
-                      value={Number(totalXlmEarned.toFixed(2))}
-                      valueClassName="text-emerald-600"
+                      label="Avg. Completion (s)"
+                      value={Math.round(playerStats?.averageCompletionTimeSeconds ?? 0)}
                     />
                   </div>
                   <div className="mt-4 text-sm text-slate-600">
@@ -715,4 +731,3 @@ function HuntCard({
     </Card>
   )
 }
-
