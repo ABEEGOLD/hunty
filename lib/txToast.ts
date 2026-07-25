@@ -1,6 +1,7 @@
 import { toast } from "sonner"
 import { mapContractError } from "@/lib/contracts/errors"
 import { announceSr } from "@/components/SrAnnouncer"
+import { settleWalletBalance } from "@/lib/wallet/balanceEvents"
 
 // ─── Stage type ───────────────────────────────────────────────────────────────
 
@@ -87,9 +88,18 @@ export async function withTransactionToast<T>(
     announceSr(msgs.confirmed)
     toast.success(msgs.confirmed, { id: toastId })
 
+    // The transaction landed, so any optimistic balance shown while it was in
+    // flight is now reconciled against chain state.
+    settleWalletBalance()
+
     return result
   } catch (err) {
     const mapped = mapContractError(err)
+
+    // A failed or rejected transaction also has to clear an optimistic value —
+    // otherwise a predicted spend stays on screen for a payment that never
+    // happened, until the next poll tick.
+    settleWalletBalance()
 
     if (mapped.isUserRejection) {
       // Yellow warning — user intentionally cancelled, not an error.

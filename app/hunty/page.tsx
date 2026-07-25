@@ -422,7 +422,7 @@ function CreateGameContent() {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] dark:from-slate-900 dark:bg-slate-900 dark:to-slate-800 pb-28">
-        <Header balance="24.2453" />
+        <Header />
 
         <div className="max-w-[1500px] mx-auto px-40 pb-12 bg-white dark:bg-slate-900 rounded-4xl relative mt-4">
           <div className="pt-24 px-12 pb-12">

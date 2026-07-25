@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { sponsorHunt, getSponsorTotal, getSponsorContributions } from "@/lib/contracts/rewardManager"
 import { withTransactionToast } from "@/lib/txToast"
+import { predictWalletBalanceChange } from "@/lib/wallet/balanceEvents"
 
 interface SponsorHuntButtonProps {
   huntId: number
@@ -37,6 +38,9 @@ export function SponsorHuntButton({ huntId, totalPool, onSponsored }: SponsorHun
     }
 
     setIsSponsoring(true)
+    // Show the debit right away; withTransactionToast reconciles it against
+    // chain state whether the sponsorship confirms or fails.
+    predictWalletBalanceChange({ xlmDelta: -numAmount })
     try {
       await withTransactionToast(
         async (setStage) => {

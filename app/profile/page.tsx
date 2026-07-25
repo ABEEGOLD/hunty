@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { WalletContext, shortenAddress } from "@/lib/context/WalletContext"
 import { NftGallery } from "@/components/NftGallery"
+import { WalletBalance } from "@/components/WalletBalance"
 import { BadgeWall } from "@/components/BadgeWall"
 import { LevelBadge, LevelProgress } from "@/components/LevelBadge"
 import { ProfilePageSkeleton } from "@/components/LoadingSkeletons"
@@ -322,14 +323,21 @@ export default function UserProfilePage() {
             </p>
           </div>
 
-          <Card className="border border-slate-200 bg-white/70 shadow-sm px-4 py-3 flex items-center gap-3 max-w-sm">
-            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white grid place-items-center font-semibold text-sm">
-              {avatarLabel}
+          <Card className="border border-slate-200 bg-white/70 shadow-sm px-4 py-3 flex flex-col gap-2 max-w-sm">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-white grid place-items-center font-semibold text-sm">
+                {avatarLabel}
+              </div>
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Connected Wallet</div>
+                <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-xs uppercase tracking-wide text-slate-500">Connected Wallet</div>
-              <div className="font-mono text-sm text-slate-800 break-all">{displayAddress}</div>
-            </div>
+            {connected && publicKey && (
+              <div className="pt-2 border-t border-slate-200">
+                <WalletBalance variant="row" />
+              </div>
+            )}
           </Card>
         </div>
 

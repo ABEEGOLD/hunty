@@ -4,10 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Coin from "./icons/Coin";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import { useWallet } from "@/lib/context/WalletContext";
 import { WalletSelectionModal } from "./WalletSelectionModal";
+import { WalletBalance } from "./WalletBalance";
 import { ThemeToggle } from "./ThemeToggle";
 import {
   Copy,
@@ -18,7 +18,6 @@ import {
   X,
   Menu,
   Compass,
-  Trophy,
   PlusCircle,
   User,
   ChevronDown,
@@ -200,7 +199,6 @@ function MobileMenu({
   displayKey,
   onConnectWallet,
   onDisconnect,
-  balance,
 }: {
   open: boolean;
   onClose: () => void;
@@ -208,7 +206,6 @@ function MobileMenu({
   displayKey: string;
   onConnectWallet: () => void;
   onDisconnect: () => void;
-  balance: string;
 }) {
   if (!open) return null;
 
@@ -250,10 +247,7 @@ function MobileMenu({
               <p className="text-white font-mono text-sm truncate">{displayKey}</p>
             </div>
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-900">
-              <div className="flex items-center gap-2">
-                <Coin />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">{balance} XLM</span>
-              </div>
+              <WalletBalance variant="row" />
               <button
                 onClick={() => { onDisconnect(); onClose(); }}
                 className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 font-medium"
@@ -278,7 +272,7 @@ function MobileMenu({
 
 // ÔöÇÔöÇÔöÇ Main Header ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
-export function Header({ balance = "0" }: { balance?: string }) {
+export function Header() {
   const mounted = useIsMounted();
   const { connected, displayKey, publicKey, connect, disconnect, walletProvider } = useWallet();
 
@@ -445,16 +439,8 @@ export function Header({ balance = "0" }: { balance?: string }) {
             {/* Wallet */}
             {mounted && connected ? (
               <div className="hidden sm:flex items-center gap-2">
-                {/* Balance */}
-                <div
-                  id="balance-pill"
-                  className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800"
-                >
-                  <Coin />
-                  <span className="text-sm font-semibold bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent">
-                    {balance}
-                  </span>
-                </div>
+                {/* Live XLM balance + NFT count */}
+                <WalletBalance id="balance-pill" className="hidden lg:flex" />
 
                 {/* Wallet button */}
                 <div className="relative" ref={dropdownRef}>
@@ -561,7 +547,6 @@ export function Header({ balance = "0" }: { balance?: string }) {
         displayKey={displayKey}
         onConnectWallet={() => setModalOpen(true)}
         onDisconnect={disconnect}
-        balance={balance}
       />
 
       {/* Wallet selection modal */}

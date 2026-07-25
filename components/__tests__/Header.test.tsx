@@ -25,8 +25,8 @@ vi.mock("@/components/WalletBottomSheet", () => ({
   ),
 }));
 
-vi.mock("@/components/icons/Coin", () => ({
-  default: () => <svg data-testid="coin-icon" />,
+vi.mock("@/components/WalletBalance", () => ({
+  WalletBalance: () => <div data-testid="wallet-balance" />,
 }));
 
 Object.assign(navigator, {
@@ -50,7 +50,7 @@ describe("Header", () => {
 
   function renderHeader(props?: Partial<React.ComponentProps<typeof Header>>) {
     const user = userEvent.setup();
-    const utils = render(<Header balance="42" {...props} />);
+    const utils = render(<Header {...props} />);
     return { user, ...utils };
   }
 
@@ -71,7 +71,7 @@ describe("Header", () => {
       expect(screen.getByRole("button", { name: /connect wallet/i })).toBeInTheDocument();
     });
 
-    it("renders balance pill when connected", () => {
+    it("renders the live balance display when connected", () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
         displayKey: "GABC...DEF",
@@ -82,8 +82,7 @@ describe("Header", () => {
       } as any);
 
       renderHeader();
-      expect(screen.getByTestId("coin-icon")).toBeInTheDocument();
-      expect(screen.getByText("42")).toBeInTheDocument();
+      expect(screen.getAllByTestId("wallet-balance").length).toBeGreaterThan(0);
     });
 
     it("renders wallet dropdown trigger when connected", () => {

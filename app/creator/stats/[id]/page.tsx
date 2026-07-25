@@ -118,7 +118,7 @@ export default function CreatorStatsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-12">
-      <Header balance="24.2453" />
+      <Header />
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center gap-4">

@@ -358,7 +358,6 @@ export default function GameArcade() {
   const [displayName, setDisplayName] = useState("")
   const [gameLink, setGameLink] = useState("")
   const [walletAddress, setWalletAddress] = useState("")
-  const [balance, setBalance] = useState("")
 
   const [inactiveHunts, setInactiveHunts] = useState<StoredHunt[]>([])
   const [visibleInactiveCount, setVisibleInactiveCount] = useState(INACTIVE_PAGE_SIZE)
@@ -660,7 +659,6 @@ export default function GameArcade() {
   }
 
   const handleContinue = () => {
-    setBalance("24.2453")
     setIsWalletModalOpen(false)
     setIsConnectingWallet(false)
     setDisplayName("")
@@ -677,9 +675,7 @@ export default function GameArcade() {
     >
       <OnboardingTour tourType="player" />
       {/* Header */}
-      <Header
-        balance={balance}
-      />
+      <Header />
 
       {/* Main Content */}
       <div className="max-w-[1600px] px-14 pt-10 pb-12 bg-white dark:bg-slate-900 mx-auto rounded-4xl relative">
