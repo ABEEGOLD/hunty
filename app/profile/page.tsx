@@ -20,6 +20,9 @@ import { getPlayerAttempts } from "@/lib/huntAttemptHistory"
 import type { HuntAttemptRecord } from "@/lib/types"
 import { get_player_stats } from "@/lib/contracts/player-stats"
 import type { PlayerStats } from "@/lib/types"
+import { useFavorites } from "@/hooks/useFavorites"
+import { getAllHunts, type StoredHunt } from "@/lib/huntStore"
+import { FavoriteButton } from "@/components/FavoriteButton"
 
 // ---------------------------------------------------------------------------
 // #355 — Registered Hunts types and fetcher
@@ -187,6 +190,10 @@ export default function UserProfilePage() {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  const { favorites } = useFavorites()
+  const allHunts = useMemo(() => getAllHunts(), [])
+  const favoriteHunts = useMemo(() => allHunts.filter((h) => favorites.includes(h.id)), [allHunts, favorites])
 
   useEffect(() => {
     if (!connected || !publicKey) {
@@ -438,6 +445,43 @@ export default function UserProfilePage() {
 
             <section aria-label="Achievements" className="mt-8">
               <BadgeWall playerAddress={publicKey} />
+            </section>
+
+            {/* Favorites Section */}
+            <section aria-label="Favorite hunts" className="mt-10">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold bg-linear-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent">
+                    Favorite Hunts
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Hunts you've bookmarked for later
+                  </p>
+                </div>
+                <span className="bg-pink-50 text-pink-600 px-3 py-1 rounded-full text-xs font-bold">
+                  {favoriteHunts.length} saved
+                </span>
+              </div>
+
+              {favoriteHunts.length === 0 ? (
+                <div
+                  className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-10 text-center text-slate-600"
+                >
+                  You haven't favorited any hunts yet.{" "}
+                  <Link href="/" className="text-pink-600 underline underline-offset-2">
+                    Browse the arcade
+                  </Link>{" "}
+                  to find your next challenge.
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {favoriteHunts.map((hunt) => (
+                    <li key={hunt.id}>
+                      <FavoriteHuntCard hunt={hunt} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
 
             {/* #355 — Registered Hunts */}
@@ -726,6 +770,50 @@ function HuntCard({
           >
             <Link href={detailsHref}>View details</Link>
           </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function FavoriteHuntCard({ hunt }: { hunt: StoredHunt }) {
+  return (
+    <Card className="border border-slate-200 bg-white/80 shadow-sm relative pr-12">
+      <div className="absolute top-4 right-4 z-10">
+        <FavoriteButton huntId={hunt.id} />
+      </div>
+      <CardContent className="py-4 px-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <span
+            className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-pink-400`}
+            aria-hidden="true"
+          />
+          <div>
+            <p className="font-semibold text-slate-900 text-sm md:text-base">
+              {hunt.title}
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Reward:{" "}
+              <span className="font-medium text-slate-700">
+                {hunt.rewardType}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 self-end sm:self-center">
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-slate-100 text-slate-700`}>
+            {hunt.status}
+          </span>
+
+          <Link href={`/hunt/${hunt.id}`}>
+            <Button
+              size="sm"
+              className="text-xs rounded-full bg-gradient-to-r from-[#3737A4] to-[#0C0C4F] hover:opacity-90 text-white"
+            >
+              View Hunt
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

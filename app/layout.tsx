@@ -6,6 +6,7 @@ import { hankenGrotesk } from "@/lib/font"
 import { TxToaster } from "@/components/TxToaster"
 import { EnvironmentIndicator } from "@/components/EnvironmentIndicator"
 import { Footer } from "@/components/Footer"
+import { FavoriteNotifications } from "@/components/FavoriteNotifications"
 import { PageSkeleton } from "@/components/PageSkeleton"
 import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 import Providers from "./providers"
@@ -100,6 +101,7 @@ export default function RootLayout({
             Skip to content
           </a>
           <TxToaster />
+          <FavoriteNotifications />
           <PWAInstallPrompt />
           <EnvironmentIndicator />
           <main id="main-content">
