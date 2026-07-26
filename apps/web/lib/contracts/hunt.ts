@@ -77,6 +77,7 @@ export async function createHunt(
   sequential?: boolean,
   /** Overall difficulty tag persisted with the on-chain hunt metadata. */
   difficulty?: HuntDifficulty
+  maxParticipants?: number
 ): Promise<CreateHuntResult> {
   if (typeof window === "undefined") throw new Error("Browser environment required");
 
@@ -98,6 +99,8 @@ export async function createHunt(
     ...(sequential ? { sequential: true } : {}),
     ...(difficulty ? { difficulty } : {}),
   });
+    ...(maxParticipants !== undefined ? { max_participants: maxParticipants } : {}),
+  })
 
   const publicKey = await wallet.getPublicKey();
 
