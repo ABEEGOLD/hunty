@@ -1,4 +1,4 @@
-import type { StoredHunt } from '@lib/types';
+import type { StoredHunt } from '@hunty/types';
 
 export type ClueZone = {
   huntId: number;

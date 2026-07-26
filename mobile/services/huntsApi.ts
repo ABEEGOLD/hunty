@@ -1,4 +1,4 @@
-import type { StoredHunt } from '@lib/types';
+import type { StoredHunt } from '@hunty/types';
 import { fetchActiveHuntsFromIndexer, fetchHuntByIdFromIndexer } from '@/lib/graphql/hunts';
 import { getActiveHuntsForFeed, getHuntById } from '@store/huntStore';
 

@@ -1,109 +1,42 @@
 /**
  * Central type definitions for the Hunty application.
- * All shared interfaces and types live here — import from "@/lib/types".
+ *
+ * Platform-agnostic domain types (Hunt, Clue, Player, Reward, Achievement)
+ * live in the shared `@hunty/types` package and are re-exported here so that
+ * existing `@/lib/types` imports keep working. Web-only and React-coupled
+ * types (display entries, performance, chat, …) remain defined below.
  */
 
 import type { ReactNode } from "react"
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
+import type { ClueDifficulty, PlayerProgress, Reward as DomainReward } from "@hunty/types"
 
-// ─── Hunt ────────────────────────────────────────────────────────────────────
+// ─── Shared domain types (single source of truth: @hunty/types) ──────────────
 
-export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled"
-
-export interface StoredHunt {
-  id: number
-  title: string
-  description: string
-  cluesCount: number
-  /** Broad hunt category used in discovery filters. */
-  category?: "Urban" | "Campus" | "Office" | "Museum" | "General"
-  /** Overall hunt difficulty tag used in discovery filters. */
-  difficulty?: "Easy" | "Medium" | "Hard"
-  status: HuntStatus
-  rewardType: "XLM" | "NFT" | "Both"
-  /** When true, players must solve clues in order. */
-  sequential?: boolean
-  /** Total reward pool value used for creator-side sorting. */
-  rewardPool?: number
-  /** Per-place XLM reward buckets funded by the creator. */
-  rewards?: Reward[]
-  /** Escrow transaction hash proving the creator funded the XLM reward pool. */
-  rewardEscrowTxHash?: string
-  /** Amount still available in the XLM escrow. */
-  rewardEscrowBalance?: number
-  /** Creator-side participant count snapshot for dashboard sorting. */
-  playerCount?: number
-  /** Max number of participants for limited spots */
-  maxCapacity?: number
-  /** Unix timestamp in seconds when the hunt draft was created locally. */
-  createdAt?: number
-  /** Unix timestamp in seconds — when the hunt starts. */
-  startTime?: number
-  /** Unix timestamp in seconds — when the hunt ends. */
-  endTime?: number
-  creatorEmail?: string
-  emailNotifications?: boolean
-  /** When true, the hunt is hidden from the public arcade grid. */
-  is_private?: boolean
-  /** Optional game cover CID/URL for hunt cards and sharing previews. */
-  coverImageCid?: string
-  /** Active editorial banner showcase at the top of the Arcade. */
-  isFeaturedOfWeek?: boolean
-}
-
-export type HuntInfo = {
-  id: number
-  title: string
-  description: string
-  totalClues: number
-  status: string
-  sequential?: boolean
-  startTime?: number
-  endTime?: number
-  creatorEmail?: string
-  emailNotifications?: boolean
-}
-
-// ─── Clue ────────────────────────────────────────────────────────────────────
-
-export type ClueDifficulty = "Easy" | "Medium" | "Hard"
-
-export interface Clue {
-  id: number
-  huntId: number
-  question: string
-  answer: string
-  points: number
-  hint?: string
-  hintCost?: number
-  /** Optional difficulty tag set by the creator. */
-  difficulty?: ClueDifficulty
-  /** Center latitude for the clue's answer geofence. */
-  latitude?: number
-  /** Center longitude for the clue's answer geofence. */
-  longitude?: number
-  /** Allowed distance from the clue center in metres. Defaults to 100m. */
-  geofenceRadiusMeters?: number
-}
-
-export type ClueInfo = {
-  id: number
-  question: string
-  points: number
-  hint?: string
-  hintCost?: number
-  difficulty?: ClueDifficulty
-}
-
-export interface ClueRow {
-  id: number
-  question: string
-  answer: string
-  points: number
-  hint?: string
-  hintCost?: number
-  difficulty?: ClueDifficulty
-}
+export type {
+  HuntStatus,
+  HuntCategory,
+  HuntDifficulty,
+  StoredHunt,
+  HuntInfo,
+  HuntDraft,
+  ClueDifficulty,
+  Clue,
+  ClueInfo,
+  ClueRow,
+  PlayerProgress,
+  PlayerStats,
+  PlayerHuntProgress,
+  HuntProgressStatus,
+  RewardType,
+  RewardReceiptType,
+  RewardReceipt,
+  RewardHistoryType,
+  RewardHistoryEntry,
+  Achievement,
+  AchievementId,
+  AchievementRarity,
+} from "@hunty/types"
 
 // ─── Transaction Results ─────────────────────────────────────────────────────
 
@@ -184,15 +117,7 @@ export interface FastestPlayerDisplayEntry {
   icon: ReactNode
 }
 
-// ─── Player & Registration ───────────────────────────────────────────────────
-
-export type PlayerProgress = {
-  hunt_id: number
-  player: string
-  current_clue_index: number
-  completed: boolean
-  reward_claimed: boolean
-}
+// ─── Registration (PlayerProgress lives in @hunty/types) ─────────────────────
 
 export type RegistrationStatus = {
   isRegistered: boolean
@@ -250,11 +175,15 @@ export interface HuntAttemptTimeComparison {
   totalComparedPlayers: number
 }
 
-// ─── Reward ──────────────────────────────────────────────────────────────────
+// ─── Reward (web view) ───────────────────────────────────────────────────────
 
-export interface Reward {
-  place: number
-  amount: number
+/**
+ * Web-facing reward bucket. Extends the shared domain {@link DomainReward}
+ * with an optional rendered icon node used by the reward panels. The plain
+ * `{ place, amount }` domain shape (and the receipt/history types) live in
+ * `@hunty/types`.
+ */
+export interface Reward extends DomainReward {
   icon?: ReactNode
 }
 
@@ -263,35 +192,6 @@ export interface RewardPlayerProgress {
   reward_claimed: boolean
   hunt_id?: number | string
   reward_amount?: number
-}
-
-export type RewardReceiptType = "deposit" | "distribution" | "claim" | "refund"
-
-export interface RewardReceipt {
-  id: string
-  huntId: number
-  type: RewardReceiptType
-  txHash: string
-  amount: number
-  from?: string
-  to?: string
-  rank?: number
-  createdAt: number
-}
-
-export type RewardHistoryType = "XLM" | "NFT"
-
-export interface RewardHistoryEntry {
-  id: string
-  type: RewardHistoryType
-  amount?: number
-  description: string
-  txHash: string
-  earnedAt: string
-  huntId?: number
-  huntName?: string
-  recipient?: string
-  explorerUrl: string
 }
 
 // ─── Activity Feed ───────────────────────────────────────────────────────────
@@ -327,26 +227,7 @@ export interface HuntCard {
   difficulty?: ClueDifficulty
 }
 
-export interface HuntDraft {
-  id: number
-  title: string
-  description: string
-  link: string
-  code: string
-  image?: string
-  sequential?: boolean
-}
-
-export interface PlayerStats {
-  address: string
-  totalHuntsCompleted: number
-  totalPointsEarned: number
-  totalNftsReceived: number
-  totalCompletionTimeSeconds: number
-  completedHuntsTracked: number
-  averageCompletionTimeSeconds: number
-  lastUpdated: number
-}
+// HuntDraft and PlayerStats now live in @hunty/types (re-exported above).
 
 export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed"
 
@@ -396,19 +277,7 @@ export interface PlayerCountResult {
 }
 
 // ─── Profile Dashboard Types ───────────────────────────────────────────────────
-
-export type HuntProgressStatus = "Completed" | "In-Progress"
-
-export interface PlayerHuntProgress {
-  id: number
-  title: string
-  description: string
-  totalClues: number
-  status: HuntProgressStatus
-  pointsEarned: number
-  startedAt: string
-  completedAt?: string
-}
+// HuntProgressStatus and PlayerHuntProgress now live in @hunty/types.
 
 export interface NftAttribute {
   trait_type: string

@@ -22,6 +22,7 @@ module.exports = function (api) {
                 '@hooks': './hooks',
                 '@app': './app',
                 '@shared': '../shared',
+                '@hunty/types': '../packages/types/src',
               },
             },
           ],

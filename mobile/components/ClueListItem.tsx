@@ -19,7 +19,7 @@ import Animated, {
   withSequence,
   runOnJS,
 } from 'react-native-reanimated';
-import type { ClueInfo } from '@lib/types';
+import type { ClueInfo } from '@hunty/types';
 
 interface ClueListItemProps {
   clue: ClueInfo;

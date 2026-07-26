@@ -6,7 +6,7 @@ import { ThemedCustomText } from '@components/themed';
 import { usePlayerLocation } from '@app/hooks/usePlayerLocation';
 import { buildClueZones, zoneColor, type ClueZone } from '@/lib/clueZones';
 import { getAllHunts } from '@store/huntStore';
-import type { StoredHunt } from '@lib/types';
+import type { StoredHunt } from '@hunty/types';
 
 const INITIAL_DELTA = 0.02;
 

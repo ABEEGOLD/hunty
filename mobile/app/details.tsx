@@ -5,7 +5,7 @@ import { ThemedCustomText, ThemedView } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
 import { getHuntById, getHuntClues } from '@store/huntStore';
 import { usePlayerStore } from '@store/useStore';
-import type { Clue, StoredHunt } from '@lib/types';
+import type { Clue, StoredHunt } from '@hunty/types';
 import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
 
 export default function DetailsScreen() {

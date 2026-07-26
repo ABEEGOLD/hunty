@@ -3,26 +3,12 @@
  * Defines all available achievements with their conditions and metadata.
  */
 
-export type AchievementId =
-  | "first_hunt_completed"
-  | "first_win"
-  | "five_wins"
-  | "ten_wins"
-  | "twenty_five_wins"
-  | "first_nft"
-  | "high_scorer"
-  | "speed_hunter"
-  | "veteran"
-  | "legend"
+// Achievement and AchievementId are defined in the shared @hunty/types package.
+// Imported for local use and re-exported so existing
+// "@/lib/achievements/config" imports keep working.
+import type { Achievement, AchievementId } from "@hunty/types"
 
-export interface Achievement {
-  id: AchievementId
-  title: string
-  description: string
-  icon: string // Emoji or icon identifier
-  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary"
-  condition: string // Human-readable condition
-}
+export type { Achievement, AchievementId }
 
 export const ACHIEVEMENTS: Record<AchievementId, Achievement> = {
   first_hunt_completed: {

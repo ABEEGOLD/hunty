@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import type { Clue } from '@lib/types';
+import type { Clue } from '@hunty/types';
 import {
   DEFAULT_GEOFENCE_RADIUS_METERS,
   getClueGeofenceRadiusMeters,
