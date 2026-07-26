@@ -8,7 +8,7 @@ import { ThemedCustomText, ThemedView } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
 import { HuntyRefreshControl } from './HuntyRefreshControl';
 import { FeedItemSkeleton } from './skeletons/FeedItemSkeleton';
-import type { StoredHunt } from '@lib/types';
+import type { StoredHunt } from '@hunty/types';
 
 const PAGE_SIZE = 8;
 const INITIAL_PAGE_SIZE = 6;

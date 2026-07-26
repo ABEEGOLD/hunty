@@ -7,7 +7,7 @@ import { useTheme } from '@providers/ThemeProvider';
 import { getHuntById, getHuntClues } from '@store/huntStore';
 import { usePlayerStore } from '@store/useStore';
 import { CluesList } from '@components/CluesList';
-import type { Clue, StoredHunt } from '@lib/types';
+import type { Clue, StoredHunt } from '@hunty/types';
 import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
 import { verifyClueGeofence } from '@/lib/locationGate';
 import { useHaptics } from '@hooks/useHaptics';

@@ -8,7 +8,7 @@ import { useTheme } from '@providers/ThemeProvider';
 import { useHaptics } from '@hooks/useHaptics';
 import { getHuntClues } from '@store/huntStore';
 import { usePlayerStore, useWalletStore } from '@store/useStore';
-import type { Clue } from '@lib/types';
+import type { Clue } from '@hunty/types';
 import { verifyQrAgainstClue } from '@lib/qrCodeDecryptor';
 import { matchesClueAnswer } from '@lib/clueAnswerVerification';
 import { useToast } from '@providers/ToastProvider';

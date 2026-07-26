@@ -12,6 +12,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
 import type { PlayerProgress } from '@lib/types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import * as SecureStore from "expo-secure-store";
+import type { PlayerProgress } from "@hunty/types";
 
 // ─── Wallet Store ─────────────────────────────────────────────────────────────
 

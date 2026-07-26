@@ -1,6 +1,10 @@
 /**
  * Central type definitions for the Hunty application.
- * All shared interfaces and types live here — import from "@/lib/types".
+ *
+ * Platform-agnostic domain types (Hunt, Clue, Player, Reward, Achievement)
+ * live in the shared `@hunty/types` package and are re-exported here so that
+ * existing `@/lib/types` imports keep working. Web-only and React-coupled
+ * types (display entries, performance, chat, …) remain defined below.
  */
 
 import type { ReactNode } from "react"
@@ -8,8 +12,9 @@ import type { HuntCategoryId } from "./categories"
 import type { CollaboratorRole, HuntCollaborator } from "./collaboration"
 import type { AnswerStrictness } from "./fuzzyAnswer"
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
+import type { ClueDifficulty, PlayerProgress, Reward as DomainReward } from "@hunty/types"
 
-// ─── Hunt ────────────────────────────────────────────────────────────────────
+// ─── Shared domain types (single source of truth: @hunty/types) ──────────────
 
 export interface HuntReview {
   id: string
@@ -202,6 +207,30 @@ export interface ClueRow {
   alternativeAnswers?: string[]
   answerStrictness?: AnswerStrictness
 }
+export type {
+  HuntStatus,
+  HuntCategory,
+  HuntDifficulty,
+  StoredHunt,
+  HuntInfo,
+  HuntDraft,
+  ClueDifficulty,
+  Clue,
+  ClueInfo,
+  ClueRow,
+  PlayerProgress,
+  PlayerStats,
+  PlayerHuntProgress,
+  HuntProgressStatus,
+  RewardType,
+  RewardReceiptType,
+  RewardReceipt,
+  RewardHistoryType,
+  RewardHistoryEntry,
+  Achievement,
+  AchievementId,
+  AchievementRarity,
+} from "@hunty/types"
 
 export type { HuntCategoryId, CollaboratorRole, AnswerStrictness }
 
@@ -288,15 +317,7 @@ export interface FastestPlayerDisplayEntry {
   icon: ReactNode
 }
 
-// ─── Player & Registration ───────────────────────────────────────────────────
-
-export type PlayerProgress = {
-  hunt_id: number
-  player: string
-  current_clue_index: number
-  completed: boolean
-  reward_claimed: boolean
-}
+// ─── Registration (PlayerProgress lives in @hunty/types) ─────────────────────
 
 export type RegistrationStatus = {
   isRegistered: boolean
@@ -354,11 +375,15 @@ export interface HuntAttemptTimeComparison {
   totalComparedPlayers: number
 }
 
-// ─── Reward ──────────────────────────────────────────────────────────────────
+// ─── Reward (web view) ───────────────────────────────────────────────────────
 
-export interface Reward {
-  place: number
-  amount: number
+/**
+ * Web-facing reward bucket. Extends the shared domain {@link DomainReward}
+ * with an optional rendered icon node used by the reward panels. The plain
+ * `{ place, amount }` domain shape (and the receipt/history types) live in
+ * `@hunty/types`.
+ */
+export interface Reward extends DomainReward {
   icon?: ReactNode
 }
 
@@ -367,35 +392,6 @@ export interface RewardPlayerProgress {
   reward_claimed: boolean
   hunt_id?: number | string
   reward_amount?: number
-}
-
-export type RewardReceiptType = "deposit" | "distribution" | "claim" | "refund"
-
-export interface RewardReceipt {
-  id: string
-  huntId: number
-  type: RewardReceiptType
-  txHash: string
-  amount: number
-  from?: string
-  to?: string
-  rank?: number
-  createdAt: number
-}
-
-export type RewardHistoryType = "XLM" | "NFT"
-
-export interface RewardHistoryEntry {
-  id: string
-  type: RewardHistoryType
-  amount?: number
-  description: string
-  txHash: string
-  earnedAt: string
-  huntId?: number
-  huntName?: string
-  recipient?: string
-  explorerUrl: string
 }
 
 // ─── Activity Feed ───────────────────────────────────────────────────────────
@@ -440,26 +436,7 @@ export interface HuntCard {
   difficulty?: HuntDifficulty | ClueDifficulty
 }
 
-export interface HuntDraft {
-  id: number
-  title: string
-  description: string
-  link: string
-  code: string
-  image?: string
-  sequential?: boolean
-}
-
-export interface PlayerStats {
-  address: string
-  totalHuntsCompleted: number
-  totalPointsEarned: number
-  totalNftsReceived: number
-  totalCompletionTimeSeconds: number
-  completedHuntsTracked: number
-  averageCompletionTimeSeconds: number
-  lastUpdated: number
-}
+// HuntDraft and PlayerStats now live in @hunty/types (re-exported above).
 
 export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed"
 
@@ -494,19 +471,7 @@ export interface PlayerCountResult {
 }
 
 // ─── Profile Dashboard Types ───────────────────────────────────────────────────
-
-export type HuntProgressStatus = "Completed" | "In-Progress"
-
-export interface PlayerHuntProgress {
-  id: number
-  title: string
-  description: string
-  totalClues: number
-  status: HuntProgressStatus
-  pointsEarned: number
-  startedAt: string
-  completedAt?: string
-}
+// HuntProgressStatus and PlayerHuntProgress now live in @hunty/types.
 
 export interface NftAttribute {
   trait_type: string

@@ -9,7 +9,7 @@
  */
 
 import { StyleSheet, ScrollView, Text, Pressable, View } from 'react-native';
-import type { Clue } from '@lib/types';
+import type { Clue } from '@hunty/types';
 
 interface CluesListProps {
   clues: Clue[];

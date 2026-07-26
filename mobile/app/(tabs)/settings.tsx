@@ -7,7 +7,7 @@ import { useTheme } from '@providers/ThemeProvider';
 import { useToast } from '@providers/ToastProvider';
 import { getAllHunts } from '@store/huntStore';
 import { usePlayerStore, useWalletStore } from '@store/useStore';
-import type { StoredHunt } from '@lib/types';
+import type { StoredHunt } from '@hunty/types';
 
 function rewardLabel(hunt: StoredHunt) {
   if (hunt.rewardType === 'Both') return '100 XLM + NFT';
