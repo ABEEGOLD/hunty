@@ -274,6 +274,10 @@ export interface LeaderboardDisplayEntry {
   completedAt?: number
   category?: string
   difficulty?: ClueDifficulty
+  /** Full Stellar address for this row, when known. Drives the identicon, copy button, and explorer link. */
+  address?: string
+  /** True when `name` is a player-chosen display name rather than a truncated address. */
+  hasDisplayName?: boolean
 }
 
 export interface FastestPlayerDisplayEntry {

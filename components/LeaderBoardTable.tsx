@@ -11,6 +11,9 @@ import { EmptyState } from "@/components/EmptyState"
 import { Trophy } from "lucide-react"
 import { SeasonInfo } from "@/components/SeasonInfo"
 import { useWalletStore } from "@/store/useStore"
+import { WalletAddress } from "@/components/WalletAddress"
+import { WalletIdenticon } from "@/components/WalletIdenticon"
+import { truncateAddress } from "@/lib/walletAddress"
 import { detectRankChanges } from "@/lib/notifications/rankTracker"
 import { handleRankNotifications } from "@/lib/notifications/notificationService"
 import type { LeaderboardDisplayEntry, LeaderboardFilters } from "@/lib/types"
@@ -48,11 +51,6 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
   const [activeSeason, setActiveSeason] = useState<ReturnType<typeof getActiveSeason>>(null)
   const walletAddress = useWalletStore((s: { walletAddress: string }) => s.walletAddress)
 
-  const truncateAddress = (address: string) => {
-    if (address.length <= 8) return address
-    return `${address.slice(0, 3)}...${address.slice(-3)}`
-  }
-
   const fetchLeaderboard = useCallback(async () => {
     if (huntId === undefined) return
 
@@ -81,6 +79,8 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
         completedAt: entry.completedAt,
         category: entry.category,
         difficulty: entry.difficulty,
+        address: entry.address,
+        hasDisplayName: Boolean(entry.name),
         icon: <Medal position={index + 1} />,
       }))
 
@@ -185,7 +185,32 @@ function LeaderboardTableComponent({ huntId, data: initialData, isLoading: initi
                     <span>{entry.icon}</span>
                     <span className="text-[16px] bg-gradient-to-b from-[#576065] to-[#787884] dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">{entry.position}</span>
                   </td>
-                  <td className="px-4 py-2 border-r-2 border-[#808080] dark:border-slate-700 border-b-2 text-[16px] bg-gradient-to-b from-[#576065] to-[#787884] dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">{entry.name}</td>
+                  <td className="px-4 py-2 border-r-2 border-[#808080] dark:border-slate-700 border-b-2">
+                    {entry.address ? (
+                      <div className="flex items-center gap-2 min-w-0">
+                        <WalletIdenticon address={entry.address} size={26} className="flex-shrink-0" />
+                        <div className="flex flex-col min-w-0">
+                          {entry.hasDisplayName && (
+                            <span className="text-[16px] bg-gradient-to-b from-[#576065] to-[#787884] dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+                              {entry.name}
+                            </span>
+                          )}
+                          <WalletAddress
+                            address={entry.address}
+                            showIdenticon={false}
+                            addressClassName={cn(
+                              "text-slate-500 dark:text-slate-400",
+                              entry.hasDisplayName ? "text-xs" : "text-sm",
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[16px] bg-gradient-to-b from-[#576065] to-[#787884] dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+                        {entry.name}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-center border border-b-2 border-[#808080] dark:border-slate-700 text-[16px] bg-gradient-to-b from-[#576065] to-[#787884] dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
                     {filters.metric === "completions" ? (entry.completionCount ?? 0) : entry.points}
                   </td>

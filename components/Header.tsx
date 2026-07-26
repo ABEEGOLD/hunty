@@ -11,6 +11,10 @@ import { WalletSelectionModal } from "./WalletSelectionModal";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSelector } from "./LanguageSelector";
 import { NotificationPanel } from "@/components/NotificationPanel";
+import { WalletAddress } from "./WalletAddress";
+import { WalletIdenticon } from "./WalletIdenticon";
+import { getStellarAccountExplorerUrl } from "@/lib/walletAddress";
+import { toast } from "sonner";
 import {
   Copy,
   LogOut,
@@ -26,6 +30,7 @@ import {
   ChevronDown,
   Gamepad2,
   HelpCircle,
+  ExternalLink,
 } from "lucide-react";
 import { getUnreadNotificationCount } from "@/lib/notifications/rankTracker"
 import { createWeeklyDigestNotification, shouldSendWeeklyDigest } from "@/lib/notifications/weeklyDigest"
@@ -141,6 +146,7 @@ function MobileMenu({
   onClose,
   connected,
   displayKey,
+  publicKey,
   onConnectWallet,
   onDisconnect,
   balance,
@@ -149,6 +155,7 @@ function MobileMenu({
   onClose: () => void;
   connected: boolean;
   displayKey: string;
+  publicKey: string;
   onConnectWallet: () => void;
   onDisconnect: () => void;
   balance: string;
@@ -190,7 +197,16 @@ function MobileMenu({
           <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
             <div className="px-4 py-3 bg-gradient-to-r from-[#0C0C4F] to-[#4A4AFF]">
               <p className="text-xs text-blue-200 font-medium mb-0.5">Connected</p>
-              <p className="text-white font-mono text-sm truncate">{displayKey}</p>
+              {publicKey ? (
+                <WalletAddress
+                  address={publicKey}
+                  identiconSize={20}
+                  className="text-white [&_button]:text-blue-200 [&_a]:text-blue-200"
+                  addressClassName="text-white"
+                />
+              ) : (
+                <p className="text-white font-mono text-sm truncate">{displayKey}</p>
+              )}
             </div>
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-900">
               <div className="flex items-center gap-2">
@@ -276,9 +292,18 @@ export function Header({ balance = "0" }: { balance?: string }) {
   }, []);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(publicKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (!publicKey) return;
+
+    try {
+      await navigator.clipboard.writeText(publicKey);
+      setCopied(true);
+      toast.success("Wallet address copied");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access is refused on insecure origins and in some in-app
+      // browsers, so surface it instead of leaving the click looking ignored.
+      toast.error("Couldn't copy the address. Select and copy it manually.");
+    }
   };
 
   const handleDisconnect = () => {
@@ -410,11 +435,16 @@ export function Header({ balance = "0" }: { balance?: string }) {
                         "linear-gradient(var(--background), var(--background)) padding-box, linear-gradient(to right, #0C0C4F, #4A4AFF) border-box",
                     }}
                   >
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] flex-shrink-0" />
+                    {publicKey ? (
+                      <WalletIdenticon address={publicKey} size={20} className="flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] flex-shrink-0" />
+                    )}
                     <span className="font-bold text-sm bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text truncate max-w-[100px] lg:max-w-[140px]">
                       {displayKey}
                     </span>
                     <ChevronDown
+                      data-testid="wallet-chevron"
                       className={cn(
                         "w-3.5 h-3.5 text-[#3737A4] transition-transform duration-150",
                         dropdownOpen && "rotate-180"
@@ -425,12 +455,21 @@ export function Header({ balance = "0" }: { balance?: string }) {
                   {/* Wallet dropdown */}
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 shadow-xl z-50 overflow-hidden">
-                      <div className="px-4 py-3 bg-gradient-to-r from-[#0C0C4F] to-[#4A4AFF]">
-                        <p className="text-xs text-blue-200 font-medium mb-0.5">Connected wallet</p>
-                        <p className="text-[11px] uppercase tracking-wide text-blue-200/80 mb-1">
-                          {walletProvider ?? "freighter"}
-                        </p>
-                        <p className="text-white font-mono text-xs break-all">{publicKey}</p>
+                      <div className="px-4 py-3 bg-gradient-to-r from-[#0C0C4F] to-[#4A4AFF] flex items-start gap-3">
+                        {publicKey && (
+                          <WalletIdenticon
+                            address={publicKey}
+                            size={36}
+                            className="flex-shrink-0 mt-0.5 ring-2 ring-white/25"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs text-blue-200 font-medium mb-0.5">Connected wallet</p>
+                          <p className="text-[11px] uppercase tracking-wide text-blue-200/80 mb-1">
+                            {walletProvider ?? "freighter"}
+                          </p>
+                          <p className="text-white font-mono text-xs break-all">{publicKey}</p>
+                        </div>
                       </div>
                       <div className="p-2 flex flex-col gap-1">
                         <button
@@ -445,6 +484,19 @@ export function Header({ balance = "0" }: { balance?: string }) {
                           )}
                           {copied ? "Copied!" : "Copy address"}
                         </button>
+
+                        {publicKey && (
+                          <a
+                            href={getStellarAccountExplorerUrl(publicKey)}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            aria-label="View wallet address on Stellar explorer"
+                            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-left"
+                          >
+                            <ExternalLink className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                            <span>View on explorer</span>
+                          </a>
+                        )}
 
                         <button
                           onClick={() => {
@@ -503,6 +555,7 @@ export function Header({ balance = "0" }: { balance?: string }) {
         onClose={() => setMobileOpen(false)}
         connected={connected}
         displayKey={displayKey}
+        publicKey={publicKey}
         onConnectWallet={() => setModalOpen(true)}
         onDisconnect={disconnect}
         balance={balance}
