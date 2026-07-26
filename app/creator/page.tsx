@@ -17,6 +17,7 @@ import { useWallet } from "@/lib/context/WalletContext"
 import type { StoredHunt } from "@/lib/types"
 import { getHuntsByCreator } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
+import { DraftListPanel } from "@/components/DraftListPanel"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
   const config = {
@@ -212,6 +213,8 @@ export default function CreatorPage() {
                 recipientLabel="Recipient"
               />
             </div>
+
+            <DraftListPanel />
           </>
         )}
       </div>

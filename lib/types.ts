@@ -337,6 +337,41 @@ export interface HuntDraft {
   sequential?: boolean
 }
 
+/**
+ * Persisted auto-save snapshot for a hunt creation session.
+ * Stored in localStorage keyed by `draftId`, and optionally synced to the
+ * cloud for logged-in users.
+ */
+export interface HuntDraftSave {
+  /** Unique identifier for this draft save (UUID). */
+  draftId: string
+  /** Human-readable label – defaults to gameName or "Untitled Draft". */
+  label: string
+  /** ISO-8601 timestamp of when this snapshot was last written. */
+  savedAt: string
+  /** The individual hunt clue cards in this draft. */
+  hunts: HuntDraft[]
+  /** Game-level metadata. */
+  meta: {
+    gameName: string
+    startDate: string
+    endDate: string
+    rewardType: "XLM" | "NFT" | "Both"
+    sequential: boolean
+    isPrivate: boolean
+    timerEnabled: boolean
+    creatorEmail: string
+    emailNotifications: boolean
+  }
+  /** Reward buckets. */
+  rewards: Array<{ place: number; amount: number }>
+  /**
+   * Whether the draft has been recovered into the editor.
+   * Prevents the recovery prompt from showing again for the same draft.
+   */
+  recovered?: boolean
+}
+
 export interface PlayerStats {
   address: string
   totalHuntsCompleted: number

@@ -34,6 +34,10 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { toast } from "sonner"
 import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import { buildDraftHuntsFromTemplate, getStarterTemplateBySlug } from "@/lib/huntTemplates"
+import { useHuntDraftAutoSave, readDraftPayload } from "@/hooks/useHuntDraftAutoSave"
+import { DraftRecoveryPrompt } from "@/components/DraftRecoveryPrompt"
+import { ManualSaveButton } from "@/components/ManualSaveButton"
+import type { HuntDraftSave } from "@/lib/types"
 
 const EMPTY_HUNT_DRAFT: HuntDraft = {
   id: 1,
@@ -69,6 +73,52 @@ function CreateGameContent() {
 
   const prefersReducedMotion = useReducedMotion()
 
+  // ── Draft auto-save ──────────────────────────────────────────────────────────
+  // Keep track of which saved draft is loaded (so recovery prompt excludes it).
+  const [activeDraftId, setActiveDraftId] = useState<string | null>(
+    () => searchParams.get("draftId")
+  )
+
+  const autoSaveMeta: HuntDraftSave["meta"] = {
+    gameName,
+    startDate,
+    endDate,
+    rewardType,
+    sequential,
+    isPrivate,
+    timerEnabled,
+    creatorEmail,
+    emailNotifications,
+  }
+
+  const { saveStatus, activeDraftId: hookDraftId, saveNow } = useHuntDraftAutoSave({
+    hunts,
+    rewards,
+    meta: autoSaveMeta,
+    draftId: activeDraftId ?? undefined,
+  })
+
+  // Sync the hook-generated draftId back to state on first mount.
+  useEffect(() => {
+    if (!activeDraftId) setActiveDraftId(hookDraftId)
+  }, [activeDraftId, hookDraftId])
+
+  /** Restore a draft chosen from the recovery prompt. */
+  const handleRestoreDraft = (draft: HuntDraftSave) => {
+    setHunts(draft.hunts)
+    setRewards(draft.rewards.map((r) => ({ ...r, icon: undefined })))
+    setGameName(draft.meta.gameName)
+    setStartDate(draft.meta.startDate)
+    setEndDate(draft.meta.endDate)
+    setRewardType(draft.meta.rewardType)
+    setSequential(draft.meta.sequential)
+    setIsPrivate(draft.meta.isPrivate)
+    setTimerEnabled(draft.meta.timerEnabled)
+    setCreatorEmail(draft.meta.creatorEmail)
+    setEmailNotifications(draft.meta.emailNotifications)
+    setActiveDraftId(draft.draftId)
+  }
+
   const tabMotion = {
     initial: prefersReducedMotion ? false : { x: direction > 0 ? 50 : -50, opacity: 0 },
     animate: prefersReducedMotion ? {} : { x: 0, opacity: 1 },
@@ -93,6 +143,28 @@ function CreateGameContent() {
         setActiveTab(tab as "publish" | "rewards" | "create");
       }
     }
+  }, []);
+
+  // Load a previously auto-saved draft when navigating from the draft list.
+  useEffect(() => {
+    const draftId = searchParams.get("draftId")
+    if (!draftId) return
+    const saved = readDraftPayload(draftId)
+    if (!saved) return
+    setHunts(saved.hunts)
+    setRewards(saved.rewards.map((r) => ({ ...r, icon: undefined })))
+    setGameName(saved.meta.gameName)
+    setStartDate(saved.meta.startDate)
+    setEndDate(saved.meta.endDate)
+    setRewardType(saved.meta.rewardType)
+    setSequential(saved.meta.sequential)
+    setIsPrivate(saved.meta.isPrivate)
+    setTimerEnabled(saved.meta.timerEnabled)
+    setCreatorEmail(saved.meta.creatorEmail)
+    setEmailNotifications(saved.meta.emailNotifications)
+    setActiveDraftId(draftId)
+  // Only run on mount; deps intentionally omitted to avoid re-loading on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -435,7 +507,14 @@ function CreateGameContent() {
                 <ArrowLeft className="w-5 h-5" />
                 Back to Arcade
               </Button>
+              <ManualSaveButton saveStatus={saveStatus} onSave={saveNow} />
             </div>
+
+            {/* Draft recovery banner */}
+            <DraftRecoveryPrompt
+              onRestore={handleRestoreDraft}
+              activeDraftId={activeDraftId}
+            />
             {/* Title */}
             <div className="text-center mb-12 relative">
               <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-[#0C0C4F] shadow-lg absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
