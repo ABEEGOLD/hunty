@@ -696,7 +696,9 @@ export default function GameArcade() {
       {/* Main Content */}
       <div className="max-w-[1600px] px-14 pt-10 pb-12 bg-white dark:bg-slate-900 mx-auto rounded-4xl relative">
         {/* Featured Hunt of the Week Hero Banner */}
-        <HuntOfTheWeekBanner />
+        <ErrorBoundary fallback={null}>
+          <HuntOfTheWeekBanner />
+        </ErrorBoundary>
 
         {/* Logo and Title */}
         <div className="text-center mb-8">
@@ -834,7 +836,9 @@ export default function GameArcade() {
         </div>
 
         {/* Featured Hunts Hero Section */}
-        <FeaturedHunts />
+        <ErrorBoundary fallback={null}>
+          <FeaturedHunts />
+        </ErrorBoundary>
 
         {/* Recently Completed — derived from the same hunt list, no extra fetch */}
         <RecentlyCompletedSection hunts={recentlyCompleted} />

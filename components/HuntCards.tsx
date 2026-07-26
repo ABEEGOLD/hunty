@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Loader2, Printer } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Printer, ImageOff } from "lucide-react";
 import picture from "@/public/static-images/image1.png";
 import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
 import { cn } from "@/lib/utils";
@@ -104,6 +104,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   // Ref-based guard to prevent concurrent submissions (avoids double-click race)
   const submittingRef = useRef(false);
   const [imgGatewayIdx, setImgGatewayIdx] = useState(0);
+  const [imgHasFailed, setImgHasFailed] = useState(false);
   const [hintRevealed, setHintRevealed] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [keyboardInsetHeight, setKeyboardInsetHeight] = useState(0);
@@ -374,21 +375,32 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         <p className="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6 line-clamp-3 print:text-lg print:opacity-100 print:mb-8" dangerouslySetInnerHTML={{ __html: sanitizeHtml(hunt.description || "No description provided.") }} />
         <div className="flex justify-center">
           {hunt.link || hunt.image ? (
-            <Image
-              src={resolveImageSrc(hunt.link || hunt.image || "", imgGatewayIdx)}
-              alt="hunt"
-              width={180}
-              height={180}
-              loading="lazy"
-              sizes="180px"
-              onError={() => {
-                if (imgGatewayIdx < GATEWAY_COUNT - 1) {
-                  setImgGatewayIdx((i) => i + 1)
-                }
-              }}
-              unoptimized
-              className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] object-contain print:w-64 print:h-auto print:rounded-xl"
-            />
+            imgHasFailed ? (
+              // All IPFS gateways failed — show branded placeholder
+              <div className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] flex flex-col items-center justify-center gap-2 rounded-xl bg-white/10 text-white/50 print:hidden">
+                <ImageOff className="w-8 h-8" aria-hidden="true" />
+                <span className="text-[9px] font-medium uppercase tracking-wide">Image unavailable</span>
+              </div>
+            ) : (
+              <Image
+                src={resolveImageSrc(hunt.link || hunt.image || "", imgGatewayIdx)}
+                alt="hunt"
+                width={180}
+                height={180}
+                loading="lazy"
+                sizes="180px"
+                onError={() => {
+                  if (imgGatewayIdx < GATEWAY_COUNT - 1) {
+                    setImgGatewayIdx((i) => i + 1)
+                  } else {
+                    // All gateways exhausted — surface the fallback UI
+                    setImgHasFailed(true)
+                  }
+                }}
+                unoptimized
+                className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] object-contain print:w-64 print:h-auto print:rounded-xl"
+              />
+            )
           ) : (
             <Image
               src={picture}
