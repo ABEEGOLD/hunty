@@ -1,30 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import confetti from "canvas-confetti";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Clock, Lightbulb, Loader2, Printer } from "lucide-react";
-import picture from "@/public/static-images/image1.png";
-import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
-import { cn } from "@/lib/utils";
-import sanitizeHtml from "@/lib/sanitizeHtml";
-import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
-import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
-import { calculateCluePoints } from "@/lib/scoring";
-import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
-import type { ClueHint, HuntCard as Hunt } from "@/lib/types";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Loader2, Printer } from "lucide-react";
-import React, { useEffect, useRef,useState } from "react";
+import { ArrowRight, CheckCircle2, Clock, Lightbulb, Loader2, Printer } from "lucide-react";
+import Image from "next/image";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
+import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { usePlayerCount } from "@/hooks/usePlayerCount";
-import { AnswerIncorrectError, pollTransaction,submitAnswer } from "@/lib/contracts/hunt";
+import { AnswerIncorrectError, pollTransaction, submitAnswer } from "@/lib/contracts/hunt";
 import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
-import { GATEWAY_COUNT,resolveImageSrc } from "@/lib/ipfs";
+import { GATEWAY_COUNT, resolveImageSrc } from "@/lib/ipfs";
 import sanitizeHtml from "@/lib/sanitizeHtml";
-import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
-import type { HuntCard as Hunt } from "@/lib/types";
+import { calculateCluePoints } from "@/lib/scoring";
+import type { ClueHint, HuntCard as Hunt } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import picture from "@/public/static-images/image1.png";
 
@@ -86,10 +75,7 @@ function resolveHints(hunt: Hunt): ClueHint[] {
  * Hook that drives the per-hint countdown timer.
  * Returns seconds remaining until the next hint can be revealed (0 = ready).
  */
-function useHintCountdown(
-  lastRevealedAt: number | null,
-  nextDelaySeconds: number
-): number {
+function useHintCountdown(lastRevealedAt: number | null, nextDelaySeconds: number): number {
   const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
@@ -139,8 +125,10 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const ownCount = usePlayerCount(playerCountProp !== undefined ? "" : fallbackId);
 
   const count = playerCountProp !== undefined ? playerCountProp : ownCount.count;
-  const countIsLoading = playerCountProp !== undefined ? (playerCountLoadingProp ?? false) : ownCount.isLoading;
-  const countError = playerCountProp !== undefined ? (playerCountErrorProp ?? null) : ownCount.error;
+  const countIsLoading =
+    playerCountProp !== undefined ? (playerCountLoadingProp ?? false) : ownCount.isLoading;
+  const countError =
+    playerCountProp !== undefined ? (playerCountErrorProp ?? null) : ownCount.error;
   const trending = playerCountProp !== undefined ? (isTrendingProp ?? false) : ownCount.isTrending;
 
   const [input, setInput] = useState("");
@@ -165,9 +153,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const countdownSeconds = useHintCountdown(lastRevealedAt, nextDelay);
 
   // Total penalty accrued from all revealed hints
-  const totalHintPenalty = hints
-    .slice(0, revealedCount)
-    .reduce((sum, h) => sum + h.penalty, 0);
+  const totalHintPenalty = hints.slice(0, revealedCount).reduce((sum, h) => sum + h.penalty, 0);
 
   const revealNextHint = useCallback(() => {
     if (revealedCount >= hints.length) return;
@@ -196,7 +182,11 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const handleInputFocus = () => {
     if (typeof window === "undefined") return;
     window.setTimeout(() => {
-      document.activeElement?.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+      document.activeElement?.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "smooth",
+      });
     }, 120);
   };
 
@@ -239,7 +229,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
             points ?? DEFAULT_POINTS,
             hunt.difficulty || "Medium",
             revealedCount,
-            totalHintPenalty,
+            totalHintPenalty
           );
           if (updatedAttempt) {
             const updatedClue = updatedAttempt.clues.find((c) => c.clueId === Number(hunt.id));
@@ -253,7 +243,12 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         const isDifficultClue = (points ?? DEFAULT_POINTS) >= 20;
         if (!prefersReducedMotion) {
           if (isLastClue) {
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ["#3737A4", "#E3225C", "#39A437", "#FFD43E"] });
+            confetti({
+              particleCount: 150,
+              spread: 100,
+              origin: { y: 0.6 },
+              colors: ["#3737A4", "#E3225C", "#39A437", "#FFD43E"],
+            });
           } else if (isDifficultClue) {
             confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
           }
@@ -265,7 +260,10 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           setSuccess(false);
           onUnlock?.(actualPoints);
         }, 1200);
-        setTimeout(() => { setSuccess(false); onUnlock?.(); }, 1200);
+        setTimeout(() => {
+          setSuccess(false);
+          onUnlock?.();
+        }, 1200);
       } else {
         // Local / preview fallback
         if (input.trim().toLowerCase() === (hunt.code || "").trim().toLowerCase()) {
@@ -275,13 +273,14 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
             hunt.difficulty || "Medium",
             0,
             revealedCount,
-            0,
+            0
           );
           const isLastClue = currentIndex === totalHunts;
           const isDifficultClue = (points ?? DEFAULT_POINTS) >= 20;
           if (!prefersReducedMotion) {
             if (isLastClue) confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
-            else if (isDifficultClue) confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+            else if (isDifficultClue)
+              confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
           }
           setError("");
           setInput("");
@@ -290,17 +289,26 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
             setSuccess(false);
             onUnlock?.(actualPoints);
           }, 1200);
-          setTimeout(() => { setSuccess(false); onUnlock?.(); }, 1200);
+          setTimeout(() => {
+            setSuccess(false);
+            onUnlock?.();
+          }, 1200);
         } else {
           setError("Try Again");
           setSuccess(false);
-          if (!prefersReducedMotion) { setShake(true); setTimeout(() => setShake(false), 500); }
+          if (!prefersReducedMotion) {
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+          }
         }
       }
     } catch (err) {
       if (err instanceof AnswerIncorrectError) {
         setError("Try Again");
-        if (!prefersReducedMotion) { setShake(true); setTimeout(() => setShake(false), 500); }
+        if (!prefersReducedMotion) {
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
       } else {
         setError(err instanceof Error ? err.message : "Submission failed. Try again.");
       }
@@ -332,7 +340,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const allHintsRevealed = revealedCount >= hints.length;
   const hasHints = hints.length > 0;
   // Can reveal when: not all revealed, not solved, not locked, and delay elapsed
-  const canRevealNextHint = hasHints && !allHintsRevealed && !solved && !isLocked && countdownSeconds === 0;
+  const canRevealNextHint =
+    hasHints && !allHintsRevealed && !solved && !isLocked && countdownSeconds === 0;
 
   return (
     <div
@@ -340,7 +349,11 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
       onKeyDown={handleKeyDown}
       className={cn(
         "rounded-xl sm:rounded-2xl shadow-lg w-full max-w-[400px] transition-all duration-300 relative print:shadow-none print:border-none print:max-w-none print:scale-100 print:m-0 print:opacity-100 bg-white dark:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500",
-        isActive ? "sm:scale-105 border-2 border-blue-400 dark:border-blue-500" : preview ? "opacity-70" : "opacity-90"
+        isActive
+          ? "sm:scale-105 border-2 border-blue-400 dark:border-blue-500"
+          : preview
+            ? "opacity-70"
+            : "opacity-90"
       )}
     >
       {solved && (
@@ -366,28 +379,45 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
                 🔥 Trending
               </span>
             )}
-            <span className="text-[#B3B3E5] print:text-black text-xs sm:text-sm">{currentIndex}/{totalHunts}</span>
+            <span className="text-[#B3B3E5] print:text-black text-xs sm:text-sm">
+              {currentIndex}/{totalHunts}
+            </span>
           </div>
           {hunt.difficulty && (
-            <span className={cn(
-              "px-2 py-0.5 rounded-full text-xs font-semibold ml-2 print:border print:text-black",
-              hunt.difficulty === "Easy" && "bg-green-500/30 text-green-200 print:border-green-500",
-              hunt.difficulty === "Medium" && "bg-yellow-500/30 text-yellow-200 print:border-yellow-500",
-              hunt.difficulty === "Hard" && "bg-red-500/30 text-red-200 print:border-red-500",
-              hunt.difficulty === "Expert" && "bg-purple-500/30 text-purple-200 print:border-purple-500",
-            )}>
+            <span
+              className={cn(
+                "px-2 py-0.5 rounded-full text-xs font-semibold ml-2 print:border print:text-black",
+                hunt.difficulty === "Easy" &&
+                  "bg-green-500/30 text-green-200 print:border-green-500",
+                hunt.difficulty === "Medium" &&
+                  "bg-yellow-500/30 text-yellow-200 print:border-yellow-500",
+                hunt.difficulty === "Hard" && "bg-red-500/30 text-red-200 print:border-red-500",
+                hunt.difficulty === "Expert" &&
+                  "bg-purple-500/30 text-purple-200 print:border-purple-500"
+              )}
+            >
               {hunt.difficulty}
             </span>
           )}
-          <span className="text-[#B3B3E5] ml-auto print:text-black text-xs sm:text-sm">{currentIndex}/{totalHunts}</span>
+          <span className="text-[#B3B3E5] ml-auto print:text-black text-xs sm:text-sm">
+            {currentIndex}/{totalHunts}
+          </span>
         </div>
 
         <span
           className="player-count block text-xs text-white/60 mb-2 print:hidden"
-          aria-label={countIsLoading ? "Loading player count" : countError ? undefined : `${count} player${count !== 1 ? "s" : ""} registered`}
+          aria-label={
+            countIsLoading
+              ? "Loading player count"
+              : countError
+                ? undefined
+                : `${count} player${count !== 1 ? "s" : ""} registered`
+          }
         >
           {countIsLoading ? (
-            <span className="player-count--loading" aria-hidden="true">—</span>
+            <span className="player-count--loading" aria-hidden="true">
+              —
+            </span>
           ) : countError ? null : (
             `${count} player${count !== 1 ? "s" : ""} registered`
           )}
@@ -398,7 +428,9 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         </h3>
         <p
           className="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6 line-clamp-3 print:text-lg print:opacity-100 print:mb-8"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(hunt.description || "No description provided.") }}
+          dangerouslySetInnerHTML={{
+            __html: sanitizeHtml(hunt.description || "No description provided."),
+          }}
         />
         <div className="flex justify-center">
           {hunt.link || hunt.image ? (
@@ -409,7 +441,9 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
               height={180}
               loading="lazy"
               sizes="180px"
-              onError={() => { if (imgGatewayIdx < GATEWAY_COUNT - 1) setImgGatewayIdx((i) => i + 1); }}
+              onError={() => {
+                if (imgGatewayIdx < GATEWAY_COUNT - 1) setImgGatewayIdx((i) => i + 1);
+              }}
               unoptimized
               className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] object-contain print:w-64 print:h-auto print:rounded-xl"
             />
@@ -430,7 +464,6 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
       {/* ── Progressive hints panel ─────────────────────────────────── */}
       {hasHints && !solved && (
         <div className="bg-white dark:bg-slate-900 px-4 sm:px-6 py-2 border-b border-gray-100 dark:border-white/5 print:hidden space-y-2">
-
           {/* Already-revealed hints */}
           {revealedCount > 0 && (
             <div className="space-y-1.5" aria-live="polite" aria-label="Revealed hints">
@@ -439,7 +472,10 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
                   key={i}
                   className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-2 sm:p-2.5 rounded-lg text-xs sm:text-sm border border-blue-100 dark:border-blue-900/30"
                 >
-                  <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-500 dark:text-blue-400" aria-hidden="true" />
+                  <Lightbulb
+                    className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-500 dark:text-blue-400"
+                    aria-hidden="true"
+                  />
                   <div className="min-w-0">
                     <span className="font-semibold text-blue-900 dark:text-blue-200 mr-1.5">
                       Hint {i + 1}
@@ -447,7 +483,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
                         <span className="ml-1 text-[10px] font-normal text-blue-500 dark:text-blue-400">
                           (-{h.penalty} pts)
                         </span>
-                      )}:
+                      )}
+                      :
                     </span>
                     <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(h.text) }} />
                   </div>
@@ -530,7 +567,9 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
             placeholder={isActive && !preview ? "Enter answer" : "Locked"}
             className={cn(
               "flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-full text-sm transition-colors",
-              isLocked ? "bg-gray-100 dark:bg-slate-800 cursor-not-allowed" : "dark:bg-slate-950 dark:border-white/10"
+              isLocked
+                ? "bg-gray-100 dark:bg-slate-800 cursor-not-allowed"
+                : "dark:bg-slate-950 dark:border-white/10"
             )}
             value={input}
             onChange={handleInputChange}
@@ -547,7 +586,11 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           onClick={handleUnlock}
           disabled={isLocked}
         >
-          {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+          {isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <ArrowRight className="w-4 h-4" />
+          )}
         </Button>
       </div>
 
@@ -555,22 +598,46 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
       <div className="bg-white dark:bg-slate-900 rounded-b-xl sm:rounded-b-2xl -mt-4 pb-4 px-4 sm:px-6 min-h-[36px] print:hidden">
         <AnimatePresence mode="wait">
           {huntEnded && (
-            <motion.div key="ended" initial={prefersReducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={prefersReducedMotion ? {} : { opacity: 0 }} className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base">
+            <motion.div
+              key="ended"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="flex items-center justify-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm sm:text-base"
+            >
               <span>🏁</span> Hunt Ended
             </motion.div>
           )}
           {!huntEnded && success && (
-            <motion.div key="success" initial={prefersReducedMotion ? false : slideVariants.initial} animate={prefersReducedMotion ? {} : slideVariants.animate} exit={prefersReducedMotion ? {} : slideVariants.exit} className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base">
+            <motion.div
+              key="success"
+              initial={prefersReducedMotion ? false : slideVariants.initial}
+              animate={prefersReducedMotion ? {} : slideVariants.animate}
+              exit={prefersReducedMotion ? {} : slideVariants.exit}
+              className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm sm:text-base"
+            >
               <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> Solved!
             </motion.div>
           )}
           {!huntEnded && !success && isPending && (
-            <motion.p key="pending" initial={prefersReducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={prefersReducedMotion ? {} : { opacity: 0 }} className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm">
+            <motion.p
+              key="pending"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0 }}
+              className="text-center text-slate-400 dark:text-slate-400 text-xs sm:text-sm"
+            >
               Submitting...
             </motion.p>
           )}
           {!huntEnded && !success && !isPending && error && (
-            <motion.p key="error" initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }} className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm">
+            <motion.p
+              key="error"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
+              className="text-center text-red-500 dark:text-red-400 font-semibold text-xs sm:text-sm"
+            >
               {error}
             </motion.p>
           )}

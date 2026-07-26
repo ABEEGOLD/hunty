@@ -4,9 +4,6 @@ import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { NotFoundError, ValidationError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
-import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { getArchivedSeasonById,getArchivedSeasons } from "@/lib/seasonStore";
-
 /**
  * GET /api/v1/seasons/archived
  * Get all archived seasons
