@@ -57,6 +57,7 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 2 * 86400,
     startTime: NOW_SECONDS - 86400,
     endTime: NOW_SECONDS + 7 * 86400,
+    difficulty: "Easy",
   },
   {
     id: 2,
@@ -74,6 +75,7 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 4 * 86400,
     startTime: NOW_SECONDS - 2 * 86400,
     endTime: NOW_SECONDS + 3 * 86400,
+    difficulty: "Hard",
   },
   {
     id: 3,
@@ -91,6 +93,7 @@ export const SEED_HUNTS: StoredHunt[] = [
     createdAt: NOW_SECONDS - 12 * 86400,
     startTime: NOW_SECONDS - 10 * 86400,
     endTime: NOW_SECONDS - 5 * 86400,
+    difficulty: "Expert",
   },
   {
     id: 4,

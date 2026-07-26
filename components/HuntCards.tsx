@@ -351,6 +351,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
               hunt.difficulty === "Easy" && "bg-green-500/30 text-green-200 print:border-green-500",
               hunt.difficulty === "Medium" && "bg-yellow-500/30 text-yellow-200 print:border-yellow-500",
               hunt.difficulty === "Hard" && "bg-red-500/30 text-red-200 print:border-red-500",
+              hunt.difficulty === "Expert" && "bg-purple-500/30 text-purple-200 print:border-purple-500",
             )}>
               {hunt.difficulty}
             </span>

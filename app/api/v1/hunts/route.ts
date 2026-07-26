@@ -28,6 +28,7 @@ export const GET = withErrorHandling(async (req: Request) => {
   const sortBy = searchParams.get("sortBy") || "newest";
   const category = searchParams.get("category") || "all";
   const tag = searchParams.get("tag") || "";
+  const difficulty = searchParams.get("difficulty") || "all";
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
   if (cursorParam && cursorParam !== "null" && cursorParam !== "" && (cursor == null || Number.isNaN(cursor))) {
@@ -45,6 +46,7 @@ export const GET = withErrorHandling(async (req: Request) => {
     sortBy,
     category,
     tag,
+    difficulty,
     requestId,
   });
 
