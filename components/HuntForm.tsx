@@ -1,10 +1,10 @@
 "use client"
 
-import React, { ChangeEvent, useRef, useState } from "react"
+import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import ToggleSwitch from "./ToggleButton"
-import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react"
+import { Minus, Plus, Trash2, Eye, EyeOff, ArrowUpDown } from "lucide-react"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -21,6 +21,7 @@ import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
 import { logger } from "@/lib/logger"
 import { toast } from "sonner"
 import { HuntCards } from "./HuntCards"
+import { ClueSortList } from "./ClueSortList"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
 
 interface HuntFormProps {
@@ -52,6 +53,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
   const [isUploading, setIsUploading] = useState(false)
   const [isSavingClues, setIsSavingClues] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [showReorder, setShowReorder] = useState(false)
   const [linkEnabled, setLinkEnabled] = useState(false)
   const [imageUploadState, setImageUploadState] = useState<CoverImageUploadState>("idle")
 
@@ -67,7 +69,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "clues",
   })
@@ -122,6 +124,42 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
       remove(index)
     }
   }
+
+  const clueSortItems = useMemo(
+    () =>
+      fields.map((field) => ({
+        id: field.id,
+        label: field.question || "",
+      })),
+    [fields],
+  )
+
+  const handleClueReorder = useCallback(
+    (newItems: { id: string; label: string }[]) => {
+      // Build a mapping from old position to new position via field IDs
+      const oldIds = fields.map((f) => f.id)
+      const newIds = newItems.map((item) => item.id)
+
+      // Track remaining old fields and place them in new order
+      const remaining = [...fields]
+      const reordered: typeof fields = []
+      for (const id of newIds) {
+        const idx = remaining.findIndex((f) => f.id === id)
+        if (idx !== -1) {
+          reordered.push(remaining.splice(idx, 1)[0])
+        }
+      }
+
+      // Apply the reorder using sequential moves
+      for (let i = 0; i < reordered.length; i++) {
+        const currentIdx = fields.findIndex((f) => f.id === reordered[i].id)
+        if (currentIdx !== i) {
+          move(currentIdx, i)
+        }
+      }
+    },
+    [fields, move],
+  )
 
   const onSaveClues = async (data: CluesFormData) => {
     if (!huntId) return
@@ -464,6 +502,36 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
             </div>
           ))}
         </div>
+
+        {fields.length >= 2 && (
+          <div className="border-t border-slate-200 dark:border-white/10 pt-3">
+            <button
+              type="button"
+              onClick={() => setShowReorder(!showReorder)}
+              className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors w-full"
+              aria-expanded={showReorder}
+              aria-controls="clue-reorder-panel"
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {showReorder ? "Hide Reorder Panel" : "Reorder Clues"}
+            </button>
+            {showReorder && (
+              <div
+                id="clue-reorder-panel"
+                className="mt-3 p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50"
+              >
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  Drag clues or use the arrow buttons to reorder. Keyboard: <kbd className="px-1 py-0.5 text-[10px] font-mono bg-slate-200 dark:bg-slate-700 rounded">Alt</kbd> + <kbd className="px-1 py-0.5 text-[10px] font-mono bg-slate-200 dark:bg-slate-700 rounded">Arrow</kbd>
+                </p>
+                <ClueSortList
+                  items={clueSortItems}
+                  onReorder={handleClueReorder}
+                  disabled={isSavingClues}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {huntId && (
           <div className="flex justify-end pt-1">

@@ -425,28 +425,13 @@ export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed
 
 /**
  * Player count above which a hunt is considered "Trending".
- *
- * A hunt whose registered player count is >= this value receives the
- * 🔥 Trending badge on its card. Set to 50 as a reasonable signal of
- * meaningful engagement without being too easy to trigger on small hunts.
- *
- * To tune: lower the value to badge more hunts (e.g. 20 for a new platform
- * with low traffic); raise it to reserve the badge for genuinely popular hunts.
+ * @deprecated Import from `@/lib/config/constants` instead: `PLAYER_COUNT.TRENDING_THRESHOLD`
  */
 export const TRENDING_PLAYER_THRESHOLD = 50
 
 /**
  * How long a fetched player count is considered fresh (ms).
- *
- * After this TTL the next call to `usePlayerCount` / `usePlayerCounts` will
- * re-scan localStorage and update the cache. The cache is module-level, so it
- * resets on a full page reload — satisfying the "updates on each arcade page
- * load" requirement without stale counts surviving navigation.
- *
- * Tradeoff: shorter TTL → fresher counts but more localStorage scans per
- * session; longer TTL → fewer scans but counts may lag behind reality.
- * 60 s is a reasonable default for a game arcade where registration activity
- * is bursty rather than continuous.
+ * @deprecated Import from `@/lib/config/constants` instead: `PLAYER_COUNT.CACHE_TTL_MS`
  */
 export const PLAYER_COUNT_CACHE_TTL_MS = 60_000
 
