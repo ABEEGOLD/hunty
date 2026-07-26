@@ -216,7 +216,7 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
     try {
       if (huntId != null) {
-        const result = await submitAnswer(huntId, Number(hunt.id), input);
+        const result = await submitAnswer(huntId, Number(hunt.id), input, playerAddress);
         if (result?.txHash) await pollTransaction(result.txHash);
 
         setSuccess(true);
@@ -263,9 +263,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         onScoreUpdate?.(updatedActualPoints);
         setTimeout(() => {
           setSuccess(false);
-          onUnlock?.(actualPoints);
+          onUnlock?.(updatedActualPoints);
         }, 1200);
-        setTimeout(() => { setSuccess(false); onUnlock?.(); }, 1200);
       } else {
         // Local / preview fallback
         if (input.trim().toLowerCase() === (hunt.code || "").trim().toLowerCase()) {
@@ -288,9 +287,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
           onScoreUpdate?.(breakdown.totalPoints);
           setTimeout(() => {
             setSuccess(false);
-            onUnlock?.(actualPoints);
+            onUnlock?.(breakdown.totalPoints);
           }, 1200);
-          setTimeout(() => { setSuccess(false); onUnlock?.(); }, 1200);
         } else {
           setError("Try Again");
           setSuccess(false);

@@ -1,11 +1,13 @@
 import Server, { Operation,TransactionBuilder } from "@stellar/stellar-sdk"
 
 import { RegistrationError } from "@/lib/contracts/errors"
-import { getHuntProgress } from "@/lib/huntStore"
+import { advanceHuntProgress, getHuntProgress } from "@/lib/huntStore"
 import type { PlayerProgress, RegistrationResult,RegistrationStatus } from "@/lib/types"
 
 import { withSorobanRpcRetry } from "../soroban/rpcRetry"
 import { NETWORK_PASSPHRASE,SOROBAN_RPC_URL } from "./config"
+import { isOnline } from "@/lib/offlineSync"
+import { logger } from "@/lib/logger"
 
 export type { PlayerProgress, RegistrationResult,RegistrationStatus }
 
@@ -276,8 +278,59 @@ export async function getPlayerProgress(
 
   return withRetry(async () => {
     try {
-      // In a real implementation, this would query the contract's get_player_progress function
-      // For now, we simulate the contract call using the manageData pattern
+      // Try fetching from server progress API first (when online)
+      if (isOnline() && typeof window !== "undefined") {
+        try {
+          const baseUrl = window.location.origin;
+          const res = await fetch(
+            `${baseUrl}/api/v1/hunts/${huntId}/progress?wallet=${encodeURIComponent(playerAddress)}`,
+          );
+          if (res.ok) {
+            const body = await res.json();
+            if (body?.data) {
+              const serverProgress = body.data;
+              
+              // Sync server progress to localStorage for offline use
+              try {
+                const progress = getHuntProgress(huntId);
+                const { savePlayerProgress } = await import("@/lib/progressData");
+                
+                if (serverProgress.currentClueIndex > progress.currentClueIndex) {
+                  advanceHuntProgress(huntId, serverProgress.currentClueIndex, serverProgress.totalClues);
+                }
+                
+                const userPointsKey = `hunt_${huntId}_my_points`;
+                const currentPoints = parseInt(localStorage.getItem(userPointsKey) || "0", 10);
+                if (serverProgress.totalPoints > currentPoints) {
+                  localStorage.setItem(userPointsKey, serverProgress.totalPoints.toString());
+                }
+                
+                if (serverProgress.completed) {
+                  localStorage.setItem(`hunt_completed_${huntId}`, "true");
+                }
+                
+                for (const clueId of serverProgress.completedClueIds || []) {
+                  localStorage.setItem(`hunt_clue_solved_${huntId}_${clueId}`, "true");
+                }
+              } catch {
+                // Non-critical, best-effort sync
+              }
+
+              return {
+                hunt_id: huntId,
+                player: playerAddress,
+                current_clue_index: serverProgress.currentClueIndex,
+                completed: serverProgress.completed,
+                reward_claimed: false,
+              };
+            }
+          }
+        } catch {
+          // Fall back to localStorage if server fetch fails
+        }
+      }
+
+      // Fallback to localStorage for offline or if server fetch failed
       if (typeof window !== "undefined") {
         const userPointsKey = `hunt_${huntId}_my_points`;
         const hasPoints = localStorage.getItem(userPointsKey) !== null;
