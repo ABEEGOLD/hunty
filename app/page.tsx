@@ -62,6 +62,7 @@ interface WalletOption {
 
 const walletOptions: WalletOption[] = []
 
+const ACTIVE_PAGE_SIZE = 12
 const INACTIVE_PAGE_SIZE = 6
 const ACTIVE_GRID_GAP = 24
 const ACTIVE_CARD_ESTIMATED_HEIGHT = 360
@@ -367,10 +368,11 @@ export default function GameArcade() {
   const [walletAddress, setWalletAddress] = useState("")
   const [balance, setBalance] = useState("")
 
+  const [visibleActiveCount, setVisibleActiveCount] = useState(ACTIVE_PAGE_SIZE)
+  const [isLoadingMoreActive, setIsLoadingMoreActive] = useState(false)
   const [inactiveHunts, setInactiveHunts] = useState<StoredHunt[]>([])
   const [visibleInactiveCount, setVisibleInactiveCount] = useState(INACTIVE_PAGE_SIZE)
   const [isLoadingMoreInactive, setIsLoadingMoreInactive] = useState(false)
-  const inactiveEndReachedRef = useRef<HTMLDivElement | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState<"leaderboard" | "none">("none")
   const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
@@ -462,8 +464,6 @@ export default function GameArcade() {
     window.history.replaceState(null, "", next)
   }, [searchQuery, rewardFilter, statusFilter, difficultyFilter, categoryFilter, sortBy])
 
-  const loadMoreRef = useRef<HTMLDivElement | null>(null)
-
   // Load hunts using Infinite Query with cursor-based pagination
   const {
     data: infiniteData,
@@ -504,6 +504,13 @@ export default function GameArcade() {
     if (!infiniteData) return [];
     return infiniteData.pages.flatMap((page) => page.data);
   }, [infiniteData]);
+
+  // Only render the first visibleActiveCount hunts for pagination
+  const displayedActiveHunts = useMemo(
+    () => filteredHunts.slice(0, visibleActiveCount),
+    [filteredHunts, visibleActiveCount]
+  )
+  const hasMoreActiveLoaded = visibleActiveCount < filteredHunts.length
 
   // Retrieve total results count matching current filters
   const totalResults = useMemo(() => {
@@ -577,41 +584,35 @@ export default function GameArcade() {
     }, 250)
   }, [hasMoreInactiveHunts, inactiveHunts.length, isLoadingMoreInactive])
 
-  // Intersection Observer for Inactive Hunts
-  useEffect(() => {
-    const target = inactiveEndReachedRef.current
-    if (!target || !hasMoreInactiveHunts) return
+  const showPreviousInactiveHunts = useCallback(() => {
+    setVisibleInactiveCount((prev) => Math.max(prev - INACTIVE_PAGE_SIZE, INACTIVE_PAGE_SIZE))
+  }, [])
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          loadMoreInactiveHunts()
-        }
-      },
-      { rootMargin: "160px 0px 160px 0px" }
-    )
+  const hasPreviousInactiveHunts = visibleInactiveCount > INACTIVE_PAGE_SIZE
 
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [hasMoreInactiveHunts, loadMoreInactiveHunts, visibleInactiveHunts.length])
+  // Active hunts: Load More fetches next API page then expands visible slice
+  const loadMoreActiveHunts = useCallback(() => {
+    if (hasMoreActiveLoaded) {
+      setIsLoadingMoreActive(true)
+      setTimeout(() => {
+        setVisibleActiveCount((prev) => Math.min(prev + ACTIVE_PAGE_SIZE, filteredHunts.length))
+        setIsLoadingMoreActive(false)
+      }, 150)
+    } else if (hasNextPage && !isFetchingNextPage) {
+      setIsLoadingMoreActive(true)
+      fetchNextPage().then(() => {
+        setVisibleActiveCount((prev) => prev + ACTIVE_PAGE_SIZE)
+        setIsLoadingMoreActive(false)
+      })
+    }
+  }, [hasMoreActiveLoaded, hasNextPage, isFetchingNextPage, fetchNextPage, filteredHunts.length])
 
-  // Intersection Observer for Active Hunts
-  useEffect(() => {
-    const target = loadMoreRef.current
-    if (!target || !hasNextPage || isFetchingNextPage) return
+  const showPreviousActiveHunts = useCallback(() => {
+    setVisibleActiveCount((prev) => Math.max(prev - ACTIVE_PAGE_SIZE, ACTIVE_PAGE_SIZE))
+  }, [])
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          fetchNextPage()
-        }
-      },
-      { rootMargin: "250px" }
-    )
-
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  const hasPreviousActiveHunts = visibleActiveCount > ACTIVE_PAGE_SIZE
+  const canLoadMoreActive = hasMoreActiveLoaded || hasNextPage
 
   // Save scroll position on scroll
   useEffect(() => {
@@ -646,9 +647,11 @@ export default function GameArcade() {
     }
   }, [isLoadingHunts, filteredHunts.length])
 
-  // Clear scroll position when filter state changes
+  // Clear scroll position and reset pagination when filter state changes
   useEffect(() => {
     sessionStorage.removeItem("arcade_scroll_y")
+    setVisibleActiveCount(ACTIVE_PAGE_SIZE)
+    setVisibleInactiveCount(INACTIVE_PAGE_SIZE)
   }, [statusFilter, rewardFilter, difficultyFilter, categoryFilter, searchQuery, sortBy])
 
   const clearAllFilters = () => {
@@ -658,6 +661,8 @@ export default function GameArcade() {
     setDifficultyFilter("all")
     setCategoryFilter("all")
     setSortBy("newest")
+    setVisibleActiveCount(ACTIVE_PAGE_SIZE)
+    setVisibleInactiveCount(INACTIVE_PAGE_SIZE)
   }
 
   const handleWalletSelect = () => {
@@ -985,12 +990,32 @@ export default function GameArcade() {
             </div>
           ) : (
             <>
-              <VirtualizedActiveHuntsGrid hunts={filteredHunts} playerCounts={playerCounts} />
-              <div ref={loadMoreRef} className="h-10 w-full flex items-center justify-center mt-4">
-                {isFetchingNextPage && (
-                  <div className="skeleton-shimmer h-4 w-24 rounded-md bg-slate-200 dark:bg-slate-700" />
-                )}
-              </div>
+              <VirtualizedActiveHuntsGrid hunts={displayedActiveHunts} playerCounts={playerCounts} />
+
+              {(canLoadMoreActive || hasPreviousActiveHunts || isLoadingMoreActive) && (
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  {hasPreviousActiveHunts && (
+                    <Button
+                      variant="outline"
+                      onClick={showPreviousActiveHunts}
+                      className="rounded-xl border-slate-200 dark:border-slate-700 text-sm font-semibold"
+                    >
+                      Show Previous
+                    </Button>
+                  )}
+                  {isLoadingMoreActive ? (
+                    <div className="skeleton-shimmer h-4 w-24 rounded-md bg-slate-200 dark:bg-slate-700" />
+                  ) : canLoadMoreActive ? (
+                    <Button
+                      variant="outline"
+                      onClick={loadMoreActiveHunts}
+                      className="rounded-xl border-slate-200 dark:border-slate-700 text-sm font-semibold"
+                    >
+                      Load More
+                    </Button>
+                  ) : null}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1017,10 +1042,30 @@ export default function GameArcade() {
           ) : (
             <>
               <VirtualizedInactiveHuntsGrid hunts={visibleInactiveHunts} />
-              <div ref={inactiveEndReachedRef} className="h-1 w-full" />
 
-              {isLoadingMoreInactive && (
-                <p className="text-center text-sm text-slate-500 mt-4">Loading more hunts...</p>
+              {(hasMoreInactiveHunts || hasPreviousInactiveHunts || isLoadingMoreInactive) && (
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  {hasPreviousInactiveHunts && (
+                    <Button
+                      variant="outline"
+                      onClick={showPreviousInactiveHunts}
+                      className="rounded-xl border-slate-200 dark:border-slate-700 text-sm font-semibold"
+                    >
+                      Show Previous
+                    </Button>
+                  )}
+                  {isLoadingMoreInactive ? (
+                    <p className="text-center text-sm text-slate-500">Loading more hunts...</p>
+                  ) : hasMoreInactiveHunts ? (
+                    <Button
+                      variant="outline"
+                      onClick={loadMoreInactiveHunts}
+                      className="rounded-xl border-slate-200 dark:border-slate-700 text-sm font-semibold"
+                    >
+                      Load More
+                    </Button>
+                  ) : null}
+                </div>
               )}
 
               {!hasMoreInactiveHunts && visibleInactiveHunts.length > 0 && (
