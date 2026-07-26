@@ -39,7 +39,7 @@ import { WalletBalance } from "./WalletBalance";
 import { WalletIdenticon } from "./WalletIdenticon";
 import { WalletSelectionModal } from "./WalletSelectionModal";
 
-// ÔöÇÔöÇÔöÇ Nav structure ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Nav structure ─────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
   {
@@ -97,7 +97,8 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
           <input
             ref={inputRef}
             type="search"
-            placeholder="Search hunts, creators, rewardsÔÇª"
+            aria-label="Search hunts, creators, rewards"
+            placeholder="Search hunts, creators, rewards…"
             className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none text-base"
             onKeyDown={(e) => e.key === "Escape" && onClose()}
           />
@@ -249,7 +250,7 @@ function MobileMenu({
   );
 }
 
-// ÔöÇÔöÇÔöÇ Main Header ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Main Header ───────────────────────────────────────────────────────────────
 
 export function Header() {
   const mounted = useIsMounted();
@@ -263,6 +264,7 @@ export function Header() {
   const [copied, setCopied] = useState(false);
   const [activeMega, setActiveMega] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(() => getUnreadNotificationCount());
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -275,9 +277,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Update unread notification count
+  // Poll unread notification count
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount());
     const interval = setInterval(() => {
       setUnreadCount(getUnreadNotificationCount());
     }, 30000);
@@ -333,8 +334,6 @@ export function Header() {
   const closeMega = useCallback(() => {
     megaTimeoutRef.current = setTimeout(() => setActiveMega(null), 120);
   }, []);
-
-  const [unreadCount, setUnreadCount] = useState(0);
 
   return (
     <>
