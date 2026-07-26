@@ -4,6 +4,7 @@ import { HuntControls } from "@/components/HuntControls";
 import { Button } from "@/components/ui/button";
 import { QrCode, Trophy } from "lucide-react";
 import { QrCodeModal } from "@/components/QrCodeModal";
+import { EmbedModal } from "@/components/EmbedModal";
 import { PlayGame } from "@/components/PlayGame";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
 import { ChatWindow } from "@/components/ChatWindow";
@@ -61,6 +62,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     loading: true,
   });
   const [qrOpen, setQrOpen] = useState(false);
+  const [embedOpen, setEmbedOpen] = useState(false);
 
   // Get current players (using stored hunt's playerCount, defaulting to 0)
   const currentPlayers = hunt.playerCount ?? 0;
@@ -338,8 +340,42 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
             <QrCode className="w-4 h-4" />
           </Button>
           </div>
+          {!hunt.is_private && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setEmbedOpen(true)}
+              title="Get embed code"
+              aria-label="Get embed code for this hunt"
+            >
+              {/* Code2 icon inline to avoid an extra import collision */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m18 16 4-4-4-4" />
+                <path d="m6 8-4 4 4 4" />
+                <path d="m14.5 4-5 16" />
+              </svg>
+            </Button>
+          )}
         </div>
         <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
+        {!hunt.is_private && (
+          <EmbedModal
+            hunt={hunt}
+            open={embedOpen}
+            onClose={() => setEmbedOpen(false)}
+          />
+        )}
 
         {hunt.rewardType !== "NFT" && (
           <SponsorHuntButton

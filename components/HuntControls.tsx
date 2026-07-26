@@ -8,8 +8,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { AlertTriangle, X, Loader2 } from "lucide-react"
+import { AlertTriangle, X, Loader2, Code2 } from "lucide-react"
 import type { StoredHunt } from "@/lib/types"
+import { EmbedModal } from "@/components/EmbedModal"
 import Server, { TransactionBuilder, Networks, Operation, Account } from "@stellar/stellar-sdk"
 import { withSorobanRpcRetry } from "@/lib/soroban/rpcRetry"
 import { logger } from "@/lib/logger"
@@ -239,6 +240,7 @@ export function HuntControls({
     onCancelled,
 }: HuntControlsProps) {
     const [modalOpen, setModalOpen] = useState(false)
+    const [embedModalOpen, setEmbedModalOpen] = useState(false)
     const [step, setStep] = useState<1 | 2>(1)
     const [isCancelling, setIsCancelling] = useState(false)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -285,6 +287,15 @@ export function HuntControls({
     return (
         <>
             <Button
+                onClick={() => setEmbedModalOpen(true)}
+                variant="outline"
+                className="border-[#3737A4]/40 text-[#3737A4] hover:bg-[#3737A4]/10 hover:border-[#3737A4]/70 active:scale-95 transition-all duration-150 font-semibold dark:border-indigo-500/40 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+            >
+                <Code2 className="w-4 h-4 mr-2 shrink-0" />
+                Get Embed Code
+            </Button>
+
+            <Button
                 onClick={openModal}
                 variant="outline"
                 className="border-red-800/50 text-red-400 hover:bg-red-950/60 hover:text-red-300 hover:border-red-600/70 active:scale-95 transition-all duration-150 font-semibold"
@@ -292,6 +303,12 @@ export function HuntControls({
                 <AlertTriangle className="w-4 h-4 mr-2 shrink-0" />
                 Cancel Hunt
             </Button>
+
+            <EmbedModal
+                hunt={hunt}
+                open={embedModalOpen}
+                onClose={() => setEmbedModalOpen(false)}
+            />
 
             <CancelModal
                 isOpen={modalOpen}
