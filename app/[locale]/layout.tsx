@@ -27,7 +27,7 @@ export async function generateMetadata({
     authors: [{ name: "Hunty Team" }],
     openGraph: {
       type: "website",
-      locale: locale === "es" ? "es_ES" : "en_US",
+      locale: locale === "es" ? "es_ES" : locale === "fr" ? "fr_FR" : "en_US",
       url: "https://hunty.app",
       siteName: "Hunty",
       title: t("metaTitle"),
@@ -65,6 +65,7 @@ export async function generateMetadata({
       languages: {
         en: "https://hunty.app/en",
         es: "https://hunty.app/es",
+        fr: "https://hunty.app/fr",
       },
     },
   }

@@ -9,6 +9,7 @@ import { useIsMounted } from "@/hooks/useIsMounted";
 import { useWallet } from "@/lib/context/WalletContext";
 import { WalletSelectionModal } from "./WalletSelectionModal";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSelector } from "./LanguageSelector";
 import {
   Copy,
   LogOut,
@@ -440,6 +441,7 @@ export function Header({ balance = "0" }: { balance?: string }) {
               <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
             </div>
 
+            <LanguageSelector />
             <ThemeToggle />
 
             {/* Wallet */}

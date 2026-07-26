@@ -8,6 +8,7 @@ import { routing } from "@/i18n/routing"
 const LOCALE_FLAGS: Record<string, string> = {
   en: "🇺🇸",
   es: "🇪🇸",
+  fr: "🇫🇷",
 }
 
 // Minimal messages used when the component renders outside a locale layout
@@ -15,7 +16,7 @@ const LOCALE_FLAGS: Record<string, string> = {
 // full message set that takes precedence.
 const FALLBACK_MESSAGES = {
   settings: { selectLanguage: "Select Language" },
-  language: { en: "English", es: "Español" },
+  language: { en: "English", es: "Español", fr: "Français" },
 }
 
 function LanguageSelectorCore() {
@@ -48,7 +49,7 @@ function LanguageSelectorCore() {
       >
         {routing.locales.map((loc) => (
           <option key={loc} value={loc} className="bg-white dark:bg-slate-900">
-            {LOCALE_FLAGS[loc]} {tLang(loc as "en" | "es")}
+            {LOCALE_FLAGS[loc]} {tLang(loc as "en" | "es" | "fr")}
           </option>
         ))}
       </select>
