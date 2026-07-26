@@ -392,7 +392,7 @@ const huntItemSchema = z.object({
     setRewards(rewards.filter((reward) => reward.place !== place));
   };
 
-  const updateHunt = (id: number, field: string, value: string) => {
+  const updateHunt = (id: number, field: string, value: string | number | undefined) => {
     setHunts(
       hunts.map((hunt) =>
         hunt.id === id ? { ...hunt, [field]: value } : hunt,
@@ -510,6 +510,7 @@ const huntItemSchema = z.object({
         emailNotifications: formValues.emailNotifications,
         is_private: formValues.isPrivate,
         sequential: formValues.sequential,
+        maxParticipants: formValues.hunts[0]?.maxParticipants,
         coverImageCid,
         category,
         tags,

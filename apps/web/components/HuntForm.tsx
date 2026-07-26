@@ -35,7 +35,7 @@ import ToggleSwitch from "./ToggleButton"
 
 interface HuntFormProps {
   hunt: HuntDraft
-  onUpdate: (field: string, value: string) => void
+  onUpdate: (field: string, value: string | number | undefined) => void
   onRemove: () => void
   huntId?: number
   onCluesSaved?: (count: number) => void
@@ -289,6 +289,18 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
           aria-label="Hunt Description"
           value={hunt.description}
           onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate("description", e.target.value)}
+          className="w-full pl-6 py-3"
+        />
+        <Input
+          type="number"
+          min={1}
+          placeholder="Optional participant cap"
+          aria-label="Participant cap"
+          value={hunt.maxParticipants ?? ""}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const raw = e.target.value.trim()
+            onUpdate("maxParticipants", raw === "" ? undefined : Number(raw))
+          }}
           className="w-full pl-6 py-3"
         />
         <div className="relative">
@@ -559,4 +571,3 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     </div>
   )
 }
-

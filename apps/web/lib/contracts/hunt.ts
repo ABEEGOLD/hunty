@@ -73,7 +73,8 @@ export async function createHunt(
   emailNotifications?: boolean,
   /** When true, the hunt is hidden from the public arcade. */
   is_private?: boolean,
-  sequential?: boolean
+  sequential?: boolean,
+  maxParticipants?: number
 ): Promise<CreateHuntResult> {
   if (typeof window === "undefined")
     throw new Error("Browser environment required");
@@ -96,6 +97,7 @@ export async function createHunt(
       : {}),
     ...(is_private ? { is_private: true } : {}),
     ...(sequential ? { sequential: true } : {}),
+    ...(maxParticipants !== undefined ? { max_participants: maxParticipants } : {}),
   })
 
   const publicKey = await wallet.getPublicKey();
