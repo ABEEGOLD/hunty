@@ -1,16 +1,15 @@
 "use client"
 
-import { BarChart3, Copy, List,Plus, Trash2, Trophy, X } from "lucide-react"
+import { BarChart3, Copy, Eye, List, Plus, Trash2, Trophy, X } from "lucide-react"
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
-import { Plus, Trash2, Trophy, Copy, X, BarChart3, List, Eye } from "lucide-react"
-import { type MouseEvent as ReactMouseEvent,useState } from "react"
 import { toast } from "sonner"
 
 import { ActivateHuntModal } from "@/components/ActivateHuntModal"
 import { CreatorAnalytics } from "@/components/CreatorAnalytics"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { RewardPoolManager } from "@/components/RewardPoolManager"
+import { StarRating } from "@/components/StarRating"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -20,10 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ActivateHuntModal } from "@/components/ActivateHuntModal"
-import { RewardPoolManager } from "@/components/RewardPoolManager"
-import { LeaderboardTable } from "@/components/LeaderBoardTable"
-import { CreatorAnalytics } from "@/components/CreatorAnalytics"
 import { deleteHunts, archiveHunts, duplicateHunt } from "@/lib/huntStore"
 import { Input } from "@/components/ui/input"
 import {
@@ -31,7 +26,6 @@ import {
   type HuntHistorySortOption,
   type HuntHistoryStatusFilter,
 } from "@/lib/huntHistory"
-import { archiveHunts,deleteHunts } from "@/lib/huntStore"
 import type { ClueRow, StoredHunt } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -451,6 +445,11 @@ export function HuntDashboard({
                     <CardDescription className="mb-4 line-clamp-3 text-sm text-slate-600 dark:text-slate-400">
                       {hunt.description}
                     </CardDescription>
+                    <StarRating
+                      rating={hunt.averageRating}
+                      count={hunt.reviewCount}
+                      className="mb-3"
+                    />
                     <div className="mb-4 flex flex-wrap gap-2">
                       <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-white/5 dark:text-slate-300">
                         {hunt.playerCount ?? 0} players
