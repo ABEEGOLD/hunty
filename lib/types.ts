@@ -39,6 +39,12 @@ export interface StoredHunt {
   rewardPool?: number
   /** Per-place XLM reward buckets funded by the creator. */
   rewards?: Reward[]
+  /** Reward distribution plan for the pool. */
+  rewardDistribution?: { place: number; amount: number }[]
+  /** Current balance in the reward pool. */
+  poolBalance?: number
+  /** Low balance threshold for the pool. */
+  poolLowBalanceThreshold?: number
   /** Escrow transaction hash proving the creator funded the XLM reward pool. */
   rewardEscrowTxHash?: string
   /** Amount still available in the XLM escrow. */
@@ -70,6 +76,12 @@ export interface StoredHunt {
   poolBalance?: number
   rewardDistribution?: Reward[]
   poolLowBalanceThreshold?: number
+  /** When true, the hunt is archived (hidden from public but data preserved). */
+  isArchived?: boolean
+  /** Unix timestamp in seconds when the hunt was soft-deleted. */
+  deletedAt?: number
+  /** Recovery window in seconds (default: 30 days = 2592000 seconds). */
+  recoveryWindow?: number
 }
 
 export type HuntInfo = {
