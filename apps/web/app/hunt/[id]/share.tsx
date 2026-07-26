@@ -2,45 +2,30 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { QrCode, Trophy } from "lucide-react";
-import { QrCodeModal } from "@/components/QrCodeModal";
-import { EmbedModal } from "@/components/EmbedModal";
-import { PlayGame } from "@/components/PlayGame";
-import { GameCompleteModal } from "@/components/GameCompleteModal";
-import { ChatWindow } from "@/components/ChatWindow";
-import { RegistrationButton } from "@/components/RegistrationButton";
-import { WaitlistDisplay } from "@/components/WaitlistDisplay";
-import { HuntReviewsSection } from "@/components/HuntReviewsSection";
-import type { StoredHunt, HuntRegistrationStatus } from "@/lib/types";
-import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect,useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ChatWindow } from "@/components/ChatWindow";
+import { EmbedModal } from "@/components/EmbedModal";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
 import { HuntControls } from "@/components/HuntControls";
+import { HuntReviewsSection } from "@/components/HuntReviewsSection";
 import { PlayGame } from "@/components/PlayGame";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
-import { PlayGame } from "@/components/PlayGame";
-import { GameCompleteModal } from "@/components/GameCompleteModal";
+import { PrivateHuntAccessGate } from "@/components/PrivateHuntAccessGate";
 import { QrCodeModal } from "@/components/QrCodeModal";
 import { RegistrationButton } from "@/components/RegistrationButton";
 import { SponsorHuntButton } from "@/components/SponsorHuntButton";
 import { Button } from "@/components/ui/button";
 import { WaitlistDisplay } from "@/components/WaitlistDisplay";
-import { 
-  checkRegistrationStatus, 
+import {
+  checkRegistrationStatus,
   clearRegistrationCache,
   isWalletAvailable,
-  registerPlayer, 
+  registerPlayer,
 } from "@/lib/contracts/player-registration";
 import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
 import { debounce } from "@/lib/debounce";
-import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
-import { updateHuntStatus } from "@/lib/huntStore";
-import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
-import { withTransactionToast } from "@/lib/txToast";
-import type { HuntRegistrationStatus,StoredHunt } from "@/lib/types";
-import type { RewardReceipt } from "@/lib/types";
 import {
   buildDeepLink,
   buildHuntOgImageUrl,
@@ -49,6 +34,19 @@ import {
   shareOnTwitter,
   shareOnWhatsApp,
 } from "@/lib/downloadAsImage";
+import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
+import {
+  getHuntById,
+  updateHuntStatus,
+  validateHuntInvite,
+} from "@/lib/huntStore";
+import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
+import { withTransactionToast } from "@/lib/txToast";
+import type {
+  HuntRegistrationStatus,
+  RewardReceipt,
+  StoredHunt,
+} from "@/lib/types";
 import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
 
 interface HuntDetailProps {
@@ -58,6 +56,8 @@ interface HuntDetailProps {
 export default function HuntShare({ hunt }: HuntDetailProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+  const inviteAccess = validateHuntInvite(hunt, inviteToken);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [completionScore, setCompletionScore] = useState(0);
   const [rewardReceipt, setRewardReceipt] = useState<RewardReceipt | null>(null);
@@ -82,6 +82,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     prepareHuntReattempt(connectedPublicKey, hunt.id);
   }, [connectedPublicKey, hunt.id, searchParams]);
   
+  /* eslint-disable react-hooks/set-state-in-effect -- wallet detection synchronizes React with an external browser extension. */
   useEffect(() => {
     // Check if wallet is available
     if (!isWalletAvailable()) {
@@ -128,6 +129,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       });
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const refreshRegistrationStatus = useCallback(async (isActive: () => boolean = () => true) => {
     if (!walletCheckComplete || !isActive()) {
@@ -163,7 +165,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       setRegistrationStatus({
         ...status,
         isWaitlisted: waitlistPosition !== null,
-        waitlistPosition: waitlistPosition,
+        waitlistPosition: waitlistPosition ?? undefined,
       });
     }
   }, [hunt.id, connectedPublicKey, walletCheckComplete]);
@@ -186,12 +188,25 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     };
   }, [refreshRegistrationStatus]);
 
+  const assertCurrentInviteAccess = () => {
+    const latestHunt = getHuntById(hunt.id) ?? hunt;
+    const access = validateHuntInvite(latestHunt, inviteToken);
+
+    if (!access.isValid) {
+      const message = access.reason === "expired"
+        ? "Access denied. This invite link has expired."
+        : "Access denied. This invite link is invalid or has been revoked.";
+      throw new Error(message);
+    }
+  };
+
   // Handle player registration (Requirements 1.3, 1.4, 1.5)
   const handleRegister = async () => {
     if (!connectedPublicKey) {
       return;
     }
 
+    assertCurrentInviteAccess();
     const result = await registerPlayer(hunt.id, connectedPublicKey);
     
     if (result.success) {
@@ -210,6 +225,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       return;
     }
 
+    assertCurrentInviteAccess();
     addToWaitlist(hunt.id, connectedPublicKey, `${connectedPublicKey.slice(0, 6)}...${connectedPublicKey.slice(-4)}`);
     await refreshRegistrationStatus();
   };
@@ -269,42 +285,44 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       {/* Registration Section */}
       <div className="flex flex-col sm:flex-row items-center gap-4">
         {/* Registration Button - Requirements 1.2, 2.1 */}
-        {connectedPublicKey ? (
-          <div className="flex-1 w-full space-y-4">
-            <RegistrationButton
-              huntId={hunt.id}
-              playerAddress={connectedPublicKey}
-              registrationStatus={registrationStatus}
-              onRegister={handleRegister}
-              onWaitlist={handleWaitlist}
-              maxCapacity={maxCapacity}
-              currentPlayers={currentPlayers}
-            />
-            {/* Waitlist/Spot Display */}
-            {maxCapacity && (
-              <WaitlistDisplay
+        <PrivateHuntAccessGate hunt={hunt} inviteToken={inviteToken}>
+          {connectedPublicKey ? (
+            <div className="flex-1 w-full space-y-4">
+              <RegistrationButton
                 huntId={hunt.id}
-                currentPlayers={currentPlayers}
-                maxCapacity={maxCapacity}
                 playerAddress={connectedPublicKey}
+                registrationStatus={registrationStatus}
+                onRegister={handleRegister}
+                onWaitlist={handleWaitlist}
+                maxCapacity={maxCapacity}
+                currentPlayers={currentPlayers}
               />
-            )}
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-4 w-full">
-            <div className="flex-1 flex items-center justify-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold text-base px-8 py-4 rounded-2xl">
-              Please connect your wallet to join this hunt
+              {/* Waitlist/Spot Display */}
+              {maxCapacity && (
+                <WaitlistDisplay
+                  huntId={hunt.id}
+                  currentPlayers={currentPlayers}
+                  maxCapacity={maxCapacity}
+                  playerAddress={connectedPublicKey}
+                />
+              )}
             </div>
-            <Button
-              variant="outline"
-              className="flex-1 border-[#3737A4] text-white hover:bg-[#3737A4]/20 py-4 h-auto font-semibold text-base rounded-2xl"
-              onClick={() => router.push(`/hunt/${hunt.id}/leaderboard`)}
-            >
-              <Trophy className="w-5 h-5 mr-2" />
-              Watch Live Leaderboard
-            </Button>
-          </div>
-        )}
+          ) : (
+            <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-4 w-full">
+              <div className="flex-1 flex items-center justify-center gap-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold text-base px-8 py-4 rounded-2xl">
+                Please connect your wallet to join this hunt
+              </div>
+              <Button
+                variant="outline"
+                className="flex-1 border-[#3737A4] text-white hover:bg-[#3737A4]/20 py-4 h-auto font-semibold text-base rounded-2xl"
+                onClick={() => router.push(`/hunt/${hunt.id}/leaderboard`)}
+              >
+                <Trophy className="w-5 h-5 mr-2" />
+                Watch Live Leaderboard
+              </Button>
+            </div>
+          )}
+        </PrivateHuntAccessGate>
 
         {/* Share button */}
 
@@ -405,7 +423,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
       </div>
 
       {/* Play Interface Section - Protected by PlayInterfaceGuard (Requirements 3.1, 3.2, 3.3) */}
-      {connectedPublicKey && registrationStatus.isRegistered && (
+      {inviteAccess.isValid && connectedPublicKey && registrationStatus.isRegistered && (
         <PlayInterfaceGuard
           huntId={hunt.id}
           playerAddress={connectedPublicKey}

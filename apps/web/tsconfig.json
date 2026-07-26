@@ -21,12 +21,22 @@
     "paths": {
       "@/*": ["./*"],
       "@shared/*": ["./shared/*"],
-      "@hunty/types": ["./packages/types/src/index.ts"],
-      "@hunty/types/*": ["./packages/types/src/*"]
+      "@hunty/types": ["../../packages/types/src/index.ts"],
+      "@hunty/types/*": ["../../packages/types/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "mobile/**/*", "shared/**/*", "stories/**/*", "**/*.stories.ts", "**/*.stories.tsx", "**/__tests__/**/*", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+  "exclude": [
+    "node_modules",
+    "mobile/**/*",
+    "shared/**/*",
+    "stories/**/*",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
 }
-
-
