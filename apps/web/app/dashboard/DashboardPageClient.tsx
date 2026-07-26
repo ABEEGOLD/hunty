@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { Header } from "@/components/Header"
 import { HuntDashboard } from "@/components/HuntDashboard"
 import { RewardHistoryPanel } from "@/components/RewardHistoryPanel"
+import { EscrowDrawer } from "@/components/EscrowDrawer"
 import type { StoredHunt } from "@/lib/types"
 import {
   getCreatorHunts,
@@ -60,6 +61,7 @@ export function DashboardPageClient({
   const router = useRouter()
   const pathname = usePathname()
   const [hunts, setHunts] = useState<StoredHunt[]>([])
+  const [escrowDrawerOpen, setEscrowDrawerOpen] = useState(false)
 
   const refresh = useCallback(() => {
     setHunts(getCreatorHunts())
@@ -220,6 +222,17 @@ export function DashboardPageClient({
 
         <RewardHistoryPanel hunts={hunts} onRefresh={refresh} />
 
+        <div className="mb-4 flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEscrowDrawerOpen(true)}
+            className="flex items-center gap-2"
+          >
+            Escrows
+          </Button>
+        </div>
+
         <HuntDashboard
           hunts={historyView.pageHunts}
           totalHunts={historyView.totalHunts}
@@ -241,6 +254,10 @@ export function DashboardPageClient({
           onActivate={handleActivate}
           onRefresh={refresh}
           onSaveClues={handleSaveClues}
+        />
+        <EscrowDrawer
+          open={escrowDrawerOpen}
+          onClose={() => setEscrowDrawerOpen(false)}
         />
       </div>
     </div>
