@@ -32,6 +32,7 @@ export interface HuntReview {
   playerAddress: string;
   rating: number; // 1 to 5
   text?: string;
+  difficultyRating?: HuntDifficulty | "";
   createdAt: number;
   moderated?: boolean;
   flagged?: boolean;
@@ -110,6 +111,8 @@ export interface StoredHunt {
   creator?: string;
   /** Average user rating (1-5). */
   averageRating?: number;
+  /** Average user difficulty rating (1-4). */
+  averageDifficulty?: number;
   /** Number of user reviews. */
   reviewCount?: number;
   /** When true, the hunt is archived (hidden from public but data preserved). */

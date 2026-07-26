@@ -49,7 +49,7 @@ export async function POST(
     }
 
     const body = await req.json().catch(() => ({}))
-    const { playerAddress, rating, text } = body
+    const { playerAddress, rating, text, difficultyRating } = body
 
     if (!playerAddress || typeof playerAddress !== "string" || playerAddress.trim() === "") {
       return NextResponse.json({ error: "Player address is required" }, { status: 400 })
@@ -82,6 +82,7 @@ export async function POST(
       playerAddress,
       rating: ratingVal,
       text: typeof text === "string" ? text.trim() : undefined,
+      difficultyRating: typeof difficultyRating === "string" ? difficultyRating : undefined,
       createdAt: Date.now(),
     }
 

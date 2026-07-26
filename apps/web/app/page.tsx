@@ -131,6 +131,18 @@ function ActiveHuntCard({
           <CardTitle className="text-lg font-semibold line-clamp-2 dark:text-slate-100 flex-1">
             {hunt.title}
           </CardTitle>
+          {hunt.difficulty && (
+             <span
+              className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                hunt.difficulty === "Easy" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/30" :
+                hunt.difficulty === "Medium" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-300 dark:border-yellow-500/30" :
+                hunt.difficulty === "Hard" ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30" :
+                "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30"
+              }`}
+            >
+              {hunt.difficulty}
+            </span>
+          )}
           {playerCount?.isTrending && (
             <span
               className="shrink-0 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-700"
@@ -140,7 +152,14 @@ function ActiveHuntCard({
             </span>
           )}
         </div>
-        <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
+        <div className="flex items-center justify-between mb-2">
+          <StarRating rating={hunt.averageRating} count={hunt.reviewCount} />
+          {hunt.averageDifficulty != null && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600" title="Average Player Difficulty Rating">
+              Difficulty: {hunt.averageDifficulty}/4
+            </span>
+          )}
+        </div>
         <CardDescription className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
           {hunt.description}
         </CardDescription>
@@ -363,7 +382,26 @@ function VirtualizedInactiveHuntsGrid({
                       <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
                         {hunt.title}
                       </CardTitle>
-                      <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
+                      {hunt.difficulty && (
+                        <div className="mb-2">
+                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                            hunt.difficulty === "Easy" ? "bg-green-50 text-green-700 border-green-200" :
+                            hunt.difficulty === "Medium" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                            hunt.difficulty === "Hard" ? "bg-red-50 text-red-700 border-red-200" :
+                            "bg-purple-50 text-purple-700 border-purple-200"
+                           }`}>
+                            {hunt.difficulty}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between mb-2">
+                        <StarRating rating={hunt.averageRating} count={hunt.reviewCount} />
+                        {hunt.averageDifficulty != null && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200" title="Average Player Difficulty Rating">
+                            Difficulty: {hunt.averageDifficulty}/4
+                          </span>
+                        )}
+                      </div>
                       <CardDescription className="text-sm text-slate-600 mb-4 line-clamp-3">
                         {hunt.description}
                       </CardDescription>
