@@ -1,3 +1,18 @@
+"use client"
+
+import { BarChart3, Copy, Eye, List, Plus, Trash2, Trophy, X } from "lucide-react"
+import Link from "next/link"
+import { useState, type MouseEvent as ReactMouseEvent } from "react"
+import { toast } from "sonner"
+
+import { ActivateHuntModal } from "@/components/ActivateHuntModal"
+import { CreatorAnalytics } from "@/components/CreatorAnalytics"
+import { LeaderboardTable } from "@/components/LeaderBoardTable"
+import { RewardPoolManager } from "@/components/RewardPoolManager"
+import { StarRating } from "@/components/StarRating"
+import { Button } from "@/components/ui/button"
+import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 "use client";
 
 import {
@@ -27,12 +42,18 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+} from "@/components/ui/dialog"
+import { deleteHunts, archiveHunts, duplicateHunt } from "@/lib/huntStore"
+import { Input } from "@/components/ui/input"
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   HUNT_HISTORY_STATUS_FILTERS,
   type HuntHistorySortOption,
   type HuntHistoryStatusFilter,
+} from "@/lib/huntHistory"
+import type { ClueRow, StoredHunt } from "@/lib/types"
+import { cn } from "@/lib/utils"
 } from "@/lib/huntHistory";
 import { archiveHunts, deleteHunts, duplicateHunt } from "@/lib/huntStore";
 import type { ClueRow, StoredHunt } from "@/lib/types";
@@ -417,6 +438,39 @@ export function HuntDashboard({
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
+                <Link href={`/hunt/${hunt.id}`}>
+                  <div className="p-5">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="line-clamp-2 text-lg dark:text-white">{hunt.title}</CardTitle>
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md text-xs text-slate-500 dark:text-slate-400 font-mono">
+                          #{hunt.id}
+                          <button
+                            onClick={(e) => handleCopyId(e, hunt.id)}
+                            aria-label={`Copy hunt ID ${hunt.id}`}
+                            className="hover:text-slate-800 dark:hover:text-white transition-colors"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                      <StatusBadge status={hunt.status} />
+                    </div>
+                    <CardDescription className="mb-4 line-clamp-3 text-sm text-slate-600 dark:text-slate-400">
+                      {hunt.description}
+                    </CardDescription>
+                    <StarRating
+                      rating={hunt.averageRating}
+                      count={hunt.reviewCount}
+                      className="mb-3"
+                    />
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-white/5 dark:text-slate-300">
+                        {hunt.playerCount ?? 0} players
+                      </span>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-white/5 dark:text-slate-300">
+                        {hunt.rewardPool ?? 0} XLM reward pool
+                      </span>
               )}
             </div>
           </div>
