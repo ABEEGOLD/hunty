@@ -21,6 +21,8 @@ import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
 import { hankenGrotesk } from "@/lib/font"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { Footer } from "@/components/Footer"
 import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
@@ -240,11 +242,22 @@ function VirtualizedActiveHuntsGrid({
               }}
             >
               {rowHunts.map((hunt) => (
-                <ActiveHuntCard
+                <ErrorBoundary
                   key={hunt.id}
-                  hunt={hunt}
-                  playerCount={playerCounts.get(String(hunt.id))}
-                />
+                  fallback={
+                    <div className="h-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center min-h-[200px]">
+                      <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500 p-4 text-center">
+                        <Image src="/icons/logo.png" alt="Hunty logo" width={40} height={40} className="opacity-40" />
+                        <span className="text-xs font-medium">Unable to load hunt card</span>
+                      </div>
+                    </div>
+                  }
+                >
+                  <ActiveHuntCard
+                    hunt={hunt}
+                    playerCount={playerCounts.get(String(hunt.id))}
+                  />
+                </ErrorBoundary>
               ))}
             </div>
           )
@@ -692,7 +705,9 @@ export default function GameArcade() {
       {/* Main Content */}
       <div className="max-w-[1600px] px-14 pt-10 pb-12 bg-white dark:bg-slate-900 mx-auto rounded-4xl relative">
         {/* Featured Hunt of the Week Hero Banner */}
-        <HuntOfTheWeekBanner />
+        <ErrorBoundary fallback={null}>
+          <HuntOfTheWeekBanner />
+        </ErrorBoundary>
 
         {/* Logo and Title */}
         <div className="text-center mb-8">
@@ -830,7 +845,9 @@ export default function GameArcade() {
         </div>
 
         {/* Featured Hunts Hero Section */}
-        <FeaturedHunts />
+        <ErrorBoundary fallback={null}>
+          <FeaturedHunts />
+        </ErrorBoundary>
 
         {/* Recently Completed — derived from the same hunt list, no extra fetch */}
         <RecentlyCompletedSection hunts={recentlyCompleted} />
