@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowLeft, Star, Trash2, RefreshCw, Trophy, Sparkles, Shield } from "lucide-react"
+import { ArrowLeft, Star, Trash2, RefreshCw, Trophy, Sparkles, Shield, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Header } from "@/components/Header"
@@ -15,6 +15,7 @@ import { HuntCoverImage } from "@/components/HuntCoverImage"
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
   const config = {
     Draft: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/50",
+    PendingReview: "bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300 border-violet-200 dark:border-violet-900/50",
     Active: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50",
     Completed: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-750",
     Cancelled: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-900/50",
@@ -184,6 +185,16 @@ export default function AdminPage() {
             >
               <Trash2 className="h-4 w-4" />
               Clear Curation
+            </Button>
+            <Button
+              variant="outline"
+              asChild
+              className="border-violet-200 dark:border-violet-900/35 text-violet-650 hover:bg-violet-50 dark:hover:bg-violet-950/20 font-bold flex items-center gap-2 rounded-xl"
+            >
+              <Link href="/admin/moderation">
+                <ShieldAlert className="h-4 w-4" />
+                Moderation
+              </Link>
             </Button>
             <Button
               variant="outline"

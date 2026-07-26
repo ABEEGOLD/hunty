@@ -15,9 +15,12 @@ import {
   saveCluesLocallyBatch,
   takeHuntStoreSnapshot,
   restoreHuntStoreSnapshot,
+  getHuntById,
 } from "@/lib/huntStore"
 import { activateHunt, addCluesBatch } from "@/lib/contracts/hunt"
+import { addClue } from "@/lib/contracts/hunt"
 import { withTransactionToast } from "@/lib/txToast"
+import { syncCreatorHuntsWithModeration } from "@/lib/moderation/clientSync"
 import {
   buildHuntHistoryQuery,
   getHuntHistoryView,
@@ -53,6 +56,8 @@ export function DashboardPageClient({
 
   useEffect(() => {
     refresh()
+    const huntsList = getCreatorHunts()
+    void syncCreatorHuntsWithModeration(huntsList).then(() => refresh())
   }, [refresh])
 
   const statusFilter = parseHuntHistoryStatusFilter(
@@ -110,22 +115,27 @@ export function DashboardPageClient({
 
   const handleActivate = useCallback(
     async (huntId: number) => {
+      const hunt = getHuntById(huntId)
+      if (!hunt) return
+
       const snapshot = takeHuntStoreSnapshot()
-      updateHuntStatus(huntId, "Active")
+      updateHuntStatus(huntId, "PendingReview")
       refresh()
 
       try {
-        await withTransactionToast(
-          async (setStage) => {
-            setStage("approving")
-            return activateHunt(huntId)
-          },
-          {
-            pending: "Pending â€” preparing transactionâ€¦",
-            approving: "Approving â€” sign in your walletâ€¦",
-            confirmed: "Confirmed! Hunt is now visible in the Game Arcade.",
-          }
-        )
+        const res = await fetch("/api/moderation/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hunt }),
+        })
+        if (!res.ok) {
+          throw new Error("Moderation submit failed")
+        }
+        await withTransactionToast(async () => ({}), {
+          pending: "Submitting hunt for admin review…",
+          approving: "Submitting hunt for admin review…",
+          confirmed: "Submitted! You will be notified when moderation completes.",
+        })
       } catch (error) {
         restoreHuntStoreSnapshot(snapshot)
         refresh()

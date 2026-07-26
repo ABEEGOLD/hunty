@@ -20,6 +20,7 @@ export interface HuntReview {
 }
 
 export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled"
+export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled" | "PendingReview"
 
 export interface StoredHunt {
   id: number

@@ -28,13 +28,13 @@ export function ActivateHuntModal({
       <DialogContent className="sm:max-w-md text-center">
         <DialogHeader>
           <DialogTitle className="font-bold bg-gradient-to-b from-[#2D4FEB] to-[#0C0C4F] text-transparent bg-clip-text mb-4 text-center text-2xl">
-            Activate this hunt?
+            Submit for moderation?
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-slate-600 dark:text-slate-300 text-lg">
-            Once activated, <strong>an active hunt cannot be edited.</strong> Players will be able to
-            participate and it will appear in the public Game Arcade.
+            Your hunt will be sent to the admin moderation queue. Once approved, it will appear in the
+            public Game Arcade and players can participate.
           </p>
           {huntTitle && (
             <p className="text-slate-500 dark:text-slate-400 text-sm italic">
@@ -55,7 +55,7 @@ export function ActivateHuntModal({
               className="flex-1 bg-gradient-to-b from-[#39A437] to-[#194F0C] hover:bg-green-700 text-white"
               disabled={isActivating}
             >
-              {isActivating ? "Activating…" : "Activate"}
+              {isActivating ? "Submitting…" : "Submit for review"}
             </Button>
           </div>
         </div>
