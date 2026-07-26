@@ -7,6 +7,19 @@ export interface HuntTemplateClue {
   link?: string
 }
 
+/**
+ * Pre-filled builder settings that ship with a template so creators start with
+ * sensible defaults instead of a blank configuration.
+ */
+export interface HuntTemplateSettings {
+  /** Players must solve clues in order. */
+  sequential?: boolean
+  /** Enable the countdown timer for a time-pressured experience. */
+  timerEnabled?: boolean
+  /** Default reward payout type. */
+  rewardType?: "XLM" | "NFT" | "Both"
+}
+
 export interface HuntTemplate {
   slug: string
   title: string
@@ -14,6 +27,8 @@ export interface HuntTemplate {
   category: string
   estimatedDuration: string
   clues: HuntTemplateClue[]
+  /** Optional builder settings pre-filled when the template is loaded. */
+  settings?: HuntTemplateSettings
 }
 
 export const STARTER_HUNT_TEMPLATES: HuntTemplate[] = [
@@ -23,6 +38,11 @@ export const STARTER_HUNT_TEMPLATES: HuntTemplate[] = [
     description: "Guide players through murals, landmarks, and hidden corners in a downtown walking loop.",
     category: "Outdoor",
     estimatedDuration: "45-60 min",
+    settings: {
+      sequential: true,
+      timerEnabled: false,
+      rewardType: "XLM",
+    },
     clues: [
       {
         title: "Mural at Sunrise Alley",
@@ -47,6 +67,11 @@ export const STARTER_HUNT_TEMPLATES: HuntTemplate[] = [
     description: "Help new teammates learn key spaces, people, and culture rituals around the office.",
     category: "Onboarding",
     estimatedDuration: "20-30 min",
+    settings: {
+      sequential: false,
+      timerEnabled: true,
+      rewardType: "XLM",
+    },
     clues: [
       {
         title: "Welcome Wall",
@@ -119,6 +144,11 @@ export const STARTER_HUNT_TEMPLATES: HuntTemplate[] = [
     description: "Turn a gallery visit into a playful puzzle trail across artifacts, portraits, and exhibit labels.",
     category: "Indoor",
     estimatedDuration: "35-50 min",
+    settings: {
+      sequential: true,
+      timerEnabled: false,
+      rewardType: "NFT",
+    },
     clues: [
       {
         title: "Portrait Puzzle",
@@ -161,10 +191,51 @@ export const STARTER_HUNT_TEMPLATES: HuntTemplate[] = [
       },
     ],
   },
+  {
+    slug: "nature-walk",
+    title: "Nature Walk",
+    description: "Lead players along a trail to spot trees, wildlife markers, and scenic lookouts at their own pace.",
+    category: "Outdoor",
+    estimatedDuration: "30-45 min",
+    settings: {
+      sequential: false,
+      timerEnabled: false,
+      rewardType: "XLM",
+    },
+    clues: [
+      {
+        title: "Trailhead Marker",
+        description: "Start at the trailhead sign and enter the trail's total length shown in kilometers.",
+        code: "5",
+      },
+      {
+        title: "Ancient Oak",
+        description: "Find the oldest oak along the path and enter the word carved into its interpretive plaque.",
+        code: "guardian",
+      },
+      {
+        title: "Lookout Point",
+        description: "Reach the scenic overlook and enter the name of the river visible in the valley below.",
+        code: "silverbrook",
+      },
+    ],
+  },
 ]
 
 export function getStarterTemplateBySlug(slug: string): HuntTemplate | undefined {
   return STARTER_HUNT_TEMPLATES.find((template) => template.slug === slug)
+}
+
+/**
+ * Unique, alphabetically sorted list of categories across the starter
+ * templates. Used to drive the category filter on the selection screen.
+ */
+export function getTemplateCategories(
+  templates: HuntTemplate[] = STARTER_HUNT_TEMPLATES,
+): string[] {
+  return Array.from(new Set(templates.map((template) => template.category))).sort(
+    (a, b) => a.localeCompare(b),
+  )
 }
 
 export function buildDraftHuntsFromTemplate(template: HuntTemplate): HuntDraft[] {

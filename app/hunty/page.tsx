@@ -40,6 +40,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { toast } from "sonner"
 import { downloadElementAsImage } from "@/lib/downloadAsImage"
 import { buildDraftHuntsFromTemplate, getStarterTemplateBySlug } from "@/lib/huntTemplates"
+import { getCommunityTemplateBySlug } from "@/lib/communityTemplates"
 
 const HUNT_DIFFICULTY_OPTIONS: HuntDifficulty[] = ["Easy", "Medium", "Hard", "Expert"] as const
 
@@ -119,17 +120,33 @@ function CreateGameContent() {
     const templateSlug = searchParams.get("template")
     if (!templateSlug || appliedTemplateRef.current === templateSlug) return
 
-    const template = getStarterTemplateBySlug(templateSlug)
+    const template =
+      getStarterTemplateBySlug(templateSlug) ??
+      getCommunityTemplateBySlug(templateSlug)
     if (!template) return
 
     appliedTemplateRef.current = templateSlug
     setGameName(template.title)
     setHunts(buildDraftHuntsFromTemplate(template))
+
+    // Apply any pre-filled builder settings that shipped with the template.
+    if (template.settings) {
+      if (typeof template.settings.sequential === "boolean") {
+        setSequential(template.settings.sequential)
+      }
+      if (typeof template.settings.timerEnabled === "boolean") {
+        setTimerEnabled(template.settings.timerEnabled)
+      }
+      if (template.settings.rewardType) {
+        setRewardType(template.settings.rewardType)
+      }
+    }
+
     setActiveTab("create")
     setSelectedTemplateTitle(template.title)
     toast.success(`Loaded ${template.title}. You can edit every field before publishing.`)
     router.replace("/hunty")
-  }, [router, searchParams, setGameName, setHunts])
+  }, [router, searchParams, setGameName, setHunts, setRewardType])
 
   const rewardPool = rewards.reduce((sum, r) => sum + r.amount, 0)
 
