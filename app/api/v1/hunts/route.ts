@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { listPublicActiveHuntsByCursorOptimized } from "@/lib/db/queryOptimizer";
+import { ValidationError } from "@/lib/api/errors";
+import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
 /**
  * GET /api/v1/hunts
  * List all public active hunts with cursor pagination.
  */
-export async function GET(req: Request) {
+export const GET = withErrorHandling(async (req: Request) => {
   const ip = getIP(req);
   const { success, reset } = rateLimit(ip, { limit: 100, windowMs: 60 * 1000 });
 
@@ -29,7 +31,7 @@ export async function GET(req: Request) {
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
   if (cursorParam && cursorParam !== "null" && cursorParam !== "" && (cursor == null || Number.isNaN(cursor))) {
-    return NextResponse.json({ error: "Invalid cursor" }, { status: 400 });
+    throw new ValidationError("Invalid cursor", { cursor: cursorParam });
   }
 
   const { data, nextCursor, total } = listPublicActiveHuntsByCursorOptimized({
@@ -55,4 +57,4 @@ export async function GET(req: Request) {
       nextCursor,
     },
   });
-}
+});

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { BadGatewayError, RateLimitError, ServiceUnavailableError, ValidationError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
 const PINATA_JWT = process.env.PINATA_JWT
 
@@ -24,18 +26,17 @@ function checkRateLimit(ip: string): boolean {
   return true
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   if (!PINATA_JWT) {
-    return NextResponse.json(
-      { error: "IPFS uploads are not configured. Add PINATA_JWT to your environment variables." },
-      { status: 503 }
+    throw new ServiceUnavailableError(
+      "IPFS uploads are not configured. Add PINATA_JWT to your environment variables."
     )
   }
 
   // Wallet address validation
   const wallet = req.headers.get("x-wallet-address")
   if (!wallet) {
-    return NextResponse.json({ error: "Wallet address required" }, { status: 400 })
+    throw new ValidationError("Wallet address required", { header: "x-wallet-address" })
   }
 
   // Rate limiting by IP
@@ -45,17 +46,14 @@ export async function POST(req: NextRequest) {
     "unknown"
 
   if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: "Too many requests. Limit is 10 uploads per hour." },
-      { status: 429 }
-    )
+    throw new RateLimitError("Too many requests. Limit is 10 uploads per hour.")
   }
 
   const formData = await req.formData()
   const file = formData.get("file")
 
   if (!file || !(file instanceof Blob)) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 })
+    throw new ValidationError("No file provided", { field: "file" })
   }
 
   // Forward to Pinata's pinFileToIPFS endpoint
@@ -73,9 +71,9 @@ export async function POST(req: NextRequest) {
   if (!pinataRes.ok) {
     const errText = await pinataRes.text()
     logger.error("Pinata upload error:", pinataRes.status, errText)
-    return NextResponse.json({ error: "Failed to pin file to IPFS" }, { status: 502 })
+    throw new BadGatewayError("Failed to pin file to IPFS")
   }
 
   const data = (await pinataRes.json()) as { IpfsHash: string }
   return NextResponse.json({ cid: data.IpfsHash })
-}
+})

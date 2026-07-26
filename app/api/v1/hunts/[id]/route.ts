@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { getPublicHuntByIdOptimized } from "@/lib/db/queryOptimizer";
+import { NotFoundError, ValidationError } from "@/lib/api/errors";
+import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
 /**
  * GET /api/v1/hunts/[id]
  * Get hunt details by ID.
  */
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const GET = withErrorHandling<{ params: Promise<{ id: string }> }>(async (req, { params }) => {
   const ip = getIP(req);
   const { success, reset } = rateLimit(ip, { limit: 100, windowMs: 60 * 1000 });
 
@@ -21,15 +20,15 @@ export async function GET(
   const huntId = parseInt(id, 10);
 
   if (isNaN(huntId)) {
-    return NextResponse.json({ error: "Invalid hunt ID" }, { status: 400 });
+    throw new ValidationError("Invalid hunt ID", { id });
   }
 
   const requestId = req.headers.get("x-request-id") ?? undefined;
   const hunt = getPublicHuntByIdOptimized(huntId, requestId);
 
   if (!hunt) {
-    return NextResponse.json({ error: "Hunt not found" }, { status: 404 });
+    throw new NotFoundError("Hunt not found", { huntId });
   }
 
   return NextResponse.json({ data: hunt });
-}
+});

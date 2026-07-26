@@ -11,8 +11,10 @@ import {
   getConfig,
 } from "@/lib/anti-cheat"
 import { getServerClue } from "@/lib/server/seedClues"
+import { ForbiddenError, NotFoundError, RateLimitError, ValidationError } from "@/lib/api/errors"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
-export async function POST(req: Request) {
+export const POST = withErrorHandling(async (req: Request) => {
   const ip = getIP(req)
 
   const { success: ipSuccess, reset: ipReset } = rateLimit(ip, {
@@ -27,39 +29,38 @@ export async function POST(req: Request) {
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+    throw new ValidationError("Invalid request body")
   }
 
   const { huntId, clueId, answer, wallet, clientTimestamp } = body
 
   if (!huntId || typeof huntId !== "number") {
-    return NextResponse.json({ error: "huntId is required" }, { status: 400 })
+    throw new ValidationError("huntId is required", { field: "huntId" })
   }
   if (!clueId || typeof clueId !== "number") {
-    return NextResponse.json({ error: "clueId is required" }, { status: 400 })
+    throw new ValidationError("clueId is required", { field: "clueId" })
   }
   if (!answer || typeof answer !== "string" || answer.trim().length === 0) {
-    return NextResponse.json({ error: "answer is required" }, { status: 400 })
+    throw new ValidationError("answer is required", { field: "answer" })
   }
   if (!wallet || typeof wallet !== "string" || wallet.trim().length === 0) {
-    return NextResponse.json({ error: "wallet is required" }, { status: 400 })
+    throw new ValidationError("wallet is required", { field: "wallet" })
   }
 
   if (isBanned(wallet, ip)) {
-    return NextResponse.json({ error: "Account is banned due to suspicious activity" }, { status: 403 })
+    throw new ForbiddenError("Account is banned due to suspicious activity")
   }
 
   const clue = getServerClue(huntId, clueId)
   if (!clue) {
-    return NextResponse.json({ error: "Clue not found" }, { status: 404 })
+    throw new NotFoundError("Clue not found", { huntId, clueId })
   }
 
   const { allowed: intervalAllowed, waitMs } = checkMinInterval(wallet, huntId, clueId)
   if (!intervalAllowed) {
-    return NextResponse.json(
-      { error: `Please wait ${Math.ceil(waitMs / 1000)} seconds before submitting again` },
-      { status: 429 },
-    )
+    throw new RateLimitError(`Please wait ${Math.ceil(waitMs / 1000)} seconds before submitting again`, {
+      waitMs,
+    })
   }
 
   trackClueSubmission(wallet, huntId, clueId)
@@ -99,4 +100,4 @@ export async function POST(req: Request) {
     serverTimestamp: Date.now(),
     flags: anomalyFlags,
   })
-}
+})

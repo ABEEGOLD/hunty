@@ -59,8 +59,8 @@ export function getIP(req: Request): string {
  */
 export function rateLimitResponse(reset: number) {
   return NextResponse.json(
-    { error: "Too many requests. Please try again later." },
-    { 
+    { error: "Too many requests. Please try again later.", code: "RATE_LIMITED" },
+    {
       status: 429,
       headers: {
         "X-RateLimit-Reset": Math.ceil(reset / 1000).toString(),
