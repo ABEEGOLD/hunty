@@ -4,35 +4,32 @@
   "private": true,
   "description": "Cross-platform scavenger hunt dApp using Next.js, Expo, IPFS, and Stellar/Soroban.",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "analyze": "ANALYZE=true next build",
-    "bundle:check": "node scripts/check-bundle-size.mjs",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "vitest --run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest --run --coverage",
-    "e2e": "playwright test",
-    "smoke": "playwright test --config=playwright.smoke.config.ts",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:mutation:validation": "stryker run --testRunner vitest stryker.validation.conf.json",
-    "test:mutation:scoring": "stryker run --testRunner vitest stryker.scoring.conf.json",
-    "test:mutation:registration": "stryker run --testRunner vitest stryker.registration.conf.json",
-    "test:mutation": "npm run test:mutation:validation && npm run test:mutation:scoring && npm run test:mutation:registration",
-    "perf:budget": "node scripts/check-performance-budgets.mjs",
-    "prepare": "husky",
-    "type-check": "tsc --noEmit"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "type-check": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "e2e": "npm run e2e --workspace @hunty/web",
+    "smoke": "npm run smoke --workspace @hunty/web",
+    "test:e2e": "npm run test:e2e --workspace @hunty/web",
+    "analyze": "npm run analyze --workspace @hunty/web",
+    "bundle:check": "npm run bundle:check --workspace @hunty/web",
+    "perf:budget": "npm run perf:budget --workspace @hunty/web",
+    "clean": "turbo run clean",
+    "prepare": "husky"
   },
   "lint-staged": {
-    "mobile/**/*.{js,jsx,ts,tsx}": [
+    "apps/mobile/**/*.{js,jsx,ts,tsx,json,md}": [
       "npx prettier --write"
     ],
-    "mobile/**/*.{json,md}": [
-      "npx prettier --write"
+    "apps/web/**/*.{ts,tsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
     ],
-    "*.{ts,tsx}": [
+    "packages/**/*.{ts,tsx}": [
       "eslint --fix --max-warnings=0",
       "prettier --write"
     ],
@@ -136,5 +133,9 @@
     "typescript": "^5",
     "vite": "^8.1.0",
     "vitest": "^4.0.18"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
