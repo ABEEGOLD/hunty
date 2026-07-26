@@ -2,11 +2,6 @@ import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Smile } from "lucide-react"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 
 const commonEmojis = [
   "😀", "😂", "😍", "🤔", "👍", "👎", "❤️", "🔥", "🎉", "🙌",
@@ -58,28 +53,35 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           className="rounded-full"
         />
       </div>
-      <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" disabled={disabled}>
-            <Smile className="h-5 w-5" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80">
-          <div className="grid grid-cols-10 gap-2">
-            {commonEmojis.map((emoji, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                size="icon"
-                onClick={() => insertEmoji(emoji)}
-                className="h-8 w-8"
-              >
-                <span className="text-lg">{emoji}</span>
-              </Button>
-            ))}
+      <div className="relative">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          disabled={disabled}
+          onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
+          type="button"
+        >
+          <Smile className="h-5 w-5" />
+        </Button>
+        {emojiPickerOpen && (
+          <div className="absolute right-0 bottom-full mb-2 w-80 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 shadow-lg z-50">
+            <div className="grid grid-cols-10 gap-2">
+              {commonEmojis.map((emoji, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => insertEmoji(emoji)}
+                  className="h-8 w-8"
+                  type="button"
+                >
+                  <span className="text-lg">{emoji}</span>
+                </Button>
+              ))}
+            </div>
           </div>
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
       <Button
         onClick={handleSend}
         disabled={disabled || !message.trim()}

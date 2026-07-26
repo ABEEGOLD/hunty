@@ -57,7 +57,7 @@ vi.mock("next/image", () => ({
 }))
 
 vi.mock("@/components/HuntCards", () => ({
-  HuntCards: () => <div data-testid="hunt-cards-preview" />,
+  HuntCards: () => React.createElement("div", { "data-testid": "hunt-cards-preview" }),
 }))
 
 
@@ -127,8 +127,10 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
       expect(screen.getByRole("button", { name: /add clue/i })).toBeInTheDocument()
     })
 
-    it("renders HuntCards preview component", () => {
+    it("renders HuntCards preview component", async () => {
+      const user = userEvent.setup()
       renderForm()
+      await user.click(screen.getByRole("button", { name: /preview/i }))
       expect(screen.getByTestId("hunt-cards-preview")).toBeInTheDocument()
     })
   })
@@ -211,14 +213,13 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
       const user = userEvent.setup()
       renderForm()
 
-      const questionInput = screen.getByPlaceholderText(/title of the hunt/i)
+      const questionInput = screen.getByPlaceholderText("Riddle / Question")
       await user.type(questionInput, "What is 1 + 1?")
-      const answerInput = screen.getByPlaceholderText(/enter code to unlock/i)
+      const answerInput = screen.getByPlaceholderText("Answer (use | for multiple)")
       await user.type(answerInput, "2")
 
       // Find the points input and set it to 0
-      const pointsInput = screen.queryByRole("spinbutton") ??
-        screen.queryByPlaceholderText(/points/i)
+      const pointsInput = screen.getByPlaceholderText("Pts")
       if (pointsInput) {
         await user.clear(pointsInput)
         await user.type(pointsInput, "0")
@@ -241,10 +242,10 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
       const user = userEvent.setup()
       const { onCluesSaved } = renderForm()
 
-      const questionInput = screen.getByPlaceholderText(/title of the hunt/i)
+      const questionInput = screen.getByPlaceholderText("Riddle / Question")
       await user.type(questionInput, "What is the speed of light?")
 
-      const answerInput = screen.getByPlaceholderText(/enter code to unlock/i)
+      const answerInput = screen.getByPlaceholderText("Answer (use | for multiple)")
       await user.type(answerInput, "c")
 
       const saveBtn = screen.getByRole("button", { name: /save clues?/i })
@@ -264,15 +265,15 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
       renderForm()
 
       // Fill first clue
-      await user.type(screen.getByPlaceholderText(/title of the hunt/i), "Question 1")
-      await user.type(screen.getByPlaceholderText(/enter code to unlock/i), "answer1")
+      await user.type(screen.getByPlaceholderText("Riddle / Question"), "Question 1")
+      await user.type(screen.getByPlaceholderText("Answer (use | for multiple)"), "answer1")
 
       // Add second clue
       const addBtn = screen.getByRole("button", { name: /add clue/i })
       await user.click(addBtn)
 
-      const questionInputs = screen.getAllByPlaceholderText(/title of the hunt/i)
-      const answerInputs   = screen.getAllByPlaceholderText(/enter code to unlock/i)
+      const questionInputs = screen.getAllByPlaceholderText("Riddle / Question")
+      const answerInputs   = screen.getAllByPlaceholderText("Answer (use | for multiple)")
 
       expect(questionInputs).toHaveLength(2)
       expect(answerInputs).toHaveLength(2)
@@ -297,7 +298,7 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
     it("disables the remove button when only one clue row remains", async () => {
       renderForm()
       // With only one row, there should be no remove/trash button (or it is disabled)
-      const removeButtons = screen.queryAllByRole("button", { name: /remove|delete|trash/i })
+      const removeButtons = screen.queryAllByRole("button", { name: /remove clue/i })
       removeButtons.forEach((btn) => {
         expect(btn).toBeDisabled()
       })
@@ -323,13 +324,13 @@ describe("HuntForm — clue validation (Zod + react-hook-form)", () => {
   describe("accessibility", () => {
     it("has accessible labels for clue question input", () => {
       renderForm()
-      const questionInput = screen.getByPlaceholderText(/title of the hunt/i)
+      const questionInput = screen.getByPlaceholderText("Riddle / Question")
       expect(questionInput).toHaveAttribute("id")
     })
 
     it("has accessible labels for clue answer input", () => {
       renderForm()
-      const answerInput = screen.getByPlaceholderText(/enter code to unlock/i)
+      const answerInput = screen.getByPlaceholderText("Answer (use | for multiple)")
       expect(answerInput).toHaveAttribute("id")
     })
 

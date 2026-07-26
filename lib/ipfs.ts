@@ -64,12 +64,20 @@ export function extractCID(src: string): string | null {
  * - The API route returns an error (e.g. PINATA_JWT not configured)
  * - The network request fails
  */
-export async function uploadToIPFS(file: File): Promise<string> {
+export async function uploadToIPFS(file: File, walletAddress?: string): Promise<string> {
   const formData = new FormData()
   formData.append("file", file)
 
+  const headers: Record<string, string> = {}
+  if (walletAddress) {
+    headers["x-wallet-address"] = walletAddress
+  } else {
+    headers["x-wallet-address"] = "anonymous"
+  }
+
   const res = await fetch("/api/ipfs", {
     method: "POST",
+    headers,
     body: formData,
   })
 
