@@ -1,12 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, BarChart3, Clock, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Header } from "@/components/Header"
+import { HuntAnalyticsDashboard } from "@/components/HuntAnalyticsDashboard"
 import { getHuntById, updateHuntEndTime } from "@/lib/huntStore"
 import { extendEndTime } from "@/lib/contracts/hunt"
 import { logger } from "@/lib/logger"
@@ -15,9 +15,10 @@ import { useWallet } from "@/lib/context/WalletContext"
 export default function CreatorStatsPage() {
   const params = useParams()
   const router = useRouter()
-  const huntId = typeof params.id === "string" ? parseInt(params.id, 10) : NaN
+  const huntId =
+    typeof params.id === "string" ? parseInt(params.id, 10) : NaN
+
   const [title, setTitle] = useState<string>("")
-  const [viewCount, setViewCount] = useState<number | null>(null)
   const [endTime, setEndTime] = useState<number | undefined>()
   const [status, setStatus] = useState<string>("")
   const [isExtending, setIsExtending] = useState(false)
@@ -37,21 +38,6 @@ export default function CreatorStatsPage() {
   }, [huntId])
 
   useEffect(() => {
-    if (Number.isNaN(huntId)) return
-
-    void (async () => {
-      try {
-        const res = await fetch(`/api/analytics/hunt-view?huntId=${huntId}`)
-        if (!res.ok) return
-        const data = await res.json()
-        setViewCount(typeof data.views === "number" ? data.views : 0)
-      } catch {
-        setViewCount(null)
-      }
-    })()
-  }, [huntId])
-
-  useEffect(() => {
     loadHunt()
   }, [loadHunt])
 
@@ -60,32 +46,22 @@ export default function CreatorStatsPage() {
       alert("Please connect your wallet to extend the hunt end time.")
       return
     }
-
     if (Number.isNaN(huntId) || !endTime) {
       alert("Invalid hunt or end time.")
       return
     }
-
     const hoursToAdd = parseInt(extendHours, 10)
     if (Number.isNaN(hoursToAdd) || hoursToAdd <= 0) {
       alert("Please enter a valid number of hours.")
       return
     }
-
-    const newEndTime = endTime + hoursToAdd * 3600 // Convert hours to seconds
-
+    const newEndTime = endTime + hoursToAdd * 3600
     setIsExtending(true)
     try {
-      // Call the contract function
       const result = await extendEndTime(huntId, newEndTime)
-      
-      // Update local storage
       updateHuntEndTime(huntId, result.newEndTime)
-      
-      // Reload hunt data
       loadHunt()
-      
-      alert(`Hunt end time extended successfully by ${hoursToAdd} hour(s)!`)
+      alert(`Hunt end time extended by ${hoursToAdd} hour(s)!`)
     } catch (error) {
       logger.error("Failed to extend end time:", error)
       alert("Failed to extend end time. Please try again.")
@@ -94,34 +70,44 @@ export default function CreatorStatsPage() {
     }
   }
 
-  const formatEndTime = (timestamp?: number) => {
-    if (!timestamp) return "Not set"
-    return new Date(timestamp * 1000).toLocaleString()
+  const formatEndTime = (ts?: number) => {
+    if (!ts) return "Not set"
+    return new Date(ts * 1000).toLocaleString()
   }
 
-  const getTimeRemaining = (endTime?: number) => {
-    if (!endTime) return null
+  const getTimeRemaining = (ts?: number) => {
+    if (!ts) return null
     const now = Math.floor(Date.now() / 1000)
-    const remaining = endTime - now
+    const remaining = ts - now
     if (remaining <= 0) return "Ended"
-    
     const days = Math.floor(remaining / 86400)
     const hours = Math.floor((remaining % 86400) / 3600)
     const minutes = Math.floor((remaining % 3600) / 60)
-    
     if (days > 0) return `${days}d ${hours}h ${minutes}m`
     if (hours > 0) return `${hours}h ${minutes}m`
     return `${minutes}m`
   }
 
-  const canExtend = status === "Active" && endTime && endTime > Math.floor(Date.now() / 1000)
+  const canExtend =
+    status === "Active" &&
+    endTime !== undefined &&
+    endTime > Math.floor(Date.now() / 1000)
+
+  if (Number.isNaN(huntId)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] flex items-center justify-center">
+        <p className="text-slate-600">Invalid hunt ID.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-12">
+    <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-16">
       <Header balance="24.2453" />
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center gap-4">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Back navigation */}
+        <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => router.push("/creator")}
@@ -132,6 +118,7 @@ export default function CreatorStatsPage() {
           </Button>
         </div>
 
+        {/* Page heading */}
         <div className="mb-6 flex items-center gap-2">
           <BarChart3 className="h-8 w-8 text-[#3737A4]" />
           <h1 className="text-3xl font-bold bg-gradient-to-br from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text">
@@ -139,25 +126,28 @@ export default function CreatorStatsPage() {
           </h1>
         </div>
 
-        <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm mb-6">
+        {/* Hunt meta card */}
+        <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm mb-8">
           <CardHeader>
             <CardTitle className="text-xl">{title || "Loading…"}</CardTitle>
             <p className="text-sm text-slate-500">Hunt ID: {params.id}</p>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-medium uppercase text-slate-500">Status</p>
-                <p className="text-2xl font-bold text-slate-800">{status}</p>
+                <p className="text-xl font-bold text-slate-800">{status || "—"}</p>
               </div>
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-medium uppercase text-slate-500">Time Remaining</p>
-                <p className="text-2xl font-bold text-slate-800">{getTimeRemaining(endTime) || "—"}</p>
+                <p className="text-xl font-bold text-slate-800">
+                  {getTimeRemaining(endTime) ?? "—"}
+                </p>
               </div>
-            </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-medium uppercase text-slate-500 mb-1">End Time</p>
-              <p className="text-sm text-slate-800">{formatEndTime(endTime)}</p>
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-medium uppercase text-slate-500">End Time</p>
+                <p className="text-sm font-medium text-slate-800">{formatEndTime(endTime)}</p>
+              </div>
             </div>
 
             {canExtend && (
@@ -182,50 +172,25 @@ export default function CreatorStatsPage() {
                     <span className="text-sm text-blue-900">hours</span>
                   </div>
                   <Button
-                    onClick={handleExtendEndTime}
+                    onClick={() => void handleExtendEndTime()}
                     disabled={isExtending || !connected}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    {isExtending ? "Extending..." : "Extend End Time"}
+                    {isExtending ? "Extending…" : "Extend End Time"}
                   </Button>
                 </div>
                 {!connected && (
-                  <p className="text-xs text-blue-700 mt-2">Connect your wallet to extend the hunt.</p>
+                  <p className="text-xs text-blue-700 mt-2">
+                    Connect your wallet to extend the hunt.
+                  </p>
                 )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Player Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-slate-600">
-              Live stats (players, completions, leaderboard) will be wired to the contract or indexer here.
-            </p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-medium uppercase text-slate-500">Players</p>
-                <p className="text-2xl font-bold text-slate-800">—</p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-medium uppercase text-slate-500">Completions</p>
-                <p className="text-2xl font-bold text-slate-800">—</p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-medium uppercase text-slate-500">Hunt Views</p>
-                <p className="text-2xl font-bold text-slate-800">
-                  {viewCount !== null ? viewCount : "—"}
-                </p>
-              </div>
-            </div>
-            <Button asChild variant="outline">
-              <Link href="/creator">Back to My Hunts</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        {/* ── Full Analytics Dashboard ────────────────────────────────────── */}
+        <HuntAnalyticsDashboard huntId={huntId} huntTitle={title || undefined} />
       </div>
     </div>
   )
