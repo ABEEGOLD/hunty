@@ -165,8 +165,11 @@ async function HuntPageContent({ id }: { id: string }) {
               <p className="text-white font-semibold text-sm">{formatTimestamp(huntDetails.endTime)}</p>
             </div>
           )}
-          {huntDetails.status === "Active" && huntDetails.endTime && (
-            <HuntCountdown endTime={huntDetails.endTime} />
+          {huntDetails.endTime && (
+            <HuntCountdown
+              endTime={huntDetails.endTime}
+              startTime={huntDetails.startTime}
+            />
           )}
         </div>
 

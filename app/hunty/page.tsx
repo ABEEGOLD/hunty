@@ -24,12 +24,17 @@ import { QrCodeModal } from "@/components/QrCodeModal"
 import { Header } from "@/components/Header"
 import { CreateGameTabs } from "@/components/CreateGameTabs"
 import { HuntForm } from "@/components/HuntForm"
+import { CategoryPicker } from "@/components/CategoryPicker"
+import { TagInput } from "@/components/TagInput"
+import { CollaboratorsPanel } from "@/components/CollaboratorsPanel"
 import { RewardsPanel } from "@/components/RewardsPanel"
 import { GamePreview } from "@/components/GamePreview"
 import { PublishModal } from "@/components/PublishModal"
 import ToggleButton from "@/components/ToggleButton"
 import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE } from "@/lib/ipfs"
 import type { CoverImageUploadState, HuntDraft, Reward } from "@/lib/types"
+import type { HuntCategoryId } from "@/lib/categories"
+import { ensureOwner } from "@/lib/collaboration"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { downloadElementAsImage } from "@/lib/downloadAsImage"
@@ -63,6 +68,10 @@ function CreateGameContent() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [coverImageUploadStates, setCoverImageUploadStates] = useState<Record<number, CoverImageUploadState>>({})
   const [selectedTemplateTitle, setSelectedTemplateTitle] = useState<string | null>(null)
+  const [category, setCategory] = useState<HuntCategoryId | undefined>("adventure")
+  const [tags, setTags] = useState<string[]>([])
+  const [lastPublishedHuntId, setLastPublishedHuntId] = useState<number | null>(null)
+  const [ownerWallet, setOwnerWallet] = useState("")
   const previewContainerRef = useRef<HTMLDivElement | null>(null)
   const appliedTemplateRef = useRef<string | null>(null)
   const router = useRouter()
@@ -384,7 +393,13 @@ function CreateGameContent() {
         is_private: formValues.isPrivate,
         sequential: formValues.sequential,
         coverImageCid,
+        category,
+        tags,
       })
+      if (ownerWallet) {
+        ensureOwner(localId, ownerWallet)
+      }
+      setLastPublishedHuntId(localId)
 
       setShowPublishModal(false);
       router.push("/hunts");
@@ -662,6 +677,26 @@ function CreateGameContent() {
                           </div>
                           <ToggleButton isActive={isPrivate} onClick={() => setIsPrivate(!isPrivate)} />
                         </div>
+
+                        <CategoryPicker value={category} onChange={setCategory} className="pt-2" />
+                        <TagInput
+                          tags={tags}
+                          onChange={setTags}
+                          suggestFrom={{ title: gameName, description: hunts.map((h) => h.description).join(" ") }}
+                          className="pt-2"
+                        />
+                        <div className="flex flex-col gap-1">
+                          <label className="text-sm text-[#808080]">Your wallet (for collaboration)</label>
+                          <Input
+                            value={ownerWallet}
+                            onChange={(e) => setOwnerWallet(e.target.value)}
+                            placeholder="G..."
+                            className="font-mono text-xs"
+                          />
+                        </div>
+                        {lastPublishedHuntId != null && ownerWallet && (
+                          <CollaboratorsPanel huntId={lastPublishedHuntId} currentWallet={ownerWallet} />
+                        )}
 
                         <div className="flex items-center justify-between">
                           <div>
