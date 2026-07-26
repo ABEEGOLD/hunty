@@ -23,7 +23,10 @@ export function unregisterDiagnostic(name: string) {
 
 export function dumpDiagnostics() {
   if (__DEV__) {
-    const diagnostics = Array.from(activeDiagnostics.entries()).map(([name, count]) => ({ name, count }));
+    const diagnostics = Array.from(activeDiagnostics.entries()).map(([name, count]) => ({
+      name,
+      count,
+    }));
     if (diagnostics.length > 0) {
       console.table(diagnostics);
     }

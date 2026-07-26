@@ -47,10 +47,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView
-        style={styles.safeArea}
-        edges={['top', 'right', 'bottom', 'left']}
-      >
+      <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'bottom', 'left']}>
         <View style={styles.errorContainer}>
           <ThemedCustomText variant="h2" style={styles.errorTitle}>
             Something went wrong
@@ -58,12 +55,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
           <ThemedCustomText variant="body" style={styles.centered}>
             {error.message || 'Unexpected navigation error.'}
           </ThemedCustomText>
-          <ThemedButton
-            text="Try again"
-            onPress={retry}
-            variant="primary"
-            size="md"
-          />
+          <ThemedButton text="Try again" onPress={retry} variant="primary" size="md" />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -154,7 +146,9 @@ function RootLayoutNav() {
 
       const status = String(queryParams?.status ?? '').toLowerCase();
       const rawError = queryParams?.error ?? queryParams?.error_description ?? queryParams?.message;
-      const callbackNetwork = String(queryParams?.network ?? queryParams?.chain ?? '').toLowerCase();
+      const callbackNetwork = String(
+        queryParams?.network ?? queryParams?.chain ?? '',
+      ).toLowerCase();
 
       if (callbackNetwork.includes('main')) {
         setNetwork('mainnet');
@@ -219,11 +213,20 @@ function RootLayoutNav() {
         <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="hunt/[id]" options={{ title: 'Hunt Details', animation: 'none' }} />
-        <Stack.Screen name="network/switch" options={{ title: 'Switch Network', animation: 'none' }} />
-        <Stack.Screen name="transaction/pending" options={{ title: 'Transaction Pending', animation: 'none' }} />
+        <Stack.Screen
+          name="network/switch"
+          options={{ title: 'Switch Network', animation: 'none' }}
+        />
+        <Stack.Screen
+          name="transaction/pending"
+          options={{ title: 'Transaction Pending', animation: 'none' }}
+        />
         <Stack.Screen name="details" options={{ title: 'Details', animation: 'none' }} />
         <Stack.Screen name="nested" options={{ title: 'Nested', animation: 'none' }} />
-        <Stack.Screen name="settings/notifications" options={{ title: 'Notification Preferences', animation: 'none' }} />
+        <Stack.Screen
+          name="settings/notifications"
+          options={{ title: 'Notification Preferences', animation: 'none' }}
+        />
       </Stack>
       <MemoryDiagnosticsOverlay />
     </SafeAreaView>

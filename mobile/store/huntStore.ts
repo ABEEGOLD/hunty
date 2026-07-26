@@ -6,9 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import type { Clue, HuntStatus, StoredHunt } from '@lib/types';
 
-import type { HuntStatus, StoredHunt, Clue } from "@lib/types";
-import * as SecureStore from "expo-secure-store";
-import { scheduleHuntExpiryNotification } from "@utils/huntNotifications";
+import type { HuntStatus, StoredHunt, Clue } from '@lib/types';
+import * as SecureStore from 'expo-secure-store';
+import { scheduleHuntExpiryNotification } from '@utils/huntNotifications';
 const HUNTS_KEY = 'hunty_hunts';
 const CLUES_KEY = 'hunty_clues';
 
@@ -18,7 +18,8 @@ const SEED_HUNTS: StoredHunt[] = [
   {
     id: 1,
     title: 'City Secrets',
-    description: 'Race across town to uncover hidden murals and landmarks with your squad. **Find the historic clock tower** first!',
+    description:
+      'Race across town to uncover hidden murals and landmarks with your squad. **Find the historic clock tower** first!',
     cluesCount: 5,
     status: 'Active',
     rewardType: 'Both',
@@ -29,7 +30,8 @@ const SEED_HUNTS: StoredHunt[] = [
   {
     id: 2,
     title: 'Campus Quest',
-    description: 'Decode hidden clues across campus and unlock a limited student reward. Check out [Hunty Main Website](https://hunty.app) for details!',
+    description:
+      'Decode hidden clues across campus and unlock a limited student reward. Check out [Hunty Main Website](https://hunty.app) for details!',
     cluesCount: 7,
     status: 'Active',
     rewardType: 'NFT',
@@ -59,22 +61,124 @@ const SEED_HUNTS: StoredHunt[] = [
 ];
 
 const SEED_CLUES: Clue[] = [
-  { id: 1, huntId: 1, question: 'Which mural wraps around the east gate? **Look for painted stairs** or a spiral design. Check [Murals Guide](https://murals.org) for hints! ![East Gate Mural](ipfs://bafybeigdyrzt5sfp7udm7hmhd3km4gq6v2y24sqqew2qnp4o3k4xcoq2a)', answer: 'spiral mural', points: 10, hint: 'Look for painted stairs.' },
-  { id: 2, huntId: 1, question: 'Which statue holds a lantern in the north plaza? **It glows after sunset**! ![Lantern Statue](https://images.unsplash.com/photo-1543002588-bfa74002ed7e)', answer: 'lantern statue', points: 10, hint: 'It glows after sunset.' },
-  { id: 3, huntId: 1, question: 'Name the cafe beside the old clock tower. Maybe [Clocktower Brews](https://clocktowercafe.com)?', answer: 'clocktower cafe', points: 12 },
-  { id: 4, huntId: 1, question: 'What color is the hidden service door by the racks?', answer: 'blue', points: 8 },
-  { id: 5, huntId: 1, question: 'Which alley hides the painted fox mural?', answer: 'fox alley', points: 15 },
-  { id: 6, huntId: 2, question: 'Which building has the golden dome? Visible from the main quad.', answer: 'golden dome', points: 8, hint: 'Visible from the main quad.' },
-  { id: 7, huntId: 2, question: 'Which library wing stays open all night?', answer: 'north wing', points: 8 },
-  { id: 8, huntId: 2, question: 'What landmark sits beside the rose garden?', answer: 'sculpture fountain', points: 8 },
-  { id: 9, huntId: 2, question: 'What is the name of the student center cafe?', answer: 'campus brew', points: 8 },
-  { id: 10, huntId: 2, question: 'Which gate faces the river trail?', answer: 'river gate', points: 8 },
-  { id: 11, huntId: 2, question: 'Which building holds the compass mural?', answer: 'compass hall', points: 8 },
-  { id: 12, huntId: 2, question: 'What bench sits under the oldest oak?', answer: 'oak bench', points: 8 },
-  { id: 13, huntId: 3, question: 'Which neon sign marks the coder alley entrance?', answer: 'byte lane', points: 10 },
-  { id: 14, huntId: 3, question: 'What phrase is etched into the cyber archway?', answer: 'move fast', points: 10 },
-  { id: 15, huntId: 3, question: 'Which rooftop hosts the final beacon?', answer: 'sky deck', points: 20 },
-  { id: 16, huntId: 3, question: 'What is the vault passphrase painted on the drone pad?', answer: 'stellar', points: 30 },
+  {
+    id: 1,
+    huntId: 1,
+    question:
+      'Which mural wraps around the east gate? **Look for painted stairs** or a spiral design. Check [Murals Guide](https://murals.org) for hints! ![East Gate Mural](ipfs://bafybeigdyrzt5sfp7udm7hmhd3km4gq6v2y24sqqew2qnp4o3k4xcoq2a)',
+    answer: 'spiral mural',
+    points: 10,
+    hint: 'Look for painted stairs.',
+  },
+  {
+    id: 2,
+    huntId: 1,
+    question:
+      'Which statue holds a lantern in the north plaza? **It glows after sunset**! ![Lantern Statue](https://images.unsplash.com/photo-1543002588-bfa74002ed7e)',
+    answer: 'lantern statue',
+    points: 10,
+    hint: 'It glows after sunset.',
+  },
+  {
+    id: 3,
+    huntId: 1,
+    question:
+      'Name the cafe beside the old clock tower. Maybe [Clocktower Brews](https://clocktowercafe.com)?',
+    answer: 'clocktower cafe',
+    points: 12,
+  },
+  {
+    id: 4,
+    huntId: 1,
+    question: 'What color is the hidden service door by the racks?',
+    answer: 'blue',
+    points: 8,
+  },
+  {
+    id: 5,
+    huntId: 1,
+    question: 'Which alley hides the painted fox mural?',
+    answer: 'fox alley',
+    points: 15,
+  },
+  {
+    id: 6,
+    huntId: 2,
+    question: 'Which building has the golden dome? Visible from the main quad.',
+    answer: 'golden dome',
+    points: 8,
+    hint: 'Visible from the main quad.',
+  },
+  {
+    id: 7,
+    huntId: 2,
+    question: 'Which library wing stays open all night?',
+    answer: 'north wing',
+    points: 8,
+  },
+  {
+    id: 8,
+    huntId: 2,
+    question: 'What landmark sits beside the rose garden?',
+    answer: 'sculpture fountain',
+    points: 8,
+  },
+  {
+    id: 9,
+    huntId: 2,
+    question: 'What is the name of the student center cafe?',
+    answer: 'campus brew',
+    points: 8,
+  },
+  {
+    id: 10,
+    huntId: 2,
+    question: 'Which gate faces the river trail?',
+    answer: 'river gate',
+    points: 8,
+  },
+  {
+    id: 11,
+    huntId: 2,
+    question: 'Which building holds the compass mural?',
+    answer: 'compass hall',
+    points: 8,
+  },
+  {
+    id: 12,
+    huntId: 2,
+    question: 'What bench sits under the oldest oak?',
+    answer: 'oak bench',
+    points: 8,
+  },
+  {
+    id: 13,
+    huntId: 3,
+    question: 'Which neon sign marks the coder alley entrance?',
+    answer: 'byte lane',
+    points: 10,
+  },
+  {
+    id: 14,
+    huntId: 3,
+    question: 'What phrase is etched into the cyber archway?',
+    answer: 'move fast',
+    points: 10,
+  },
+  {
+    id: 15,
+    huntId: 3,
+    question: 'Which rooftop hosts the final beacon?',
+    answer: 'sky deck',
+    points: 20,
+  },
+  {
+    id: 16,
+    huntId: 3,
+    question: 'What is the vault passphrase painted on the drone pad?',
+    answer: 'stellar',
+    points: 30,
+  },
 ];
 
 async function readJson<T>(key: string, fallback: T): Promise<T> {
@@ -120,10 +224,16 @@ export async function cacheJoinedHuntClues(huntId: number, clues: Clue[]): Promi
 }
 
 // Queue a clue answer for later submission when back online
-export async function queueClueAnswer(huntId: number, clueId: number, answer: string): Promise<void> {
+export async function queueClueAnswer(
+  huntId: number,
+  clueId: number,
+  answer: string,
+): Promise<void> {
   try {
     const existing = await AsyncStorage.getItem('hunty_clue_queue');
-    const queue = existing ? JSON.parse(existing) as Array<{ huntId: number; clueId: number; answer: string }> : [];
+    const queue = existing
+      ? (JSON.parse(existing) as Array<{ huntId: number; clueId: number; answer: string }>)
+      : [];
     queue.push({ huntId, clueId, answer });
     await AsyncStorage.setItem('hunty_clue_queue', JSON.stringify(queue));
   } catch {
@@ -132,7 +242,9 @@ export async function queueClueAnswer(huntId: number, clueId: number, answer: st
 }
 
 // Retrieve queued answers
-export async function getQueuedAnswers(): Promise<Array<{ huntId: number; clueId: number; answer: string }>> {
+export async function getQueuedAnswers(): Promise<
+  Array<{ huntId: number; clueId: number; answer: string }>
+> {
   try {
     const data = await AsyncStorage.getItem('hunty_clue_queue');
     return data ? JSON.parse(data) : [];
@@ -216,7 +328,10 @@ export async function saveClueLocally(clue: Omit<Clue, 'id'>): Promise<void> {
   const savedClue: Clue = { ...clue, id: nextId };
 
   await writeClues([...clues, savedClue]);
-  await cacheJoinedHuntClues(clue.huntId, [...clues.filter((item) => item.huntId === clue.huntId), savedClue]);
+  await cacheJoinedHuntClues(clue.huntId, [
+    ...clues.filter((item) => item.huntId === clue.huntId),
+    savedClue,
+  ]);
 
   const hunts = await readHunts();
   const updatedHunts = hunts.map((hunt) =>

@@ -8,10 +8,10 @@ This document covers the correct generation sequence and secure backup protocol 
 
 Google Play uses two distinct keys:
 
-| Key | Owner | Purpose |
-|-----|-------|---------|
-| **Upload keystore** | You (the developer) | Signs APKs/AABs before uploading to Play Console |
-| **App signing key** | Google (Play App Signing) | Re-signs the app before delivery to users |
+| Key                 | Owner                     | Purpose                                          |
+| ------------------- | ------------------------- | ------------------------------------------------ |
+| **Upload keystore** | You (the developer)       | Signs APKs/AABs before uploading to Play Console |
+| **App signing key** | Google (Play App Signing) | Re-signs the app before delivery to users        |
 
 You must never lose the upload keystore. If lost, you must contact Google Play support to reset it — a slow, manual process that blocks releases.
 
@@ -44,6 +44,7 @@ keytool -genkeypair \
 ```
 
 You will be prompted for:
+
 - **Keystore password** — use a strong, unique password (≥20 chars). Store in your password manager.
 - **Key password** — can match the keystore password or be different. Store separately.
 - **Distinguished Name fields** — First/Last Name, Org Unit, Org, City, State, Country.
@@ -59,6 +60,7 @@ keytool -list -v -keystore hunty-upload-key.jks -alias hunty-upload
 ```
 
 Confirm:
+
 - Key algorithm: RSA
 - Key size: 4096
 - Valid until: far future date
@@ -180,12 +182,12 @@ Confirm the SHA-256 fingerprint matches the recorded value.
 
 Add these secrets to your GitHub repository (`Settings → Secrets → Actions`):
 
-| Secret name | Value |
-|-------------|-------|
-| `ANDROID_KEYSTORE_BASE64` | Output of `base64 -i hunty-upload-key.jks \| tr -d '\n'` |
-| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
-| `ANDROID_KEY_ALIAS` | `hunty-upload` |
-| `ANDROID_KEY_PASSWORD` | Key password |
+| Secret name                 | Value                                                    |
+| --------------------------- | -------------------------------------------------------- |
+| `ANDROID_KEYSTORE_BASE64`   | Output of `base64 -i hunty-upload-key.jks \| tr -d '\n'` |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password                                        |
+| `ANDROID_KEY_ALIAS`         | `hunty-upload`                                           |
+| `ANDROID_KEY_PASSWORD`      | Key password                                             |
 
 Reference in your workflow:
 

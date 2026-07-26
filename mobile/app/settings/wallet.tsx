@@ -34,7 +34,9 @@ export default function WalletSecurityScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
 
-  const biometricLabel = biometricAvailable ? biometricType ?? 'Biometric authentication' : 'Biometric authentication is unavailable';
+  const biometricLabel = biometricAvailable
+    ? (biometricType ?? 'Biometric authentication')
+    : 'Biometric authentication is unavailable';
 
   const canSavePin = pin.length >= 4 && pin === confirmPin;
   const canChangePin = !!currentPin && newPin.length >= 4;
@@ -103,7 +105,7 @@ export default function WalletSecurityScreen() {
   }, [initialized, biometricAvailable, biometricEnabled, biometricLabel]);
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}> 
+    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ThemedCustomText variant="h2" weight="800">
           Wallet Security
@@ -122,7 +124,9 @@ export default function WalletSecurityScreen() {
             onToggle={handleToggleBiometrics}
           />
           {biometricEnabled && biometricAvailable ? (
-            <ThemedCustomText variant="caption">Detected biometric type: {biometricLabel}</ThemedCustomText>
+            <ThemedCustomText variant="caption">
+              Detected biometric type: {biometricLabel}
+            </ThemedCustomText>
           ) : null}
         </SettingsSection>
 
@@ -196,7 +200,12 @@ export default function WalletSecurityScreen() {
 
         <SettingsSection title="Active Protection">
           <ThemedButton text="Lock wallet now" variant="ghost" onPress={lock} fullWidth />
-          <ThemedButton text="Back to Settings" variant="ghost" onPress={() => router.back()} fullWidth />
+          <ThemedButton
+            text="Back to Settings"
+            variant="ghost"
+            onPress={() => router.back()}
+            fullWidth
+          />
         </SettingsSection>
       </ScrollView>
     </ThemedView>

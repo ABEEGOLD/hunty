@@ -144,11 +144,11 @@ cp .env.production.example .env.production
 
 ## Build Profiles Overview
 
-| Profile | Purpose | Output | Command |
-|---------|---------|--------|---------|
-| **development** | Dev testing | APK | `pnpm run build:android:dev` |
-| **preview** | QA testing | APK | `pnpm run build:android:preview` |
-| **production** | App Store/Play Store | AAB | `pnpm run build:android:prod` |
+| Profile         | Purpose              | Output | Command                          |
+| --------------- | -------------------- | ------ | -------------------------------- |
+| **development** | Dev testing          | APK    | `pnpm run build:android:dev`     |
+| **preview**     | QA testing           | APK    | `pnpm run build:android:preview` |
+| **production**  | App Store/Play Store | AAB    | `pnpm run build:android:prod`    |
 
 ---
 
@@ -250,23 +250,27 @@ git push origin v1.1.0
 ## Key Concepts
 
 ### Runtime Version
+
 - Determines which apps can receive OTA updates
 - Set in `eas.json` per build profile
 - Development, preview, and production have different runtime versions
 - Must match between build and update channel
 
 ### Build Profiles
+
 - **development:** Development client, debug-friendly
 - **preview:** Standalone app, internal distribution
 - **production:** Standalone app, store submission
 
 ### OTA Updates
+
 - Updates JavaScript and assets WITHOUT rebuilding
 - Faster deployment for bug fixes
 - Cannot update native code
 - Users get updates on app restart
 
 ### Credentials
+
 - Encrypted storage on Expo servers
 - Automatically managed by EAS
 - Can be reset if needed

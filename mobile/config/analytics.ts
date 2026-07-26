@@ -46,7 +46,9 @@ export const analyticsConfig: AnalyticsConfig = {
   autoPerformanceTracking: getEnvVar('ANALYTICS_AUTO_PERFORMANCE') !== 'false',
   defaultTags: {
     app_version: Constants.expoConfig?.version ?? 'unknown',
-    build_number: String(Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? '0'),
+    build_number: String(
+      Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? '0',
+    ),
     platform: Constants.platform?.ios ? 'ios' : Constants.platform?.android ? 'android' : 'web',
     native_build_version: Constants.nativeBuildVersion ?? 'unknown',
   },

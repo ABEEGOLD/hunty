@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Platform, Switch, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Platform,
+  Switch,
+  TouchableOpacity,
+} from 'react-native';
 import { normalizeFont, getMaxFontScale, getSafeFontSize } from '../utils/fontScaling';
 
 interface FontScalingTestProps {
@@ -27,7 +35,7 @@ export default function FontScalingTest({ isTesting, onTestComplete }: FontScali
 
   const runTests = async () => {
     const testResults: TestResult[] = [];
-    
+
     // Test various text components at maximum font scaling
     const testCases = [
       { text: 'Hunty', fontSize: 24 },
@@ -91,9 +99,7 @@ export default function FontScalingTest({ isTesting, onTestComplete }: FontScali
             {result.willClip && (
               <Text style={styles.warning}>⚠️ Warning: Text may clip at max scale</Text>
             )}
-            <Text style={styles.safeSize}>
-              Safe Font Size: {result.safeFontSize.toFixed(1)}pt
-            </Text>
+            <Text style={styles.safeSize}>Safe Font Size: {result.safeFontSize.toFixed(1)}pt</Text>
           </View>
         ))}
       </View>

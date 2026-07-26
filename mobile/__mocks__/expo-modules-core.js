@@ -1,7 +1,9 @@
 module.exports = {
   NativeModulesProxy: {},
   EventEmitter: class EventEmitter {
-    addListener() { return { remove: jest.fn() }; }
+    addListener() {
+      return { remove: jest.fn() };
+    }
     removeAllListeners() {}
     emit() {}
   },

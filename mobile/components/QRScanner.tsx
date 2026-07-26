@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -43,7 +50,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         easing: Easing.linear,
       }),
       -1,
-      true
+      true,
     );
     return () => {
       scanLineY.value = 0;
@@ -87,9 +94,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         style={styles.container}
       >
         <View style={styles.centerContent}>
-          <Text style={styles.permissionText}>
-            Camera permission is required
-          </Text>
+          <Text style={styles.permissionText}>Camera permission is required</Text>
           <TouchableOpacity
             accessible={true}
             accessibilityRole="button"
@@ -116,15 +121,9 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
   if (!permission.granted) {
     return (
-      <View
-        accessible={true}
-        accessibilityLabel="Camera access denied"
-        style={styles.container}
-      >
+      <View accessible={true} accessibilityLabel="Camera access denied" style={styles.container}>
         <View style={styles.centerContent}>
-          <Text style={styles.permissionText}>
-            Camera access denied
-          </Text>
+          <Text style={styles.permissionText}>Camera access denied</Text>
           <TouchableOpacity
             accessible={true}
             accessibilityRole="button"
@@ -151,7 +150,9 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
   return (
     <View accessible={true} accessibilityLabel="QR code scanner active" style={styles.container}>
-      {isInitializing && <ActivityIndicator size="large" color="#3737A4" style={styles.loadingIndicator} />}
+      {isInitializing && (
+        <ActivityIndicator size="large" color="#3737A4" style={styles.loadingIndicator} />
+      )}
 
       <CameraView
         ref={cameraRef}
@@ -215,21 +216,13 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       </View>
 
       <View style={styles.hintContainer}>
-        <Text
-          accessible={true}
-          accessibilityLiveRegion="polite"
-          style={styles.hintText}
-        >
+        <Text accessible={true} accessibilityLiveRegion="polite" style={styles.hintText}>
           {scanned ? 'QR Code detected!' : 'Position the QR code within the frame'}
         </Text>
       </View>
 
       {scanned && (
-        <ActivityIndicator
-          size="large"
-          color="white"
-          style={styles.scanSuccessIndicator}
-        />
+        <ActivityIndicator size="large" color="white" style={styles.scanSuccessIndicator} />
       )}
     </View>
   );

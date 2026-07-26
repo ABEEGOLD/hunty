@@ -19,7 +19,7 @@ export type ClueZone = {
 export function buildClueZones(
   hunts: StoredHunt[],
   playerLat: number,
-  playerLng: number
+  playerLng: number,
 ): ClueZone[] {
   const active = hunts.filter((h) => h.status === 'Active');
   const count = active.length;

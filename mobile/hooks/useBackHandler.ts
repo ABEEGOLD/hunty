@@ -8,7 +8,9 @@ export function useBackHandler(handler: () => boolean) {
 
   useEffect(() => {
     registerDiagnostic('BackHandlerSubscription');
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => handlerRef.current());
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () =>
+      handlerRef.current(),
+    );
 
     return () => {
       subscription.remove();

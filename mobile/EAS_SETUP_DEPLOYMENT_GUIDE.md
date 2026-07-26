@@ -61,6 +61,7 @@ pnpm run submit:production:android  # Submit to Play Store
 ### Credentials
 
 You will need to set up:
+
 - iOS: Provisioning profile & code signing certificate
 - Android: Upload keystore & Google Play service account
 - See [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) for detailed instructions
@@ -100,6 +101,7 @@ eas init
 ```
 
 Follow the prompts:
+
 - **Select app:** Create new (or use existing)
 - **Name:** hunty-mobile
 - Your EAS project ID will be saved in `app.json` under `extra.eas.projectId`
@@ -124,6 +126,7 @@ cp .env.production.example .env.production
 ```
 
 Edit each file and fill in:
+
 - `EAS_PROJECT_ID` (from step 3)
 - `EXPO_TOKEN` (from Expo account settings)
 - `WALLETCONNECT_PROJECT_ID` (register at https://cloud.reown.com)
@@ -132,6 +135,7 @@ Edit each file and fill in:
 ### 5. Set Up App Store Credentials
 
 See [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) for detailed instructions on:
+
 - iOS provisioning profiles and certificates
 - Android keystore and Google Play service account
 
@@ -161,6 +165,7 @@ Three build profiles are configured in `eas.json`:
 ### Development Profile
 
 **Purpose:** Internal development with full debugging
+
 - **Type:** Development client (Expo Go-like experience)
 - **Distribution:** Internal (QR code to install)
 - **Output:** APK (Android), Simulator build (iOS)
@@ -180,6 +185,7 @@ pnpm run build:ios:dev
 ```
 
 **Install on device:**
+
 ```bash
 # Android: Scan QR code or download APK
 # iOS: Cannot directly install on device (simulator only)
@@ -188,6 +194,7 @@ pnpm run build:ios:dev
 ### Preview Profile
 
 **Purpose:** Internal testing, QA, stakeholder demos
+
 - **Type:** Standalone app (no development client)
 - **Distribution:** Internal (QR code to install)
 - **Output:** APK (Android), Ad-hoc build (iOS)
@@ -203,6 +210,7 @@ pnpm run build:all:preview
 ```
 
 **Who should use:**
+
 - QA team
 - Internal stakeholders
 - Beta testers
@@ -211,6 +219,7 @@ pnpm run build:all:preview
 ### Production Profile
 
 **Purpose:** App Store & Play Store releases
+
 - **Type:** Standalone app (no development client)
 - **Distribution:** Store (for submission)
 - **Output:** AAB (Android), IPA (iOS)
@@ -226,6 +235,7 @@ pnpm run build:all:prod
 ```
 
 **Important:** Production builds use:
+
 - Release configuration (optimized, smaller bundle)
 - Production signing certificates
 - Production API endpoints (via .env.production)
@@ -237,16 +247,19 @@ pnpm run build:all:prod
 ### Android Builds
 
 **Development (APK, local testing):**
+
 ```bash
 pnpm run build:android:dev --local
 ```
 
 **Preview (APK, internal testing):**
+
 ```bash
 pnpm run build:android:preview
 ```
 
 **Production (AAB, for Play Store):**
+
 ```bash
 pnpm run build:android:prod
 ```
@@ -254,16 +267,19 @@ pnpm run build:android:prod
 ### iOS Builds
 
 **Development (simulator only):**
+
 ```bash
 pnpm run build:ios:dev --local
 ```
 
 **Preview (Ad-hoc, internal testing):**
+
 ```bash
 pnpm run build:ios:preview
 ```
 
 **Production (for App Store):**
+
 ```bash
 pnpm run build:ios:prod
 ```
@@ -343,16 +359,19 @@ When you build, all apps from that build receive the same runtime version. Only 
 ### Publishing Updates
 
 **Development channel:**
+
 ```bash
 pnpm run update:development
 ```
 
 **Preview channel:**
+
 ```bash
 pnpm run update:preview
 ```
 
 **Production channel:**
+
 ```bash
 pnpm run update:production
 ```
@@ -394,6 +413,7 @@ eas update:republish <update-id> --channel production
 ### iOS App Store Submission
 
 **Prerequisites:**
+
 - Xcode installed
 - Apple Developer account with active membership
 - Provisioning profile and signing certificate set up (see credentials guide)
@@ -429,6 +449,7 @@ pnpm run submit:production:ios
 ```
 
 This will:
+
 - Download the production IPA
 - Validate the app
 - Upload to App Store Connect
@@ -447,6 +468,7 @@ This will:
 ### Android Play Store Submission
 
 **Prerequisites:**
+
 - Google Play Console account
 - Upload keystore set up (see credentials guide)
 - Google Play service account (for automated uploads)
@@ -488,6 +510,7 @@ pnpm run submit:production:android
 ```
 
 This will:
+
 - Download the production AAB
 - Validate the app
 - Upload to Play Console
@@ -559,6 +582,7 @@ jobs:
 ```
 
 **Required GitHub Secrets:**
+
 - `EXPO_TOKEN` — From Expo account settings
 - `EXPO_APPLE_ID` — Your Apple ID
 - `EXPO_ASC_APP_ID` — App Store Connect ID
@@ -677,6 +701,7 @@ eas update --branch production --skip-bundler
 ### Update Not Applying on Device
 
 1. Check app is built for correct channel:
+
    ```bash
    eas build:list --limit 5
    ```
@@ -684,9 +709,10 @@ eas update --branch production --skip-bundler
 2. Verify runtime version matches:
    - Build runtime version in `eas.json`
    - Update runtime version in `eas.json`
-   Must match!
+     Must match!
 
 3. Force update on device:
+
    ```bash
    # Close app completely
    # Reopen app

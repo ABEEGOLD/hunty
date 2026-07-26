@@ -31,13 +31,7 @@ interface ClueListItemProps {
   onPress?: () => void;
 }
 
-export function ClueListItem({
-  clue,
-  index,
-  isActive,
-  isUnlocked,
-  onPress,
-}: ClueListItemProps) {
+export function ClueListItem({ clue, index, isActive, isUnlocked, onPress }: ClueListItemProps) {
   const opacity = useSharedValue(isUnlocked ? 1 : 0);
   const translateY = useSharedValue(isUnlocked ? 0 : 24);
   const scale = useSharedValue(isUnlocked ? 1 : 0.96);
@@ -58,10 +52,7 @@ export function ClueListItem({
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
   }));
 
   const isLocked = !isUnlocked && !isActive;
@@ -81,7 +72,9 @@ export function ClueListItem({
         accessibilityState={{ disabled: isLocked }}
       >
         {/* Index badge */}
-        <View style={[styles.badge, isUnlocked && styles.badgeUnlocked, isActive && styles.badgeActive]}>
+        <View
+          style={[styles.badge, isUnlocked && styles.badgeUnlocked, isActive && styles.badgeActive]}
+        >
           <Text style={styles.badgeText}>{index + 1}</Text>
         </View>
 
@@ -90,7 +83,10 @@ export function ClueListItem({
             <Text style={styles.lockedText}>🔒 Locked</Text>
           ) : (
             <>
-              <Text style={[styles.question, isUnlocked && styles.questionUnlocked]} numberOfLines={2}>
+              <Text
+                style={[styles.question, isUnlocked && styles.questionUnlocked]}
+                numberOfLines={2}
+              >
                 {clue.question}
               </Text>
               <View style={styles.meta}>

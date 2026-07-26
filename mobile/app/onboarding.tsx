@@ -11,13 +11,15 @@ const slides = [
   {
     id: 'discover',
     title: 'Discover Hunts Nearby',
-    subtitle: 'Find active challenges pinned around your city and dive into story-driven adventures.',
+    subtitle:
+      'Find active challenges pinned around your city and dive into story-driven adventures.',
     colors: ['#0B102A', '#143C8A'],
   },
   {
     id: 'solve',
     title: 'Solve Clues, Unlock Rewards',
-    subtitle: 'Scan QR checkpoints, crack hints, and progress through each mission to increase your payout.',
+    subtitle:
+      'Scan QR checkpoints, crack hints, and progress through each mission to increase your payout.',
     colors: ['#041E22', '#0E7C86'],
   },
   {
@@ -71,14 +73,30 @@ export default function OnboardingScreen() {
         renderItem={({ item }) => (
           <LinearGradient colors={item.colors as [string, string]} style={styles.slide}>
             <View style={styles.badge}>
-              <ThemedCustomText variant="caption" lightColor="#FFFFFF" darkColor="#FFFFFF" weight="700">
+              <ThemedCustomText
+                variant="caption"
+                lightColor="#FFFFFF"
+                darkColor="#FFFFFF"
+                weight="700"
+              >
                 HUNTY MOBILE
               </ThemedCustomText>
             </View>
-            <ThemedCustomText variant="h1" lightColor="#FFFFFF" darkColor="#FFFFFF" weight="800" style={styles.title}>
+            <ThemedCustomText
+              variant="h1"
+              lightColor="#FFFFFF"
+              darkColor="#FFFFFF"
+              weight="800"
+              style={styles.title}
+            >
               {item.title}
             </ThemedCustomText>
-            <ThemedCustomText variant="body" lightColor="#E6ECFF" darkColor="#E6ECFF" style={styles.subtitle}>
+            <ThemedCustomText
+              variant="body"
+              lightColor="#E6ECFF"
+              darkColor="#E6ECFF"
+              style={styles.subtitle}
+            >
               {item.subtitle}
             </ThemedCustomText>
           </LinearGradient>
@@ -97,7 +115,9 @@ export default function OnboardingScreen() {
 
         <View style={styles.actionsRow}>
           <Pressable onPress={handleSkip} style={styles.skipButton}>
-            <ThemedCustomText variant="label" weight="600" style={styles.skipText}>Skip</ThemedCustomText>
+            <ThemedCustomText variant="label" weight="600" style={styles.skipText}>
+              Skip
+            </ThemedCustomText>
           </Pressable>
           <Pressable onPress={handleNext} style={styles.nextButton}>
             <ThemedCustomText variant="label" lightColor="#0A0F2A" darkColor="#0A0F2A" weight="800">

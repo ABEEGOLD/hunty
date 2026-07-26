@@ -21,13 +21,13 @@ EAS Build manages credentials securely and integrates with both Apple and Google
 
 ### Credential Types
 
-| Credential | Purpose | Platform | Required For |
-|-----------|---------|----------|--------------|
-| **Provisioning Profile** | Grants device/app permissions | iOS | All iOS builds |
-| **Code Signing Certificate** | Verifies app authenticity | iOS | All iOS builds |
-| **Bundle ID** | Unique app identifier | iOS | All iOS builds |
-| **Android Keystore** | Signing key for APKs/AABs | Android | Production builds |
-| **Google Play Service Account** | API access to Play Console | Android | Uploading to Play Store |
+| Credential                      | Purpose                       | Platform | Required For            |
+| ------------------------------- | ----------------------------- | -------- | ----------------------- |
+| **Provisioning Profile**        | Grants device/app permissions | iOS      | All iOS builds          |
+| **Code Signing Certificate**    | Verifies app authenticity     | iOS      | All iOS builds          |
+| **Bundle ID**                   | Unique app identifier         | iOS      | All iOS builds          |
+| **Android Keystore**            | Signing key for APKs/AABs     | Android  | Production builds       |
+| **Google Play Service Account** | API access to Play Console    | Android  | Uploading to Play Store |
 
 ---
 
@@ -49,12 +49,14 @@ eas credentials --platform ios
 ```
 
 **What this does:**
+
 - Authenticates with your Apple Developer Account
 - Creates a provisioning profile for `io.hunty.mobile`
 - Generates a code signing certificate if needed
 - Stores credentials securely on Expo's servers
 
 **Prompts you for:**
+
 - Apple ID
 - Apple Team ID (found at https://developer.apple.com/account/#/membership)
 
@@ -78,21 +80,25 @@ eas credentials --platform ios --local
 ### iOS Build & Upload
 
 **Build for internal testing:**
+
 ```bash
 pnpm run build:ios:preview
 ```
 
 **Build for App Store (requires credentials):**
+
 ```bash
 pnpm run build:ios:prod
 ```
 
 **Submit to App Store:**
+
 ```bash
 pnpm run submit:production:ios
 ```
 
 During submission, provide:
+
 - `EXPO_APPLE_ID` — Your Apple ID (stored in environment)
 - `EXPO_ASC_APP_ID` — Your App Store Connect ID
 - `EXPO_APPLE_TEAM_ID` — Your Apple Team ID
@@ -126,6 +132,7 @@ keytool -genkeypair \
 ```
 
 **Prompts:**
+
 - **Keystore password** — Use a strong password (20+ chars). Store in password manager.
 - **Key password** — Can match keystore password or be different
 - **Name:** Your Name
@@ -134,6 +141,7 @@ keytool -genkeypair \
 - **City/State/Country:** Your location
 
 Example:
+
 ```
 First and Last Name [Unknown]:  Your Name
 Organizational Unit [Unknown]:  Engineering
@@ -150,6 +158,7 @@ keytool -list -v -keystore hunty-upload-key.jks -alias hunty-upload
 ```
 
 Confirm:
+
 - Algorithm: RSA
 - Key Size: 4096
 - Validity: ~27 years from now
@@ -166,6 +175,7 @@ eas credentials --platform android
 Select: **Upload a keystore**
 
 Provide:
+
 - Path to `hunty-upload-key.jks`
 - Alias: `hunty-upload`
 - Keystore password
@@ -186,6 +196,7 @@ gpg --symmetric --cipher-algo AES256 hunty-upload-key.jks
 ```
 
 Store backups in:
+
 1. Secure password manager (LastPass, 1Password, etc.)
 2. Cloud storage (Google Drive, OneDrive) with encryption
 3. Hardware key or external drive in safe location
@@ -237,16 +248,19 @@ store/google-play-service-account.json
 ### Android Build & Upload
 
 **Build for internal testing (APK):**
+
 ```bash
 pnpm run build:android:preview
 ```
 
 **Build for Play Store (AAB):**
+
 ```bash
 pnpm run build:android:prod
 ```
 
 **Submit to Google Play:**
+
 ```bash
 pnpm run submit:production:android
 ```
@@ -309,7 +323,8 @@ EXPO_TOKEN=your-expo-token
 
 ### "Provisioning profile invalid"
 
-**Solution:** 
+**Solution:**
+
 1. Delete credentials: `eas credentials --platform ios --clear`
 2. Regenerate: `eas credentials --platform ios`
 3. Rebuild: `pnpm run build:ios:prod`
@@ -317,6 +332,7 @@ EXPO_TOKEN=your-expo-token
 ### "Keystore password incorrect"
 
 **Solution:**
+
 1. Verify password is correct
 2. If forgotten, you'll need to generate a new keystore and contact Google Play support
 3. Update credentials: `eas credentials --platform android --clear`

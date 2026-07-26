@@ -38,6 +38,7 @@ eas init
 ```
 
 This will prompt you to:
+
 - Create or select an Expo account
 - Create a new EAS project
 - Update `app.json` with your EAS project ID
@@ -89,6 +90,7 @@ Three build profiles are configured in `eas.json`:
 ### Development Profile
 
 **Purpose:** Local testing with development client
+
 - **Development Client:** Enabled
 - **Distribution:** Internal (shared via link)
 - **Configuration:** Debug-friendly
@@ -102,6 +104,7 @@ pnpm run build:ios:dev      # iOS development simulator build
 ### Preview Profile
 
 **Purpose:** QA testing and stakeholder demos
+
 - **Development Client:** Disabled (production-like)
 - **Distribution:** Internal
 - **Configuration:** Release-optimized, staging environment
@@ -115,6 +118,7 @@ pnpm run build:ios:preview      # iOS preview device build
 ### Production Profile
 
 **Purpose:** App Store and Play Store releases
+
 - **Development Client:** Disabled
 - **Distribution:** Store-ready
 - **Configuration:** Fully optimized, production environment
@@ -175,11 +179,11 @@ EAS Update allows pushing changes to users **without rebuilding the native app**
 
 ### Update Channels
 
-| Channel | Use Case | When to Deploy |
-|---------|----------|------------------|
-| `development` | Developer testing | After each commit on dev branch |
-| `preview` | QA & staging | Before production release |
-| `production` | User-facing app | Only for bug fixes & feature releases |
+| Channel       | Use Case          | When to Deploy                        |
+| ------------- | ----------------- | ------------------------------------- |
+| `development` | Developer testing | After each commit on dev branch       |
+| `preview`     | QA & staging      | Before production release             |
+| `production`  | User-facing app   | Only for bug fixes & feature releases |
 
 ### Publishing Updates
 
@@ -200,12 +204,14 @@ eas update --branch production --message "v1.2.3 release"
 The `app.json` uses `"policy": "appVersion"` — updates are compatible with the native build version they were released against.
 
 When to rebuild the native app:
+
 - Adding new native dependencies
 - Updating Expo SDK version
 - Changes to native configuration (app.json android/ios sections)
 - Major dependency updates
 
 When OTA updates are sufficient:
+
 - JavaScript code changes
 - UI/UX modifications
 - Bug fixes
@@ -233,6 +239,7 @@ eas credentials --platform android
 ```
 
 Select "Upload a keystore" and provide:
+
 - Path to `hunty-upload-key.jks`
 - Keystore alias: `hunty-upload`
 - Keystore password
@@ -262,6 +269,7 @@ eas credentials --platform ios
 ```
 
 Select "Manage app signing credentials" and provide:
+
 - Apple ID email
 - App Store Connect API key (or password)
 - Apple Team ID
@@ -488,12 +496,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Install dependencies
         run: |
           cd mobile
           pnpm install
-      
+
       - name: Build for preview
         if: github.ref == 'refs/heads/staging'
         run: |
@@ -502,7 +510,7 @@ jobs:
         env:
           EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      
+
       - name: Build for production
         if: github.ref == 'refs/heads/main'
         run: |

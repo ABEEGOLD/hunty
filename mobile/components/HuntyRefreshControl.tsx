@@ -23,7 +23,7 @@ export const HuntyRefreshControl = ({ refreshing, onRefresh, ...props }: Props) 
       refreshing={refreshing}
       onRefresh={handleRefresh}
       tintColor="#3737A4"
-      colors={["#3737A4"]}
+      colors={['#3737A4']}
       {...props}
     />
   );

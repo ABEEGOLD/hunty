@@ -59,10 +59,10 @@ export const ThemedCustomText: React.FC<ThemedCustomTextProps> = ({
   ...otherProps
 }) => {
   const { isDark, colors } = useTheme();
-  
+
   const colorValue = isDark
-    ? (darkColor || colors[color as keyof typeof colors])
-    : (lightColor || colors[color as keyof typeof colors]);
+    ? darkColor || colors[color as keyof typeof colors]
+    : lightColor || colors[color as keyof typeof colors];
 
   const variantStyle = variantStyles[variant];
   const fontWeight = weight || variantStyle.fontWeight;

@@ -19,7 +19,7 @@ export default function NestedScreen() {
   const { huntId, clueIndex } = useLocalSearchParams<{ huntId?: string; clueIndex?: string }>();
   const [hunt, setHunt] = useState<StoredHunt | null>(null);
   const [clues, setClues] = useState<Clue[]>([]);
-  const [answer, setAnswer] = useState("");
+  const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const { markClueCompleted, getCompletedClues } = usePlayerStore();
@@ -32,16 +32,14 @@ export default function NestedScreen() {
   const completedClues = getCompletedClues(hId);
 
   useEffect(() => {
-    Promise.all([getHuntById(hId), getHuntClues(hId)]).then(
-      ([fetchedHunt, fetchedClues]) => {
-        if (fetchedHunt) setHunt(fetchedHunt);
-        setClues(fetchedClues);
-      },
-    );
+    Promise.all([getHuntById(hId), getHuntClues(hId)]).then(([fetchedHunt, fetchedClues]) => {
+      if (fetchedHunt) setHunt(fetchedHunt);
+      setClues(fetchedClues);
+    });
   }, [hId]);
 
   useEffect(() => {
-    setAnswer("");
+    setAnswer('');
   }, [idx]);
 
   const navigateToClue = (clueIdx: number) => {
@@ -67,7 +65,7 @@ export default function NestedScreen() {
     try {
       const locationCheck = await verifyClueGeofence(clue);
       if (!locationCheck.allowed) {
-        Alert.alert("Location required", locationCheck.reason);
+        Alert.alert('Location required', locationCheck.reason);
         haptics.triggerNotification('error');
         return;
       }
@@ -75,11 +73,11 @@ export default function NestedScreen() {
       if (fromQr) {
         const qrCheck = await verifyQrAgainstClue(submittedAnswer, clue, hId);
         if (!qrCheck.match) {
-          Alert.alert("Invalid QR code", qrCheck.reason);
+          Alert.alert('Invalid QR code', qrCheck.reason);
           return;
         }
       } else if (!(await matchesClueAnswer(submittedAnswer, clue, hId))) {
-        Alert.alert("Incorrect", "Try again");
+        Alert.alert('Incorrect', 'Try again');
         haptics.triggerNotification('error');
         return;
       }
@@ -87,7 +85,7 @@ export default function NestedScreen() {
       markClueCompleted(hId, idx);
       if (isLast) {
         haptics.triggerImpact('heavy');
-        Alert.alert("Complete!", "You finished the hunt!");
+        Alert.alert('Complete!', 'You finished the hunt!');
         router.replace(`/details?huntId=${hId}`);
       } else {
         haptics.triggerNotification('success');
@@ -123,12 +121,9 @@ export default function NestedScreen() {
         <ThemedCustomText variant="label" style={styles.header}>
           Clue {idx + 1} of {clues.length}
         </ThemedCustomText>
-        <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}> 
+        <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
           <View
-            style={[
-              styles.progressBar,
-              { width: progressWidth, backgroundColor: colors.primary },
-            ]}
+            style={[styles.progressBar, { width: progressWidth, backgroundColor: colors.primary }]}
           />
         </View>
 
@@ -136,9 +131,18 @@ export default function NestedScreen() {
         <ClueMarkdownRenderer text={clue.question} />
 
         {clue.hint && (
-          <View style={[styles.hintContainer, { borderLeftColor: colors.warning, backgroundColor: colors.warning + '14' }]}> 
-            <ThemedCustomText variant="caption" color="warning" weight="700">Hint</ThemedCustomText>
-            <ThemedCustomText variant="caption" style={styles.hintText}>{clue.hint}</ThemedCustomText>
+          <View
+            style={[
+              styles.hintContainer,
+              { borderLeftColor: colors.warning, backgroundColor: colors.warning + '14' },
+            ]}
+          >
+            <ThemedCustomText variant="caption" color="warning" weight="700">
+              Hint
+            </ThemedCustomText>
+            <ThemedCustomText variant="caption" style={styles.hintText}>
+              {clue.hint}
+            </ThemedCustomText>
           </View>
         )}
 
@@ -155,7 +159,11 @@ export default function NestedScreen() {
 
         <View style={styles.buttonRow}>
           <Pressable
-            style={[styles.navButton, { backgroundColor: colors.info }, !canGoPrev && styles.disabledButton]}
+            style={[
+              styles.navButton,
+              { backgroundColor: colors.info },
+              !canGoPrev && styles.disabledButton,
+            ]}
             onPress={handlePreviousClue}
             disabled={!canGoPrev}
           >
@@ -165,10 +173,7 @@ export default function NestedScreen() {
           </Pressable>
 
           <Pressable
-            style={[
-              styles.scanButton,
-              { backgroundColor: colors.warning },
-            ]}
+            style={[styles.scanButton, { backgroundColor: colors.warning }]}
             onPress={() => setScannerOpen(true)}
           >
             <ThemedCustomText variant="caption" lightColor="#fff" darkColor="#fff" weight="700">
@@ -205,10 +210,7 @@ export default function NestedScreen() {
           </Pressable>
         </View>
 
-        <Pressable
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
           <ThemedCustomText variant="caption" color="primary" weight="700">
             Back to Hunt
           </ThemedCustomText>
@@ -243,7 +245,7 @@ const styles = StyleSheet.create({
   },
   huntTitle: {
     marginBottom: 8,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   header: {
@@ -252,7 +254,7 @@ const styles = StyleSheet.create({
   progressBarContainer: {
     height: 6,
     borderRadius: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
     marginBottom: 20,
   },
   progressBar: {

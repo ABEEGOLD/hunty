@@ -70,7 +70,7 @@ describe('Analytics Service', () => {
         expect.objectContaining({
           dsn: 'https://test@sentry.io/1',
           environment: 'development',
-        })
+        }),
       );
     });
 
@@ -130,14 +130,14 @@ describe('Analytics Service', () => {
         expect.objectContaining({
           category: 'analytics',
           message: 'hunt_started',
-        })
+        }),
       );
       expect(Sentry.captureMessage).toHaveBeenCalledWith(
         'analytics:hunt_started',
         expect.objectContaining({
           level: 'info',
           tags: expect.objectContaining({ event_name: 'hunt_started' }),
-        })
+        }),
       );
     });
   });
@@ -157,7 +157,7 @@ describe('Analytics Service', () => {
 
       expect(Sentry.captureMessage).toHaveBeenCalledWith(
         'analytics:user_action',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -166,12 +166,9 @@ describe('Analytics Service', () => {
     it('tracks event and starts Sentry transaction', () => {
       trackAppStart(1200, true);
 
-      expect(Sentry.captureMessage).toHaveBeenCalledWith(
-        'analytics:app_start',
-        expect.any(Object)
-      );
+      expect(Sentry.captureMessage).toHaveBeenCalledWith('analytics:app_start', expect.any(Object));
       expect(Sentry.startTransaction).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'app_start', op: 'app.lifecycle' })
+        expect.objectContaining({ name: 'app_start', op: 'app.lifecycle' }),
       );
     });
   });
@@ -181,7 +178,7 @@ describe('Analytics Service', () => {
       trackScreenLoad('HuntDetail', 450);
 
       expect(Sentry.startTransaction).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'screen_load:HuntDetail', op: 'ui.load' })
+        expect.objectContaining({ name: 'screen_load:HuntDetail', op: 'ui.load' }),
       );
     });
   });
@@ -201,7 +198,7 @@ describe('Analytics Service', () => {
       setUserContext('GABC123...');
 
       expect(Sentry.setUser).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'GABC123...', wallet_address: 'GABC123...' })
+        expect.objectContaining({ id: 'GABC123...', wallet_address: 'GABC123...' }),
       );
     });
 

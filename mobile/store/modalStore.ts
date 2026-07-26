@@ -23,7 +23,7 @@ interface ModalStore {
 
 export const useModalStore = create<ModalStore>((set, get) => ({
   modals: [],
-  
+
   openModal: (config) => {
     const id = Date.now().toString();
     const newModal: ModalConfig = {
@@ -35,13 +35,13 @@ export const useModalStore = create<ModalStore>((set, get) => ({
     }));
     return id;
   },
-  
+
   closeModal: (id) => {
     set((state) => ({
       modals: state.modals.filter((modal) => modal.id !== id),
     }));
   },
-  
+
   closeAllModals: () => {
     set({ modals: [] });
   },

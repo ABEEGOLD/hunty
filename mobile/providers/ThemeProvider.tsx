@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useColorScheme, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -58,9 +52,7 @@ const darkColors: ColorScheme = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useColorScheme();
   const [preference, setPreference] = useState<ThemePreference>('system');
   const [mounted, setMounted] = useState(false);
@@ -100,11 +92,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const resolvedTheme: Theme =
-    preference === 'system'
-      ? systemColorScheme === 'dark'
-        ? 'dark'
-        : 'light'
-      : preference;
+    preference === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : preference;
 
   const toggleTheme = () => {
     setThemePreference(resolvedTheme === 'light' ? 'dark' : 'light');

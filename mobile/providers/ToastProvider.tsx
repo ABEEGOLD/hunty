@@ -62,28 +62,31 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     translateY.value = withTiming(-120, { duration: 250, easing: Easing.out(Easing.ease) });
   }, [opacity, translateY, clearTimer]);
 
-  const showToast = useCallback(({ message, type = 'info', durationMs = 4200 }: ToastInput) => {
-    clearTimer();
-    const id = nextIdRef.current += 1;
+  const showToast = useCallback(
+    ({ message, type = 'info', durationMs = 4200 }: ToastInput) => {
+      clearTimer();
+      const id = (nextIdRef.current += 1);
 
-    setToast({ id, message, type });
+      setToast({ id, message, type });
 
-    translateY.value = -120;
-    opacity.value = 0;
+      translateY.value = -120;
+      opacity.value = 0;
 
-    translateY.value = withTiming(0, {
-      duration: 400,
-      easing: Easing.out(Easing.back(1.5)),
-    });
-    opacity.value = withTiming(1, {
-      duration: 300,
-      easing: Easing.out(Easing.ease),
-    });
+      translateY.value = withTiming(0, {
+        duration: 400,
+        easing: Easing.out(Easing.back(1.5)),
+      });
+      opacity.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+      });
 
-    hideTimerRef.current = setTimeout(() => {
-      hideToast();
-    }, durationMs);
-  }, [clearTimer, translateY, opacity, hideToast]);
+      hideTimerRef.current = setTimeout(() => {
+        hideToast();
+      }, durationMs);
+    },
+    [clearTimer, translateY, opacity, hideToast],
+  );
 
   const value = useMemo(() => ({ showToast }), [showToast]);
 
@@ -107,10 +110,14 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {toast ? (
         <SafeAreaView pointerEvents="none" style={styles.overlay} edges={['top']}>
           <Animated.View style={[styles.toast, { backgroundColor: typeColor }, animatedStyle]}>
-            <ThemedCustomText style={styles.icon}>
-              {TOAST_ICONS[toast.type]}
-            </ThemedCustomText>
-            <ThemedCustomText variant="label" lightColor="#ffffff" darkColor="#ffffff" weight="700" style={styles.message}>
+            <ThemedCustomText style={styles.icon}>{TOAST_ICONS[toast.type]}</ThemedCustomText>
+            <ThemedCustomText
+              variant="label"
+              lightColor="#ffffff"
+              darkColor="#ffffff"
+              weight="700"
+              style={styles.message}
+            >
               {toast.message}
             </ThemedCustomText>
           </Animated.View>
@@ -161,4 +168,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

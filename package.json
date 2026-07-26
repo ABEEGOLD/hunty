@@ -21,7 +21,16 @@
     "test:mutation:scoring": "stryker run --testRunner vitest stryker.scoring.conf.json",
     "test:mutation:registration": "stryker run --testRunner vitest stryker.registration.conf.json",
     "test:mutation": "npm run test:mutation:validation && npm run test:mutation:scoring && npm run test:mutation:registration",
-    "perf:budget": "node scripts/check-performance-budgets.mjs"
+    "perf:budget": "node scripts/check-performance-budgets.mjs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "mobile/**/*.{js,jsx,ts,tsx}": [
+      "npx prettier --write"
+    ],
+    "mobile/**/*.{json,md}": [
+      "npx prettier --write"
+    ]
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
@@ -94,9 +103,12 @@
     "eslint-config-next": "15.3.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-storybook": "^10.4.6",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
+    "lint-staged": "^15.4.3",
     "node-mocks-http": "^1.12.1",
     "playwright": "^1.61.0",
+    "prettier": "^3.5.0",
     "pnpm": "^10.33.0",
     "sharp": "^0.35.2",
     "storybook": "^10.4.6",

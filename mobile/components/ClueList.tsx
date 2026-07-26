@@ -84,10 +84,7 @@ export const ClueList: React.FC<ClueListProps> = ({
           </Text>
 
           <Text
-            style={[
-              styles.clueDescription,
-              isActive && styles.clueDescriptionActive,
-            ]}
+            style={[styles.clueDescription, isActive && styles.clueDescriptionActive]}
             numberOfLines={1}
           >
             {item.description}

@@ -38,4 +38,3 @@ export function classifyWalletTxError(input: unknown): WalletTxError {
     message: 'Wallet transaction failed. Please try again.',
   };
 }
-

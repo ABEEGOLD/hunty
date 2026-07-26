@@ -71,9 +71,7 @@ describe('setPreferences', () => {
 
   it('does not throw when write fails', async () => {
     mockAsyncStorage.setItem.mockRejectedValueOnce(new Error('Write error'));
-    await expect(
-      setPreferences(DEFAULT_PREFERENCES),
-    ).resolves.not.toThrow();
+    await expect(setPreferences(DEFAULT_PREFERENCES)).resolves.not.toThrow();
   });
 });
 

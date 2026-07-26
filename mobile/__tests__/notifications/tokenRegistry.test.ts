@@ -4,7 +4,11 @@
 
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
-import { registerPushToken, unregisterPushToken, getExpoPushToken } from '../../services/notifications/tokenRegistry';
+import {
+  registerPushToken,
+  unregisterPushToken,
+  getExpoPushToken,
+} from '../../services/notifications/tokenRegistry';
 
 // ─── Mocks ─────────────────────────────────────────────────────────────────────
 

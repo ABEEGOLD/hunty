@@ -26,22 +26,36 @@ interface OptimizedHuntFeedProps {
   refreshing?: boolean;
 }
 
-export function OptimizedHuntFeed({ onRefresh: externalRefresh, refreshing: externalRefreshing }: OptimizedHuntFeedProps) {
+export function OptimizedHuntFeed({
+  onRefresh: externalRefresh,
+  refreshing: externalRefreshing,
+}: OptimizedHuntFeedProps) {
   const router = useRouter();
   const { colors } = useTheme();
   const flatListRef = useRef<FlatList<ListItem>>(null);
   const [displayCount, setDisplayCount] = useState(INITIAL_PAGE_SIZE);
   const [localRefreshing, setLocalRefreshing] = useState(false);
 
-  const { data: hunts = [], isLoading, isError, refetch } = useQuery({
+  const {
+    data: hunts = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['hunts', 'optimized-feed'],
     queryFn: getActiveHuntsForFeed,
   });
 
   const sections = useMemo(() => {
-    const sortedTrending = [...hunts].sort((a, b) => (b.playerCount ?? 0) - (a.playerCount ?? 0)).slice(0, 4);
-    const sortedNew = [...hunts].sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0)).slice(0, 4);
-    const sortedPrize = [...hunts].sort((a, b) => (b.rewardPool ?? 0) - (a.rewardPool ?? 0)).slice(0, 4);
+    const sortedTrending = [...hunts]
+      .sort((a, b) => (b.playerCount ?? 0) - (a.playerCount ?? 0))
+      .slice(0, 4);
+    const sortedNew = [...hunts]
+      .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))
+      .slice(0, 4);
+    const sortedPrize = [...hunts]
+      .sort((a, b) => (b.rewardPool ?? 0) - (a.rewardPool ?? 0))
+      .slice(0, 4);
 
     return [
       { title: 'Trending Hunts', subtitle: 'Most popular among players', data: sortedTrending },
@@ -109,20 +123,17 @@ export function OptimizedHuntFeed({ onRefresh: externalRefresh, refreshing: exte
     setDisplayCount((prev) => prev + PAGE_SIZE);
   }, [hasMore, isLoadingMore]);
 
-  const getItemLayout = useCallback(
-    (data: ListItem[] | null | undefined, index: number) => {
-      if (!data) return { length: 0, offset: 0, index };
+  const getItemLayout = useCallback((data: ListItem[] | null | undefined, index: number) => {
+    if (!data) return { length: 0, offset: 0, index };
 
-      let offset = 0;
-      for (let i = 0; i < index; i++) {
-        offset += data[i].kind === 'sectionHeader' ? SECTION_HEADER_HEIGHT : HUNT_CARD_HEIGHT;
-      }
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      offset += data[i].kind === 'sectionHeader' ? SECTION_HEADER_HEIGHT : HUNT_CARD_HEIGHT;
+    }
 
-      const length = data[index].kind === 'sectionHeader' ? SECTION_HEADER_HEIGHT : HUNT_CARD_HEIGHT;
-      return { length, offset, index };
-    },
-    [],
-  );
+    const length = data[index].kind === 'sectionHeader' ? SECTION_HEADER_HEIGHT : HUNT_CARD_HEIGHT;
+    return { length, offset, index };
+  }, []);
 
   const keyExtractor = useCallback((item: ListItem) => item.id, []);
 
@@ -238,12 +249,7 @@ export function OptimizedHuntFeed({ onRefresh: externalRefresh, refreshing: exte
       ListFooterComponent={renderFooter}
       onEndReached={handleLoadMore}
       onEndReachedThreshold={0.5}
-      refreshControl={
-        <HuntyRefreshControl
-          refreshing={isRefreshing}
-          onRefresh={handleRefresh}
-        />
-      }
+      refreshControl={<HuntyRefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
       onContentSizeChange={() => {
         if (!hunts.length && !isLoading) {
           refetch();

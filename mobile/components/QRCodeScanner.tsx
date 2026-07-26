@@ -20,7 +20,7 @@ export default function QRCodeScanner({ onScanned }: { onScanned: (data: string)
       onScanned(data);
       router.push({ pathname: '/qr-scanner/result', params: { data } });
     },
-    [onScanned, router]
+    [onScanned, router],
   );
 
   if (hasPermission === null) {
@@ -36,7 +36,11 @@ export default function QRCodeScanner({ onScanned }: { onScanned: (data: string)
       <View style={styles.center}>
         <Text style={styles.error}>Camera permission denied.</Text>
         <TouchableOpacity
-          onPress={() => Camera.requestCameraPermissionsAsync().then(r => setHasPermission(r.status === 'granted'))}
+          onPress={() =>
+            Camera.requestCameraPermissionsAsync().then((r) =>
+              setHasPermission(r.status === 'granted'),
+            )
+          }
           style={styles.button}
         >
           <Text style={styles.buttonText}>Grant Permission</Text>
@@ -58,7 +62,9 @@ export default function QRCodeScanner({ onScanned }: { onScanned: (data: string)
             onPress={() => setFlash(flash === FlashMode.torch ? FlashMode.off : FlashMode.torch)}
             style={styles.flashButton}
           >
-            <Text style={styles.flashText}>{flash === FlashMode.torch ? 'Flash On' : 'Flash Off'}</Text>
+            <Text style={styles.flashText}>
+              {flash === FlashMode.torch ? 'Flash On' : 'Flash Off'}
+            </Text>
           </TouchableOpacity>
         </View>
       </Camera>
@@ -73,6 +79,11 @@ const styles = StyleSheet.create({
   flashText: { color: '#fff', fontWeight: '600' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' },
   error: { color: '#f00', marginBottom: 20 },
-  button: { backgroundColor: '#0066ff', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
+  button: {
+    backgroundColor: '#0066ff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
   buttonText: { color: '#fff', fontWeight: '600' },
 });

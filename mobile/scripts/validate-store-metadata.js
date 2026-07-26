@@ -59,7 +59,15 @@ if (storeConfig) {
   const appleInfo = storeConfig.apple?.info?.['en-US'];
   const androidInfo = storeConfig.android?.info?.['en-US'];
 
-  const appleFields = ['title', 'subtitle', 'description', 'keywords', 'privacyPolicyUrl', 'supportUrl', 'marketingUrl'];
+  const appleFields = [
+    'title',
+    'subtitle',
+    'description',
+    'keywords',
+    'privacyPolicyUrl',
+    'supportUrl',
+    'marketingUrl',
+  ];
   for (const field of appleFields) {
     if (appleInfo?.[field]) pass(`apple.info.en-US.${field}`);
     else fail(`apple.info.en-US.${field} is missing or empty`);
@@ -105,26 +113,28 @@ const SCREENS = [
 const screenshotDirs = [
   { dir: 'store/ios/iphone-67', label: 'iPhone 6.7"' },
   { dir: 'store/ios/iphone-65', label: 'iPhone 6.5"' },
-  { dir: 'store/ios/ipad-129',  label: 'iPad Pro 12.9"' },
+  { dir: 'store/ios/ipad-129', label: 'iPad Pro 12.9"' },
   { dir: 'store/android/phone', label: 'Android Phone' },
 ];
 
 let screenshotsMissing = 0;
 for (const { dir, label } of screenshotDirs) {
   const fullDir = path.join(root, dir);
-  const pngs = SCREENS.map(s => path.join(fullDir, `${s}.png`));
-  const present = pngs.filter(p => fs.existsSync(p));
+  const pngs = SCREENS.map((s) => path.join(fullDir, `${s}.png`));
+  const present = pngs.filter((p) => fs.existsSync(p));
   if (present.length === SCREENS.length) {
     pass(`${dir}/  (${label}) — ${present.length} screenshots`);
   } else {
-    const missing = pngs.filter(p => !fs.existsSync(p)).map(p => path.basename(p));
+    const missing = pngs.filter((p) => !fs.existsSync(p)).map((p) => path.basename(p));
     fail(`${dir}/  (${label}) — missing: ${missing.join(', ')}`);
     screenshotsMissing++;
   }
 }
 
 if (screenshotsMissing > 0) {
-  console.log('  hint  Run `pnpm store:generate` to create placeholder PNGs, then replace with real screenshots.');
+  console.log(
+    '  hint  Run `pnpm store:generate` to create placeholder PNGs, then replace with real screenshots.',
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -136,7 +146,9 @@ const featureGraphic = path.join(root, 'store/android/feature-graphic.png');
 if (fs.existsSync(featureGraphic)) pass('store/android/feature-graphic.png  (1024×500)');
 else {
   fail('store/android/feature-graphic.png is missing');
-  console.log('  hint  Run `pnpm store:generate` to create a placeholder, then replace with branded art.');
+  console.log(
+    '  hint  Run `pnpm store:generate` to create a placeholder, then replace with branded art.',
+  );
 }
 
 // ---------------------------------------------------------------------------

@@ -32,38 +32,45 @@ pnpm run build:all:preview   # Build for preview
 Start here based on your need:
 
 ### 🆕 New to This Setup?
+
 → **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Fast lookup for common commands
 
 ### 🛠️ Want Complete Setup Instructions?
+
 → **[EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md)** - Full guide with examples (2000+ lines)
 
 ### 🔐 Need to Set Up Credentials?
+
 → **[EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md)** - iOS/Android signing & credentials
 
 ### 📋 Want an Overview?
+
 → **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Architecture & features
 
 ### ✅ What Was Delivered?
+
 → **[DELIVERABLES.md](./DELIVERABLES.md)** - Deliverables & next steps
 
 ### 📖 Comprehensive Summary?
+
 → **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** - Complete implementation summary
 
 ---
 
 ## 🎯 Three Build Profiles
 
-| Profile | Use Case | Output | Command |
-|---------|----------|--------|---------|
-| **development** | Local testing, development | APK | `pnpm run build:android:dev` |
-| **preview** | QA testing, demos | APK | `pnpm run build:all:preview` |
-| **production** | App Store/Play Store | AAB/IPA | `pnpm run build:all:prod` |
+| Profile         | Use Case                   | Output  | Command                      |
+| --------------- | -------------------------- | ------- | ---------------------------- |
+| **development** | Local testing, development | APK     | `pnpm run build:android:dev` |
+| **preview**     | QA testing, demos          | APK     | `pnpm run build:all:preview` |
+| **production**  | App Store/Play Store       | AAB/IPA | `pnpm run build:all:prod`    |
 
 ---
 
 ## 📦 Common Commands
 
 ### Building
+
 ```bash
 # Development (for testing locally)
 pnpm run build:android:dev
@@ -77,12 +84,14 @@ pnpm run build:all:prod
 ```
 
 ### OTA Updates
+
 ```bash
 # Publish JavaScript/asset update (no rebuild needed)
 pnpm run update:production -m "v1.1.0: Fixed login bug"
 ```
 
 ### Deployment
+
 ```bash
 # Submit to app stores
 pnpm run submit:production:android
@@ -90,6 +99,7 @@ pnpm run submit:production:ios
 ```
 
 ### Credentials
+
 ```bash
 # Set up credentials (one-time)
 eas credentials --platform ios
@@ -104,6 +114,7 @@ eas credentials --platform ios --list
 ## 🔑 Environment Setup
 
 ### 1. Copy Environment Files
+
 ```bash
 cp .env.development.example .env.development
 cp .env.preview.example .env.preview
@@ -111,6 +122,7 @@ cp .env.production.example .env.production
 ```
 
 ### 2. Fill in Required Variables
+
 ```bash
 # In each .env file, set:
 EAS_PROJECT_ID=your-eas-project-id
@@ -120,12 +132,14 @@ WALLETCONNECT_PROJECT_ID=your-walletconnect-id
 ```
 
 ### 3. Get Your EAS Project ID
+
 ```bash
 # From app.json
 cat app.json | grep projectId
 ```
 
 ### 4. Get Your EXPO_TOKEN
+
 - Go to: https://expo.dev/account/settings
 - Create a token if needed
 - Copy and paste into .env files
@@ -135,6 +149,7 @@ cat app.json | grep projectId
 ## 🧪 Quick Test
 
 ### Test the System (15 minutes)
+
 ```bash
 cd mobile
 
@@ -185,6 +200,7 @@ mobile/
 ## 🚀 Common Workflows
 
 ### Release to Production
+
 ```bash
 # 1. Build
 pnpm run build:all:prod
@@ -200,6 +216,7 @@ pnpm run submit:production:ios
 ```
 
 ### Publish OTA Update
+
 ```bash
 # Make code changes
 # Then publish
@@ -209,6 +226,7 @@ pnpm run update:production -m "v1.1.0: Fixed bug"
 ```
 
 ### Share Build with Team
+
 ```bash
 # Build preview
 pnpm run build:all:preview
@@ -222,11 +240,13 @@ eas build:download <build-id>
 ## 🆘 Troubleshooting
 
 ### "Credentials not found"
+
 ```bash
 eas credentials --platform <ios|android>
 ```
 
 ### "EAS Project ID not set"
+
 ```bash
 # Get it from app.json
 cat app.json | grep projectId
@@ -236,12 +256,15 @@ eas init
 ```
 
 ### "Build failed - check logs"
+
 ```bash
 eas build:log <build-id>
 ```
 
 ### More Issues?
+
 See troubleshooting sections in:
+
 - [QUICK_REFERENCE.md](./QUICK_REFERENCE.md#troubleshooting-quick-fixes)
 - [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md#troubleshooting)
 - [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md#troubleshooting)
@@ -273,14 +296,14 @@ See troubleshooting sections in:
 
 ## 📝 For More Info
 
-| Need | See |
-|------|-----|
-| Quick command reference | [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) |
+| Need                        | See                                                              |
+| --------------------------- | ---------------------------------------------------------------- |
+| Quick command reference     | [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)                       |
 | Complete setup instructions | [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md) |
-| Credentials & signing | [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md) |
-| Features overview | [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) |
-| What was delivered | [DELIVERABLES.md](./DELIVERABLES.md) |
-| Complete summary | [FINAL_SUMMARY.md](./FINAL_SUMMARY.md) |
+| Credentials & signing       | [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md)           |
+| Features overview           | [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)         |
+| What was delivered          | [DELIVERABLES.md](./DELIVERABLES.md)                             |
+| Complete summary            | [FINAL_SUMMARY.md](./FINAL_SUMMARY.md)                           |
 
 ---
 

@@ -1,14 +1,7 @@
-import React from "react";
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@providers/ThemeProvider";
+import React from 'react';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@providers/ThemeProvider';
 
 type Props = {
   visible: boolean;
@@ -29,8 +22,10 @@ export function DisconnectWalletModal({ visible, onCancel, onConfirm, isLoading 
       onRequestClose={onCancel}
     >
       <View style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border }]}>
-          <View style={[styles.iconWrap, { backgroundColor: colors.error + "18" }]}>
+        <View
+          style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border }]}
+        >
+          <View style={[styles.iconWrap, { backgroundColor: colors.error + '18' }]}>
             <Ionicons name="wallet-outline" size={28} color={colors.error} />
           </View>
 
@@ -42,8 +37,8 @@ export function DisconnectWalletModal({ visible, onCancel, onConfirm, isLoading 
             Disconnect Wallet
           </Text>
           <Text accessible={true} style={[styles.body, { color: colors.secondary }]}>
-            You'll be signed out and your wallet will be unlinked from this
-            device. Your assets remain safe on-chain.
+            You'll be signed out and your wallet will be unlinked from this device. Your assets
+            remain safe on-chain.
           </Text>
 
           <TouchableOpacity
@@ -82,51 +77,51 @@ export function DisconnectWalletModal({ visible, onCancel, onConfirm, isLoading 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
   },
   sheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 28,
-    alignItems: "center",
+    alignItems: 'center',
     borderWidth: 1,
   },
   iconWrap: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   title: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 8,
   },
   body: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
   },
   confirmBtn: {
-    width: "100%",
+    width: '100%',
     paddingVertical: 14,
     borderRadius: 12,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 10,
   },
   confirmText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
     fontSize: 15,
   },
   cancelBtn: {
-    width: "100%",
+    width: '100%',
     paddingVertical: 14,
-    alignItems: "center",
+    alignItems: 'center',
   },
   cancelText: {
     fontSize: 15,

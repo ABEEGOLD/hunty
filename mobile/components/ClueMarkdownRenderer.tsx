@@ -34,9 +34,7 @@ export function ClueMarkdownRenderer({ text }: ClueMarkdownRendererProps) {
                 accessibilityLabel={altText || 'Clue image'}
               />
               {altText ? (
-                <Text style={[styles.caption, { color: colors.secondary }]}>
-                  {altText}
-                </Text>
+                <Text style={[styles.caption, { color: colors.secondary }]}>{altText}</Text>
               ) : null}
             </View>
           );
@@ -85,11 +83,7 @@ function renderFormattedText(text: string, key: number, colors: any) {
       );
     }
 
-    return (
-      <React.Fragment key={`text-${subIdx}`}>
-        {renderBoldText(subPart)}
-      </React.Fragment>
-    );
+    return <React.Fragment key={`text-${subIdx}`}>{renderBoldText(subPart)}</React.Fragment>;
   });
 
   return (

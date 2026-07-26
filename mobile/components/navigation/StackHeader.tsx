@@ -51,7 +51,12 @@ export function StackHeader({ navigation, options, route }: StackHeaderProps) {
               onPress={() => navigation.goBack()}
               style={styles.backButton}
             >
-              <ThemedCustomText variant="label" lightColor={tintColor} darkColor={tintColor} weight="600">
+              <ThemedCustomText
+                variant="label"
+                lightColor={tintColor}
+                darkColor={tintColor}
+                weight="600"
+              >
                 Back
               </ThemedCustomText>
             </Pressable>

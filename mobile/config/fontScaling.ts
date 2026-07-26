@@ -19,10 +19,10 @@ export const BASE_SIZES = {
 export const normalizeFont = (size: number): number => {
   const scale = PixelRatio.getFontScale();
   const maxScale = MAX_FONT_SCALE;
-  
+
   // Apply scale but cap at maximum allowed
   const scaledSize = size * Math.min(scale, maxScale);
-  
+
   // Round to nearest pixel for crisp rendering
   return Math.round(PixelRatio.roundToNearestPixel(scaledSize));
 };
@@ -31,10 +31,10 @@ export const normalizeFont = (size: number): number => {
 export const getSafeFontSize = (maxWidth: number, text: string, baseSize: number = 16): number => {
   const avgCharWidth = baseSize * 0.6;
   const maxScale = MAX_FONT_SCALE;
-  
+
   // Calculate safe font size that fits within maxWidth at max scale
   const safeFontSize = maxWidth / (text.length * avgCharWidth * maxScale);
-  
+
   // Ensure minimum readable size (12pt)
   return Math.max(12, Math.min(safeFontSize, baseSize));
 };
@@ -44,7 +44,7 @@ export const willTextClip = (text: string, fontSize: number, maxWidth: number): 
   const maxScale = MAX_FONT_SCALE;
   const scaledFontSize = fontSize * maxScale;
   const avgCharWidth = scaledFontSize * 0.6;
-  
+
   return text.length * avgCharWidth > maxWidth;
 };
 

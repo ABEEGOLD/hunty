@@ -104,10 +104,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
     gap: 8,
   };
 
-  const textColor =
-    variant === 'ghost'
-      ? colors.text
-      : '#ffffff';
+  const textColor = variant === 'ghost' ? colors.text : '#ffffff';
 
   return (
     <Pressable
@@ -131,7 +128,9 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       ]}
       {...otherProps}
     >
-      {loadingState && <ActivityIndicator color={textColor} size={size === 'sm' ? 'small' : 'small'} />}
+      {loadingState && (
+        <ActivityIndicator color={textColor} size={size === 'sm' ? 'small' : 'small'} />
+      )}
       {!loadingState && icon && icon}
       <ThemedCustomText
         variant={textSizeVariant[size]}

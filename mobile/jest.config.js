@@ -7,7 +7,10 @@ module.exports = {
   setupFiles: ['<rootDir>/__mocks__/jestSetup.js'],
 
   transform: {
-    '^.+\\.[jt]sx?$': ['babel-jest', { configFile: require('path').resolve(__dirname, 'babel.config.js') }],
+    '^.+\\.[jt]sx?$': [
+      'babel-jest',
+      { configFile: require('path').resolve(__dirname, 'babel.config.js') },
+    ],
   },
 
   // Transform expo/* packages since they ship ESM

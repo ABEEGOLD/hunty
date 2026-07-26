@@ -14,14 +14,11 @@ export const ThemedView: React.FC<ThemedViewProps> = ({
   ...otherProps
 }) => {
   const { isDark, colors } = useTheme();
-  const backgroundColor = isDark ? (darkColor || colors.background) : (lightColor || colors.background);
+  const backgroundColor = isDark ? darkColor || colors.background : lightColor || colors.background;
 
   return (
     <View
-      style={[
-        { backgroundColor },
-        Array.isArray(style) ? StyleSheet.flatten(style) : style,
-      ]}
+      style={[{ backgroundColor }, Array.isArray(style) ? StyleSheet.flatten(style) : style]}
       {...otherProps}
     />
   );

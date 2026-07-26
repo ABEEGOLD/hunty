@@ -52,7 +52,9 @@ export async function isBiometricAvailable(): Promise<boolean> {
   return (await getSupportedBiometricType()) !== null;
 }
 
-export async function authenticateBiometric(promptMessage = 'Unlock Hunty Wallet'): Promise<boolean> {
+export async function authenticateBiometric(
+  promptMessage = 'Unlock Hunty Wallet',
+): Promise<boolean> {
   const isAvailable = await isBiometricAvailable();
   if (!isAvailable) return false;
 
@@ -136,7 +138,9 @@ export async function verifyPin(pin: string): Promise<boolean> {
   return storedHash === hash;
 }
 
-export async function authenticateWithFallback(promptMessage = 'Unlock Hunty Wallet'): Promise<WalletAuthResult> {
+export async function authenticateWithFallback(
+  promptMessage = 'Unlock Hunty Wallet',
+): Promise<WalletAuthResult> {
   const biometricEnabled = await getBiometricEnabled();
   const biometricAvailable = await isBiometricAvailable();
   const pinExists = await getPinExists();
@@ -157,7 +161,11 @@ export async function authenticateWithFallback(promptMessage = 'Unlock Hunty Wal
   return { authenticated: false, requiresPin: false };
 }
 
-export async function getBiometricStatus(): Promise<{ available: boolean; enabled: boolean; type: BiometricTypeName }> {
+export async function getBiometricStatus(): Promise<{
+  available: boolean;
+  enabled: boolean;
+  type: BiometricTypeName;
+}> {
   const available = await isBiometricAvailable();
   const enabled = await getBiometricEnabled();
   const type = available ? await getSupportedBiometricType() : null;

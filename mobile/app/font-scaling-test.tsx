@@ -1,6 +1,20 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Platform, Switch, TouchableOpacity, Alert } from 'react-native';
-import { normalizeFont, MAX_FONT_SCALE, getSafeFontSize, willTextClip } from '../config/fontScaling';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Platform,
+  Switch,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import {
+  normalizeFont,
+  MAX_FONT_SCALE,
+  getSafeFontSize,
+  willTextClip,
+} from '../config/fontScaling';
 
 export default function FontScalingTestScreen() {
   const [maxScaleEnabled, setMaxScaleEnabled] = React.useState(false);
@@ -8,11 +22,15 @@ export default function FontScalingTestScreen() {
 
   const runTests = () => {
     const testResults: any[] = [];
-    
+
     const testCases = [
       { text: 'Hunty', fontSize: 24, type: 'Title' },
       { text: 'City Secrets', fontSize: 20, type: 'Hunt Title' },
-      { text: 'Race across town to uncover hidden murals and landmarks.', fontSize: 16, type: 'Description' },
+      {
+        text: 'Race across town to uncover hidden murals and landmarks.',
+        fontSize: 16,
+        type: 'Description',
+      },
       { text: 'Start Hunt', fontSize: 16, type: 'Button' },
       { text: 'Play Now', fontSize: 14, type: 'Button' },
       { text: 'Leaderboard', fontSize: 18, type: 'Navigation' },
@@ -40,21 +58,19 @@ export default function FontScalingTestScreen() {
     });
 
     setResults(testResults);
-    
+
     // Check for critical issues
-    const criticalIssues = testResults.filter(r => r.willClip);
+    const criticalIssues = testResults.filter((r) => r.willClip);
     if (criticalIssues.length > 0) {
       Alert.alert(
         'Font Scaling Issues Detected',
         `${criticalIssues.length} text elements may clip at maximum font scaling. See results for details.`,
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
     } else {
-      Alert.alert(
-        'Font Scaling Test Complete',
-        'All text elements passed the scaling test.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Font Scaling Test Complete', 'All text elements passed the scaling test.', [
+        { text: 'OK' },
+      ]);
     }
   };
 
@@ -63,7 +79,8 @@ export default function FontScalingTestScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Font Scaling Test</Text>
         <Text style={styles.subtitle}>
-          Platform: {Platform.OS.toUpperCase()} | Max Scale: {maxScaleEnabled ? MAX_FONT_SCALE.toFixed(1) : '1.0'}
+          Platform: {Platform.OS.toUpperCase()} | Max Scale:{' '}
+          {maxScaleEnabled ? MAX_FONT_SCALE.toFixed(1) : '1.0'}
         </Text>
         <View style={styles.toggleContainer}>
           <Text style={styles.toggleLabel}>Enable Maximum Font Scaling</Text>
@@ -91,9 +108,7 @@ export default function FontScalingTestScreen() {
               <Text style={styles.detailText}>
                 Original: {result.originalSize}pt → Scaled: {result.scaledSize.toFixed(1)}pt
               </Text>
-              {result.willClip && (
-                <Text style={styles.warning}>⚠️ Text may clip at max scale</Text>
-              )}
+              {result.willClip && <Text style={styles.warning}>⚠️ Text may clip at max scale</Text>}
               <Text style={styles.safeSize}>
                 Safe Font Size: {result.safeFontSize.toFixed(1)}pt
               </Text>
@@ -122,8 +137,12 @@ export default function FontScalingTestScreen() {
         <Text style={[styles.sampleText, { fontSize: normalizeFont(16 * MAX_FONT_SCALE) }]}>
           Race across town to uncover hidden murals and landmarks.
         </Text>
-        <Text style={[styles.sampleButton, { fontSize: normalizeFont(16 * MAX_FONT_SCALE) }]}>Start Hunt</Text>
-        <Text style={[styles.sampleButton, { fontSize: normalizeFont(14 * MAX_FONT_SCALE) }]}>Play Now</Text>
+        <Text style={[styles.sampleButton, { fontSize: normalizeFont(16 * MAX_FONT_SCALE) }]}>
+          Start Hunt
+        </Text>
+        <Text style={[styles.sampleButton, { fontSize: normalizeFont(14 * MAX_FONT_SCALE) }]}>
+          Play Now
+        </Text>
       </View>
     </ScrollView>
   );

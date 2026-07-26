@@ -71,7 +71,10 @@ export default function HuntsScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <ThemedCustomText variant="h1" color="primary" weight="800">
             Game Arcade
@@ -81,10 +84,17 @@ export default function HuntsScreen() {
           </ThemedCustomText>
         </View>
 
-        <View style={[styles.statsBoard, { backgroundColor: colors.border + '30', borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.statsBoard,
+            { backgroundColor: colors.border + '30', borderColor: colors.border },
+          ]}
+        >
           {stats.map((stat, index) => (
             <View key={stat.label} style={styles.statGroup}>
-              {index > 0 ? <View style={[styles.statDivider, { backgroundColor: colors.border }]} /> : null}
+              {index > 0 ? (
+                <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+              ) : null}
               <View style={styles.statItem}>
                 <ThemedCustomText variant="h2" color={stat.color} weight="700">
                   {stat.value}

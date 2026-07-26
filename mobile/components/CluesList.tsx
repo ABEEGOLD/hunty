@@ -18,12 +18,7 @@ interface CluesListProps {
   onSelectClue: (index: number) => void;
 }
 
-export function CluesList({
-  clues,
-  currentIndex,
-  completedIndices,
-  onSelectClue,
-}: CluesListProps) {
+export function CluesList({ clues, currentIndex, completedIndices, onSelectClue }: CluesListProps) {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
       <Text style={styles.header}>Clues Progress</Text>
@@ -59,10 +54,7 @@ export function CluesList({
                 Clue {index + 1}
               </Text>
             </View>
-            <Text
-              style={[styles.clueText, isDisabled && styles.disabledText]}
-              numberOfLines={1}
-            >
+            <Text style={[styles.clueText, isDisabled && styles.disabledText]} numberOfLines={1}>
               {clue.question}
             </Text>
             {isCompleted && <Text style={styles.completedBadge}>Completed</Text>}

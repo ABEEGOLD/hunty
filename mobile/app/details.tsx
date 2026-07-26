@@ -25,11 +25,17 @@ export default function DetailsScreen() {
     return Math.round((completedClues.size / clues.length) * 100);
   }, [completedClues.size, clues.length]);
 
-  const registeredPlayers = useMemo(() => Math.max(12, clues.length * 5 + hId), [clues.length, hId]);
-  
+  const registeredPlayers = useMemo(
+    () => Math.max(12, clues.length * 5 + hId),
+    [clues.length, hId],
+  );
+
   const prizePool = useMemo(() => {
     const xlm = Math.max(10, clues.length * 3);
-    const nftCount = hunt?.rewardType === 'NFT' || hunt?.rewardType === 'Both' ? Math.max(1, Math.floor(clues.length / 3)) : 0;
+    const nftCount =
+      hunt?.rewardType === 'NFT' || hunt?.rewardType === 'Both'
+        ? Math.max(1, Math.floor(clues.length / 3))
+        : 0;
     return { xlm, nftCount };
   }, [clues.length, hunt?.rewardType]);
 
@@ -42,12 +48,10 @@ export default function DetailsScreen() {
   }, [hunt?.creatorEmail, hId]);
 
   useEffect(() => {
-    Promise.all([getHuntById(hId), getHuntClues(hId)]).then(
-      ([fetchedHunt, fetchedClues]) => {
-        if (fetchedHunt) setHunt(fetchedHunt);
-        setClues(fetchedClues);
-      },
-    );
+    Promise.all([getHuntById(hId), getHuntClues(hId)]).then(([fetchedHunt, fetchedClues]) => {
+      if (fetchedHunt) setHunt(fetchedHunt);
+      setClues(fetchedClues);
+    });
   }, [hId]);
 
   const handleStart = () => router.push(`/nested?huntId=${hId}&clueIndex=0`);
@@ -60,59 +64,130 @@ export default function DetailsScreen() {
   if (!hunt) return <View style={styles.container} />;
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}> 
+    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={[styles.header, { backgroundColor: colors.primary + '12', borderBottomColor: colors.border }]}>
-          <ThemedCustomText variant="h2" weight="800" style={styles.title}>{hunt.title}</ThemedCustomText>
-          <ThemedCustomText variant="caption" color="primary" weight="700" style={styles.status}>{hunt.status}</ThemedCustomText>
+        <View
+          style={[
+            styles.header,
+            { backgroundColor: colors.primary + '12', borderBottomColor: colors.border },
+          ]}
+        >
+          <ThemedCustomText variant="h2" weight="800" style={styles.title}>
+            {hunt.title}
+          </ThemedCustomText>
+          <ThemedCustomText variant="caption" color="primary" weight="700" style={styles.status}>
+            {hunt.status}
+          </ThemedCustomText>
         </View>
 
-        <View style={[styles.loreCard, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
-          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>Hunt Lore</ThemedCustomText>
+        <View
+          style={[
+            styles.loreCard,
+            { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' },
+          ]}
+        >
+          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>
+            Hunt Lore
+          </ThemedCustomText>
           <ThemedCustomText variant="body" style={styles.loreText}>
-            {hunt.description} Follow the trail, unlock each clue, and race to claim the final reward before rival hunters do.
+            {hunt.description} Follow the trail, unlock each clue, and race to claim the final
+            reward before rival hunters do.
           </ThemedCustomText>
         </View>
 
         <View style={styles.metaContainer}>
-          <View style={[styles.metaItem, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-            <ThemedCustomText variant="caption" style={styles.metaLabel}>Total Clues</ThemedCustomText>
-            <ThemedCustomText variant="h3" color="primary" weight="700">{clues.length}</ThemedCustomText>
+          <View
+            style={[
+              styles.metaItem,
+              { backgroundColor: colors.background, borderColor: colors.border },
+            ]}
+          >
+            <ThemedCustomText variant="caption" style={styles.metaLabel}>
+              Total Clues
+            </ThemedCustomText>
+            <ThemedCustomText variant="h3" color="primary" weight="700">
+              {clues.length}
+            </ThemedCustomText>
           </View>
-          <View style={[styles.metaItem, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-            <ThemedCustomText variant="caption" style={styles.metaLabel}>Reward Type</ThemedCustomText>
-            <ThemedCustomText variant="h3" color="primary" weight="700">{hunt.rewardType}</ThemedCustomText>
+          <View
+            style={[
+              styles.metaItem,
+              { backgroundColor: colors.background, borderColor: colors.border },
+            ]}
+          >
+            <ThemedCustomText variant="caption" style={styles.metaLabel}>
+              Reward Type
+            </ThemedCustomText>
+            <ThemedCustomText variant="h3" color="primary" weight="700">
+              {hunt.rewardType}
+            </ThemedCustomText>
           </View>
-          <View style={[styles.metaItem, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-            <ThemedCustomText variant="caption" style={styles.metaLabel}>Players</ThemedCustomText>
-            <ThemedCustomText variant="h3" color="primary" weight="700">{registeredPlayers}</ThemedCustomText>
+          <View
+            style={[
+              styles.metaItem,
+              { backgroundColor: colors.background, borderColor: colors.border },
+            ]}
+          >
+            <ThemedCustomText variant="caption" style={styles.metaLabel}>
+              Players
+            </ThemedCustomText>
+            <ThemedCustomText variant="h3" color="primary" weight="700">
+              {registeredPlayers}
+            </ThemedCustomText>
           </View>
-          <View style={[styles.metaItem, { backgroundColor: colors.background, borderColor: colors.border }]}> 
-            <ThemedCustomText variant="caption" style={styles.metaLabel}>Creator</ThemedCustomText>
-            <ThemedCustomText variant="label" weight="700">{creatorAddress}</ThemedCustomText>
+          <View
+            style={[
+              styles.metaItem,
+              { backgroundColor: colors.background, borderColor: colors.border },
+            ]}
+          >
+            <ThemedCustomText variant="caption" style={styles.metaLabel}>
+              Creator
+            </ThemedCustomText>
+            <ThemedCustomText variant="label" weight="700">
+              {creatorAddress}
+            </ThemedCustomText>
           </View>
         </View>
 
-        <View style={[styles.prizeCard, { borderColor: colors.warning, backgroundColor: colors.warning + '12' }]}>
-          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>Prize Breakdown</ThemedCustomText>
+        <View
+          style={[
+            styles.prizeCard,
+            { borderColor: colors.warning, backgroundColor: colors.warning + '12' },
+          ]}
+        >
+          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>
+            Prize Breakdown
+          </ThemedCustomText>
           <View style={styles.prizeRow}>
             <ThemedCustomText variant="body">XLM Pool</ThemedCustomText>
-            <ThemedCustomText variant="label" weight="700" color="warning">{prizePool.xlm} XLM</ThemedCustomText>
+            <ThemedCustomText variant="label" weight="700" color="warning">
+              {prizePool.xlm} XLM
+            </ThemedCustomText>
           </View>
           <View style={styles.prizeRow}>
             <ThemedCustomText variant="body">NFT Rewards</ThemedCustomText>
-            <ThemedCustomText variant="label" weight="700" color="warning">{prizePool.nftCount}</ThemedCustomText>
+            <ThemedCustomText variant="label" weight="700" color="warning">
+              {prizePool.nftCount}
+            </ThemedCustomText>
           </View>
         </View>
 
         {clues.length > 0 && (
-          <View style={[styles.progressSection, { backgroundColor: colors.info + '12', borderLeftColor: colors.info }]}> 
-            <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>Your Progress</ThemedCustomText>
+          <View
+            style={[
+              styles.progressSection,
+              { backgroundColor: colors.info + '12', borderLeftColor: colors.info },
+            ]}
+          >
+            <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>
+              Your Progress
+            </ThemedCustomText>
             <View style={styles.progressStats}>
               <ThemedCustomText variant="body" style={styles.progressText}>
                 {completedClues.size} of {clues.length} clues solved ({progressPercent}%)
               </ThemedCustomText>
-              <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}> 
+              <View style={[styles.progressBarContainer, { backgroundColor: colors.border }]}>
                 <View
                   style={[
                     styles.progressBar,
@@ -131,16 +206,32 @@ export default function DetailsScreen() {
               style={[styles.primaryButton, { backgroundColor: colors.primary }]}
               onPress={handleStart}
             >
-              <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">Start Hunt</ThemedCustomText>
+              <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">
+                Start Hunt
+              </ThemedCustomText>
             </Pressable>
           ) : isComplete ? (
-            <View style={[styles.completedContainer, { borderColor: colors.success, backgroundColor: colors.success + '12' }]}> 
-              <ThemedCustomText variant="label" color="success" weight="700" style={styles.completedText}>Hunt Completed</ThemedCustomText>
+            <View
+              style={[
+                styles.completedContainer,
+                { borderColor: colors.success, backgroundColor: colors.success + '12' },
+              ]}
+            >
+              <ThemedCustomText
+                variant="label"
+                color="success"
+                weight="700"
+                style={styles.completedText}
+              >
+                Hunt Completed
+              </ThemedCustomText>
               <Pressable
                 style={[styles.secondaryButton, { backgroundColor: colors.primary }]}
                 onPress={handleStart}
               >
-                <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">Replay Hunt</ThemedCustomText>
+                <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">
+                  Replay Hunt
+                </ThemedCustomText>
               </Pressable>
             </View>
           ) : (
@@ -148,14 +239,18 @@ export default function DetailsScreen() {
               style={[styles.primaryButton, { backgroundColor: colors.primary }]}
               onPress={handleResume}
             >
-              <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">Resume Hunt</ThemedCustomText>
+              <ThemedCustomText variant="label" lightColor="#fff" darkColor="#fff" weight="700">
+                Resume Hunt
+              </ThemedCustomText>
             </Pressable>
           )}
         </View>
 
         {/* Clues list */}
         <View style={styles.cluesSection}>
-          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>Clues ({completedClues.size}/{clues.length})</ThemedCustomText>
+          <ThemedCustomText variant="label" weight="700" style={styles.sectionTitle}>
+            Clues ({completedClues.size}/{clues.length})
+          </ThemedCustomText>
           <FlatList
             scrollEnabled={false}
             data={clues}
@@ -166,19 +261,27 @@ export default function DetailsScreen() {
                 <View
                   style={[
                     styles.clueOverview,
-                    { borderColor: isCompleted ? colors.success : colors.border, backgroundColor: isCompleted ? colors.success + '10' : colors.background },
+                    {
+                      borderColor: isCompleted ? colors.success : colors.border,
+                      backgroundColor: isCompleted ? colors.success + '10' : colors.background,
+                    },
                   ]}
                 >
-                  <ThemedCustomText variant="label" style={[styles.clueOverviewNum, isCompleted && { color: colors.success }]}> 
+                  <ThemedCustomText
+                    variant="label"
+                    style={[styles.clueOverviewNum, isCompleted && { color: colors.success }]}
+                  >
                     {isCompleted ? '✓' : '○'} #{index + 1}
                   </ThemedCustomText>
-                  
+
                   {/* Render clue details elegantly via ClueMarkdownRenderer */}
                   <View style={styles.clueOverviewQuestionContainer}>
                     <ClueMarkdownRenderer text={item.question} />
                   </View>
 
-                  <ThemedCustomText variant="caption" color="warning" style={styles.cluePoints}>{item.points} pts</ThemedCustomText>
+                  <ThemedCustomText variant="caption" color="warning" style={styles.cluePoints}>
+                    {item.points} pts
+                  </ThemedCustomText>
                 </View>
               );
             }}
@@ -263,7 +366,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: 8,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   progressStats: {
@@ -287,12 +390,12 @@ const styles = StyleSheet.create({
   primaryButton: {
     paddingVertical: 14,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
   },
   secondaryButton: {
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 8,
     width: '100%',
   },
@@ -301,7 +404,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 2,
-    alignItems: "center",
+    alignItems: 'center',
     gap: 8,
   },
   completedText: {

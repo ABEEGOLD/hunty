@@ -226,7 +226,7 @@ export function trackScreenView(screenName: string, previousScreen?: string): vo
 export function trackUserAction(
   action: string,
   target?: string,
-  value?: string | number | boolean
+  value?: string | number | boolean,
 ): void {
   trackEvent({
     name: 'user_action',
@@ -279,7 +279,7 @@ export function trackScreenLoad(screenName: string, durationMs: number): void {
  */
 export function startPerformanceSpan(
   operation: string,
-  description: string
+  description: string,
 ): ReturnType<typeof Sentry.startTransaction> {
   return Sentry.startTransaction({ name: description, op: operation });
 }
