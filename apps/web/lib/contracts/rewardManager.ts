@@ -199,6 +199,10 @@ export function getRewardEscrow(huntId: number): RewardEscrow | null {
   return readEscrows().find((escrow) => escrow.huntId === huntId) ?? null
 }
 
+export function getAllRewardEscrows(): RewardEscrow[] {
+  return readEscrows()
+}
+
 export function getRewardHistory(huntId: number): RewardReceipt[] {
   const escrow = getRewardEscrow(huntId)
   if (!escrow) return []
