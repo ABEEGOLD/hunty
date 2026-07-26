@@ -14,6 +14,8 @@ import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
+import { PlayGame } from "@/components/PlayGame";
+import { GameCompleteModal } from "@/components/GameCompleteModal";
 import { 
   checkRegistrationStatus, 
   registerPlayer, 
@@ -421,3 +423,7 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     </div>
   );
 }
+
+
+
+

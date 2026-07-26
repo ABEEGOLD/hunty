@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import HuntDetailClient from "./share";
 import { HuntCountdown } from "./HuntCountdown";
+import { StructuredData, huntStructuredData } from "@/components/StructuredData";
 import { FastestPlayersStrip } from "@/components/FastestPlayersStrip";
 import HuntPageSkeleton from "./loading";
 import { StructuredData, huntStructuredData } from "@/components/StructuredData";
@@ -188,3 +189,5 @@ const page = async ({ params }: PageProps) => {
 };
 
 export default page;
+
+

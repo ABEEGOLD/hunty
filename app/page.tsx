@@ -13,6 +13,7 @@ import { X, ArrowRight, Trophy, Search, HelpCircle } from "lucide-react"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Header } from "@/components/Header"
 import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
@@ -20,7 +21,6 @@ import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
 import { hankenGrotesk } from "@/lib/font"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
-import { Footer } from "@/components/Footer"
 import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
@@ -1090,7 +1090,6 @@ export default function GameArcade() {
         </DialogContent>
       </Dialog>
 
-      <Footer />
     </div>
   )
 }

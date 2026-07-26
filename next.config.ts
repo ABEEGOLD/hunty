@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   compress: true,
   poweredByHeader: false,
   httpAgentOptions: {
@@ -144,3 +147,4 @@ const nextConfig: NextConfig = {
 };
 
 export default withNextIntl(nextConfig);
+

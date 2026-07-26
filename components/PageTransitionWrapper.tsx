@@ -1,6 +1,6 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { type ReactNode, useEffect } from "react"
 
@@ -23,16 +23,16 @@ export function PageTransitionWrapper({ children }: { children: ReactNode }) {
     window.scrollTo({ top: 0, behavior: "instant" })
   }, [pathname])
 
-  const variants = {
+  const variants: Variants = {
     initial: shouldReduceMotion
       ? { opacity: 0 }
       : { opacity: 0, y: 12 },
     animate: shouldReduceMotion
       ? { opacity: 1, transition: { duration: 0.15 } }
-      : { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.25, 0.1, 0.25, 1] } },
+      : { opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" } },
     exit: shouldReduceMotion
       ? { opacity: 0, transition: { duration: 0.1 } }
-      : { opacity: 0, y: -8, transition: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] } },
+      : { opacity: 0, y: -8, transition: { duration: 0.18, ease: "easeOut" } },
   }
 
   return (
@@ -53,3 +53,5 @@ export function PageTransitionWrapper({ children }: { children: ReactNode }) {
     </AnimatePresence>
   )
 }
+
+

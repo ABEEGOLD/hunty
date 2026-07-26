@@ -114,7 +114,7 @@ export function RewardPoolManager({ huntId, isOpen, onClose }: { huntId: number;
           <div>
             <p className="text-sm font-medium">Distribution Preview</p>
             <div className="mt-2 space-y-1">
-              {(pool?.distribution ?? []).map((d) => (
+              {(pool?.distribution ?? []).map((d: Reward) => (
                 <div key={d.place} className="flex justify-between rounded-md border p-2">
                   <div>Place {d.place}</div>
                   <div>{d.amount.toFixed(2)} XLM</div>
@@ -128,3 +128,4 @@ export function RewardPoolManager({ huntId, isOpen, onClose }: { huntId: number;
     </Dialog>
   )
 }
+

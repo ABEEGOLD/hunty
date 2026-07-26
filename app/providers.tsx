@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes"
 import { useState } from "react"
 import { WalletProvider } from "@/lib/context/WalletContext"
 import { WebVitalsReporter } from "@/components/WebVitalsReporter"
+import { queryCachePolicy } from "@/lib/queryKeys"
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
