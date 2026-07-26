@@ -16,17 +16,17 @@ vi.mock("@/components/ThemeToggle", () => ({
   ThemeToggle: () => <div data-testid="theme-toggle" />,
 }));
 
-vi.mock("@/components/WalletBottomSheet", () => ({
-  WalletBottomSheet: ({ isOpen, onClose, onConnect }: any) => (
-    isOpen ? <div data-testid="wallet-bottom-sheet" role="dialog" aria-label="Wallet bottom sheet">
+vi.mock("@/components/WalletSelectionModal", () => ({
+  WalletSelectionModal: ({ isOpen, onClose, onConnect }: any) => (
+    isOpen ? <div data-testid="wallet-selection-modal" role="dialog" aria-label="Wallet selection modal">
       <button onClick={() => onConnect("freighter")}>Connect Freighter</button>
       <button onClick={onClose}>Close Sheet</button>
     </div> : null
   ),
 }));
 
-vi.mock("@/components/icons/Coin", () => ({
-  default: () => <svg data-testid="coin-icon" />,
+vi.mock("@/components/WalletBalance", () => ({
+  WalletBalance: () => <div data-testid="wallet-balance" />,
 }));
 
 Object.assign(navigator, {
@@ -50,7 +50,7 @@ describe("Header", () => {
 
   function renderHeader(props?: Partial<React.ComponentProps<typeof Header>>) {
     const user = userEvent.setup();
-    const utils = render(<Header balance="42" {...props} />);
+    const utils = render(<Header {...props} />);
     return { user, ...utils };
   }
 
@@ -71,7 +71,7 @@ describe("Header", () => {
       expect(screen.getByRole("button", { name: /connect wallet/i })).toBeInTheDocument();
     });
 
-    it("renders balance pill when connected", () => {
+    it("renders the live balance display when connected", () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
         displayKey: "GABC...DEF",
@@ -82,8 +82,7 @@ describe("Header", () => {
       } as any);
 
       renderHeader();
-      expect(screen.getByTestId("coin-icon")).toBeInTheDocument();
-      expect(screen.getByText("42")).toBeInTheDocument();
+      expect(screen.getAllByTestId("wallet-balance").length).toBeGreaterThan(0);
     });
 
     it("renders wallet dropdown trigger when connected", () => {
@@ -117,19 +116,19 @@ describe("Header", () => {
 
   // ─── Interaction Tests ──────────────────────────────────────────
   describe("interaction", () => {
-    it("opens WalletBottomSheet on Connect Wallet click", async () => {
+    it("opens the wallet selection modal on Connect Wallet click", async () => {
       const { user } = renderHeader();
       await user.click(screen.getByRole("button", { name: /connect wallet/i }));
-      expect(screen.getByTestId("wallet-bottom-sheet")).toBeInTheDocument();
+      expect(screen.getByTestId("wallet-selection-modal")).toBeInTheDocument();
     });
 
-    it("closes WalletBottomSheet when onClose is called", async () => {
+    it("closes the wallet selection modal when onClose is called", async () => {
       const { user } = renderHeader();
       await user.click(screen.getByRole("button", { name: /connect wallet/i }));
-      expect(screen.getByTestId("wallet-bottom-sheet")).toBeInTheDocument();
+      expect(screen.getByTestId("wallet-selection-modal")).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: /close sheet/i }));
-      expect(screen.queryByTestId("wallet-bottom-sheet")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("wallet-selection-modal")).not.toBeInTheDocument();
     });
 
     it("toggles dropdown when wallet button is clicked", async () => {

@@ -10,6 +10,7 @@ import {
   type MintResult,
 } from "@/lib/nft/minter";
 import type { MintStage } from "@/lib/nft/minter";
+import { settleWalletBalance } from "@/lib/wallet/balanceEvents";
 
 export type { MintStage } from "@/lib/nft/minter";
 
@@ -83,6 +84,10 @@ export function useNftMint(): UseNftMintResult {
       saveMintReceipt(input, mintResult);
       setResult(mintResult);
       toast.success("NFT minted successfully");
+      // Minting spends network fees and adds a token, so both halves of the
+      // wallet display are now out of date. This path does not go through
+      // withTransactionToast, so it settles the balance itself.
+      settleWalletBalance();
       return mintResult;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Mint failed";

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export default function HuntTemplatesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-white to-orange-100 pb-16">
-      <Header balance="24.2453" />
+      <Header />
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <Button
