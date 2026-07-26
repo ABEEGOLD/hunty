@@ -126,13 +126,35 @@ export type HuntInfo = {
 
 export type ClueDifficulty = "Easy" | "Medium" | "Hard"
 
+/**
+ * A single progressive hint entry. Creators can define up to 3 hints per clue.
+ * Each hint is revealed in order and may carry an optional score penalty and
+ * a minimum delay (in seconds) that must elapse after the previous hint before
+ * this one can be revealed.
+ */
+export interface ClueHint {
+  /** The hint text shown to the player. */
+  text: string
+  /** Points deducted from the clue score when this hint is revealed. */
+  penalty: number
+  /** Seconds the player must wait after the previous hint before revealing this one. */
+  delaySeconds: number
+}
+
 export interface Clue {
   id: number
   huntId: number
   question: string
   answer: string
   points: number
+  /**
+   * Progressive hints array (up to 3). Takes precedence over the legacy
+   * `hint` / `hintCost` fields when present.
+   */
+  hints?: ClueHint[]
+  /** @deprecated Use `hints[0]` instead. Kept for backwards compatibility. */
   hint?: string
+  /** @deprecated Use `hints[0].penalty` instead. Kept for backwards compatibility. */
   hintCost?: number
   /** Optional difficulty tag set by the creator. */
   difficulty?: ClueDifficulty
@@ -152,7 +174,11 @@ export type ClueInfo = {
   id: number
   question: string
   points: number
+  /** Progressive hints (up to 3). Supersedes the legacy `hint`/`hintCost` fields. */
+  hints?: ClueHint[]
+  /** @deprecated Use `hints[0]` instead. */
   hint?: string
+  /** @deprecated Use `hints[0].penalty` instead. */
   hintCost?: number
   difficulty?: ClueDifficulty
 }
@@ -162,7 +188,10 @@ export interface ClueRow {
   question: string
   answer: string
   points: number
+  hints?: ClueHint[]
+  /** @deprecated */
   hint?: string
+  /** @deprecated */
   hintCost?: number
   difficulty?: ClueDifficulty
   alternativeAnswers?: string[]
@@ -387,7 +416,11 @@ export interface HuntCard {
   link?: string
   code?: string
   image?: string
+  /** Progressive hints (up to 3). Supersedes `hint`/`hintCost` when present. */
+  hints?: ClueHint[]
+  /** @deprecated Use `hints[0]` instead. */
   hint?: string
+  /** @deprecated Use `hints[0].penalty` instead. */
   hintCost?: number
   points?: number
   /**

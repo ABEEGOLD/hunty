@@ -149,7 +149,13 @@ export function recordClueAttempt(
   clueRecord: ClueAttemptRecord,
   basePoints: number,
   difficulty: ClueDifficulty,
-  hintsUsed: number = 0
+  hintsUsed: number = 0,
+  /**
+   * Exact penalty in points accrued from revealed progressive hints.
+   * When provided, this is used instead of the weight-based hint penalty
+   * calculation so that per-hint `penalty` values are honoured precisely.
+   */
+  exactHintPenalty?: number,
 ): HuntAttemptRecord | null {
   return updateAttempt(playerAddress, attemptId, (attempt) => {
     // Calculate scoring for this clue
@@ -159,7 +165,8 @@ export function recordClueAttempt(
       clueRecord.timeTakenSeconds,
       hintsUsed,
       attempt.currentStreak,
-      attempt.scoringWeights
+      attempt.scoringWeights,
+      exactHintPenalty,
     )
 
     // Create the updated clue record with scoring details

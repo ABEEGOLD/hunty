@@ -13,6 +13,7 @@ import {
 import { getServerClue } from "@/lib/server/seedClues"
 import { ForbiddenError, NotFoundError, RateLimitError, ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"
+import { recordHintUsage } from "@/lib/analytics"
 
 export const POST = withErrorHandling(async (req: Request) => {
   const ip = getIP(req)
@@ -25,14 +26,22 @@ export const POST = withErrorHandling(async (req: Request) => {
     return rateLimitResponse(ipReset)
   }
 
-  let body: { huntId?: number; clueId?: number; answer?: string; wallet?: string; clientTimestamp?: number }
+  let body: {
+    huntId?: number
+    clueId?: number
+    answer?: string
+    wallet?: string
+    clientTimestamp?: number
+    /** Number of progressive hints the player revealed before submitting. */
+    hintsUsed?: number
+  }
   try {
     body = await req.json()
   } catch {
     throw new ValidationError("Invalid request body")
   }
 
-  const { huntId, clueId, answer, wallet, clientTimestamp } = body
+  const { huntId, clueId, answer, wallet, clientTimestamp, hintsUsed } = body
 
   if (!huntId || typeof huntId !== "number") {
     throw new ValidationError("huntId is required", { field: "huntId" })
@@ -46,6 +55,9 @@ export const POST = withErrorHandling(async (req: Request) => {
   if (!wallet || typeof wallet !== "string" || wallet.trim().length === 0) {
     throw new ValidationError("wallet is required", { field: "wallet" })
   }
+
+  // Clamp hintsUsed to a sane range (0-3) — never trust the client blindly
+  const validatedHintsUsed = Math.min(3, Math.max(0, typeof hintsUsed === "number" ? Math.floor(hintsUsed) : 0))
 
   if (isBanned(wallet, ip)) {
     throw new ForbiddenError("Account is banned due to suspicious activity")
@@ -84,6 +96,15 @@ export const POST = withErrorHandling(async (req: Request) => {
     anomalyFlags,
   )
 
+  // Record each hint reveal in the analytics store (non-blocking, fire-and-forget)
+  if (correct && validatedHintsUsed > 0) {
+    for (let i = 0; i < validatedHintsUsed; i++) {
+      recordHintUsage(huntId, clueId, i, wallet).catch(() => {
+        // Analytics errors must never break the answer response
+      })
+    }
+  }
+
   if (!correct) {
     return NextResponse.json(
       { correct: false, score: 0, bonusPoints: 0, flags: anomalyFlags },
@@ -99,5 +120,6 @@ export const POST = withErrorHandling(async (req: Request) => {
     event: "ClueCompleted",
     serverTimestamp: Date.now(),
     flags: anomalyFlags,
+    hintsUsed: validatedHintsUsed,
   })
 })

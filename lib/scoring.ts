@@ -66,7 +66,8 @@ export function calculateTimeBonus(
 }
 
 /**
- * Calculate the hint penalty for a clue
+ * Calculate the hint penalty for a clue using the legacy weight-based approach.
+ * Used when per-hint `penalty` values are not available (backwards compatibility).
  * @param basePoints Base points for the clue
  * @param hintsUsed Number of hints used
  * @param weight Hint penalty weight from config
@@ -77,6 +78,17 @@ export function calculateHintPenalty(
   weight: number = DEFAULT_SCORING_WEIGHTS.hintPenalty
 ): number {
   return Math.round(basePoints * weight * hintsUsed)
+}
+
+/**
+ * Calculate the exact hint penalty from a progressive hints array.
+ * Each hint carries its own absolute `penalty` in points, so we simply sum them.
+ * This supersedes the weight-based `calculateHintPenalty` when hints data is present.
+ *
+ * @param revealedHintPenalties Array of `penalty` values for every hint the player revealed.
+ */
+export function calculateProgressiveHintPenalty(revealedHintPenalties: number[]): number {
+  return revealedHintPenalties.reduce((sum, p) => sum + p, 0)
 }
 
 /**
@@ -104,7 +116,11 @@ export function calculateDifficultyMultiplier(
 }
 
 /**
- * Calculate the total points for a single clue
+ * Calculate the total points for a single clue.
+ *
+ * @param exactHintPenalty When provided (progressive hints mode), this value is
+ *   used directly as the hint penalty instead of computing it from `hintsUsed`
+ *   and the weight multiplier. Pass the sum of all revealed hint `penalty` fields.
  */
 export function calculateCluePoints(
   basePoints: number,
@@ -112,11 +128,15 @@ export function calculateCluePoints(
   timeTakenSeconds: number,
   hintsUsed: number,
   currentStreak: number,
-  weights: ScoringWeights = DEFAULT_SCORING_WEIGHTS
+  weights: ScoringWeights = DEFAULT_SCORING_WEIGHTS,
+  exactHintPenalty?: number,
 ): { breakdown: ClueScoringBreakdown; newStreak: number } {
   const difficultyMultiplier = calculateDifficultyMultiplier(difficulty, weights.difficultyMultiplier)
   const timeBonus = calculateTimeBonus(basePoints, timeTakenSeconds, 60, weights.timeBonus)
-  const hintPenalty = calculateHintPenalty(basePoints, hintsUsed, weights.hintPenalty)
+  // Prefer exact per-hint penalty sum when available; fall back to weight-based calc.
+  const hintPenalty = exactHintPenalty !== undefined
+    ? exactHintPenalty
+    : calculateHintPenalty(basePoints, hintsUsed, weights.hintPenalty)
   const streakBonus = calculateStreakBonus(currentStreak, weights.streakBonus)
 
   const totalPoints = Math.max(0, Math.round(
