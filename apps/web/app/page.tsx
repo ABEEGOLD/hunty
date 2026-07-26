@@ -17,6 +17,7 @@ import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Header } from "@/components/Header"
 import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
+import { getHuntCapacity, getRemainingSpots } from "@/lib/huntStore"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
@@ -162,6 +163,11 @@ function ActiveHuntCard({
                 aria-label={`${playerCount.count} player${playerCount.count !== 1 ? "s" : ""} registered`}
               >
                 {playerCount.count} player{playerCount.count !== 1 ? "s" : ""}
+              </span>
+            )}
+            {getHuntCapacity(hunt) !== undefined && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-medium text-indigo-700">
+                {getRemainingSpots(hunt)} of {getHuntCapacity(hunt)} spots left
               </span>
             )}
           </div>

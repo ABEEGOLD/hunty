@@ -291,6 +291,21 @@ function getExistingClueCount(huntId: number): number {
   return getHuntClues(huntId).length;
 }
 
+export function getHuntCapacity(
+  hunt: Pick<StoredHunt, "maxParticipants" | "maxCapacity"> | undefined,
+): number | undefined {
+  if (!hunt) return undefined;
+  return hunt.maxParticipants ?? hunt.maxCapacity;
+}
+
+export function getRemainingSpots(
+  hunt: Pick<StoredHunt, "playerCount" | "maxParticipants" | "maxCapacity"> | undefined,
+): number | undefined {
+  const capacity = getHuntCapacity(hunt);
+  if (capacity === undefined) return undefined;
+  return Math.max(0, capacity - (hunt?.playerCount ?? 0));
+}
+
 /** All hunts (for Game Arcade: filter by status === "Active"). Private, archived, and soft-deleted hunts are excluded. */
 export function getAllHunts(): StoredHunt[] {
   return getHuntsWithRatings(readHunts().filter((h) => !h.is_private));
@@ -667,6 +682,7 @@ export function addHunt(hunt: StoredHunt): void {
   if (hunts.some((h) => h.id === hunt.id)) return;
   const normalized = {
     ...hunt,
+    maxParticipants: hunt.maxParticipants ?? hunt.maxCapacity,
     status: normalizeHuntStatus(hunt.status) as StoredHunt["status"],
   };
   writeHunts([...hunts, normalized]);
@@ -905,7 +921,7 @@ export function duplicateHunt(huntId: number): StoredHunt | undefined {
     rewardEscrowTxHash: undefined,
     rewardEscrowBalance: undefined,
     playerCount: 0,
-    maxCapacity: original.maxCapacity,
+    maxParticipants: original.maxParticipants ?? original.maxCapacity,
     createdAt: nowSeconds,
     startTime: undefined,
     endTime: undefined,

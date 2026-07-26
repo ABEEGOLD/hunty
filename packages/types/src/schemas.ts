@@ -56,6 +56,7 @@ export const storedHuntSchema = z.object({
   rewardEscrowTxHash: z.string().optional(),
   rewardEscrowBalance: z.number().optional(),
   playerCount: z.number().optional(),
+  maxParticipants: z.number().optional(),
   maxCapacity: z.number().optional(),
   createdAt: z.number().optional(),
   startTime: z.number().optional(),
