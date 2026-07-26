@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach,describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Header } from "@/components/Header";
+import type { WalletProvider } from "@/lib/walletAdapter";
 
 const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
@@ -17,13 +18,39 @@ vi.mock("@/components/ThemeToggle", () => ({
   ThemeToggle: () => <div data-testid="theme-toggle" />,
 }));
 
+vi.mock("@/components/LanguageSelector", () => ({
+  LanguageSelector: () => <div data-testid="language-selector" />,
+}));
+
+vi.mock("@/components/NotificationPanel", () => ({
+  NotificationPanel: () => <div data-testid="notification-panel" />,
+}));
+
+vi.mock("@/lib/notifications/rankTracker", () => ({
+  getUnreadNotificationCount: () => 0,
+}));
+
+vi.mock("@/lib/notifications/weeklyDigest", () => ({
+  shouldSendWeeklyDigest: () => false,
+  createWeeklyDigestNotification: vi.fn(),
+}));
+
 vi.mock("@/components/WalletSelectionModal", () => ({
-  WalletSelectionModal: ({ isOpen, onClose, onConnect }: any) => (
-    isOpen ? <div data-testid="wallet-selection-modal" role="dialog" aria-label="Wallet selection modal">
-      <button onClick={() => onConnect("freighter")}>Connect Freighter</button>
-      <button onClick={onClose}>Close Sheet</button>
-    </div> : null
-  ),
+  WalletSelectionModal: ({
+    isOpen,
+    onClose,
+    onConnect,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
+    onConnect: (provider: WalletProvider) => void;
+  }) =>
+    isOpen ? (
+      <div data-testid="wallet-selection-modal" role="dialog" aria-label="Wallet selection modal">
+        <button onClick={() => onConnect("freighter")}>Connect Freighter</button>
+        <button onClick={onClose}>Close Sheet</button>
+      </div>
+    ) : null,
 }));
 
 vi.mock("@/components/WalletBalance", () => ({
@@ -36,17 +63,31 @@ Object.assign(navigator, {
   },
 });
 
+type WalletMock = {
+  connected: boolean;
+  displayKey: string;
+  publicKey: string;
+  connect: typeof mockConnect;
+  disconnect: typeof mockDisconnect;
+  walletProvider: WalletProvider | null;
+};
+
+function stubWallet(overrides: Partial<WalletMock> = {}) {
+  vi.mocked(useWallet).mockReturnValue({
+    connected: false,
+    displayKey: "",
+    publicKey: "",
+    connect: mockConnect,
+    disconnect: mockDisconnect,
+    walletProvider: null,
+    ...overrides,
+  });
+}
+
 describe("Header", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useWallet).mockReturnValue({
-      connected: false,
-      displayKey: null,
-      publicKey: null,
-      connect: mockConnect,
-      disconnect: mockDisconnect,
-      walletProvider: null,
-    } as any);
+    stubWallet();
   });
 
   function renderHeader(props?: Partial<React.ComponentProps<typeof Header>>) {
@@ -73,42 +114,36 @@ describe("Header", () => {
     });
 
     it("renders the live balance display when connected", () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       renderHeader();
       expect(screen.getAllByTestId("wallet-balance").length).toBeGreaterThan(0);
     });
 
     it("renders wallet dropdown trigger when connected", () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       renderHeader();
       expect(screen.getByText("GABC...DEF")).toBeInTheDocument();
     });
 
     it("does not render Connect Wallet button when connected", () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       renderHeader();
       expect(screen.queryByRole("button", { name: /connect wallet/i })).not.toBeInTheDocument();
@@ -133,14 +168,12 @@ describe("Header", () => {
     });
 
     it("toggles dropdown when wallet button is clicked", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       const walletBtn = screen.getByText("GABC...DEF").closest("button")!;
@@ -155,48 +188,42 @@ describe("Header", () => {
     });
 
     it("copies wallet address to clipboard", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
-      await user.click(screen.getByRole("button", { name: /copy address/i }));
+      await user.click(screen.getByRole("button", { name: /copy wallet address/i }));
 
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith("GABC123DEF456");
     });
 
     it("shows 'Copied!' feedback after copying", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
-      await user.click(screen.getByRole("button", { name: /copy address/i }));
+      await user.click(screen.getByRole("button", { name: /copy wallet address/i }));
 
       expect(screen.getByText(/copied!/i)).toBeInTheDocument();
     });
 
     it("calls disconnect when Disconnect button is clicked", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
@@ -206,14 +233,12 @@ describe("Header", () => {
     });
 
     it("closes dropdown when clicking outside", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
@@ -226,14 +251,12 @@ describe("Header", () => {
     });
 
     it("displays full public key in dropdown", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456GHI789",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
@@ -242,14 +265,12 @@ describe("Header", () => {
     });
 
     it("displays wallet provider name in dropdown", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "albedo",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
@@ -273,14 +294,12 @@ describe("Header", () => {
     });
 
     it("copy button has accessible aria-label", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       await user.click(screen.getByText("GABC...DEF").closest("button")!);
@@ -289,14 +308,12 @@ describe("Header", () => {
     });
 
     it("dropdown content is reachable via keyboard", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       const walletBtn = screen.getByText("GABC...DEF").closest("button")!;
@@ -307,14 +324,12 @@ describe("Header", () => {
     });
 
     it("wallet button chevron rotates when dropdown opens", async () => {
-      vi.mocked(useWallet).mockReturnValue({
+      stubWallet({
         connected: true,
         displayKey: "GABC...DEF",
         publicKey: "GABC123DEF456",
-        connect: mockConnect,
-        disconnect: mockDisconnect,
         walletProvider: "freighter",
-      } as any);
+      });
 
       const { user } = renderHeader();
       const walletBtn = screen.getByText("GABC...DEF").closest("button")!;
