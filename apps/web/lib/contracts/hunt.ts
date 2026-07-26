@@ -11,6 +11,7 @@ import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config"
 import { getActiveWalletAdapter } from "@/lib/walletAdapter"
 import { sha256Hex } from "@/lib/crypto"
 import { logger } from "@/lib/logger"
+import { isOnline, queueProgressUpdate } from "@/lib/offlineSync"
 
 import type {
   ClueDifficulty,
@@ -328,26 +329,38 @@ export async function extendEndTime(
 
 /**
  * Retrieves the hunt leaderboard.
- * Attempts to fetch "live" data from the contract account's data attributes
- * (leveraging the manageData pattern) with a robust mock data fallback.
+ * Fetches real progress data from the server API, with localStorage fallback.
  */
 export async function get_hunt_leaderboard(
   huntId: number,
 ): Promise<LeaderboardEntry[]> {
-  // Simulate network latency
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
   const now = Math.floor(Date.now() / 1000)
-  const DAY = 86400
 
-  const mockData: LeaderboardEntry[] = [
-    { address: "GDD...9X2", name: "StellarQuest", points: 45, completionCount: 12, completedAt: now - DAY * 0.5, category: "Trivia", difficulty: "Medium" },
-    { address: "GBX...A1B", points: 30, completionCount: 7, completedAt: now - DAY * 3, category: "Outdoor", difficulty: "Hard" },
-    { address: "GCT...Z9Y", name: "AliceCrypto", points: 58, completionCount: 18, completedAt: now - DAY * 1, category: "Campus", difficulty: "Easy" },
-    { address: "GDE...123", points: 15, completionCount: 4, completedAt: now - DAY * 20, category: "Indoor", difficulty: "Easy" },
-    { address: "GFA...789", name: "BobHunts", points: 41, completionCount: 10, completedAt: now - DAY * 6, category: "Onboarding", difficulty: "Medium" },
-    { address: "GCA...HB2", points: 28, completionCount: 6, completedAt: now - DAY * 45, category: "Community", difficulty: "Hard" },
-  ]
+  // Try fetching from server API when online
+  if (typeof window !== "undefined") {
+    try {
+      const baseUrl = window.location.origin;
+      const res = await fetch(
+        `${baseUrl}/api/v1/hunts/${huntId}/leaderboard?limit=100`,
+      );
+      if (res.ok) {
+        const body = await res.json();
+        if (Array.isArray(body?.data) && body.data.length > 0) {
+          return body.data.map((entry: { address?: string; points?: number; completionCount?: number; completedAt?: number }) => ({
+            address: entry.address ?? "unknown",
+            points: entry.points ?? 0,
+            completionCount: entry.completionCount ?? 0,
+            completedAt: entry.completedAt,
+          }));
+        }
+      }
+    } catch {
+      // Fall back to localStorage
+    }
+  }
+
+  // Fallback: build from localStorage
+  const entries: LeaderboardEntry[] = []
 
   if (typeof window !== "undefined") {
     try {
@@ -355,7 +368,13 @@ export async function get_hunt_leaderboard(
       if (myPointsStr) {
         const myPoints = parseInt(myPointsStr, 10);
         if (myPoints > 0) {
-          mockData.push({ address: "YOU...PLYR", name: "You (Current Player)", points: myPoints, completionCount: 1, completedAt: now - DAY * 0.1 })
+          entries.push({
+            address: "YOU...PLYR",
+            name: "You (Current Player)",
+            points: myPoints,
+            completionCount: 1,
+            completedAt: now - 86400 * 0.1,
+          })
         }
       }
     } catch (e) {
@@ -363,7 +382,7 @@ export async function get_hunt_leaderboard(
     }
   }
 
-  return mockData;
+  return entries;
 }
 
 export async function get_hunt_leaderboard_paginated(
@@ -593,6 +612,78 @@ export async function pollTransaction(txHash: string): Promise<boolean> {
   throw new Error("Transaction polling timed out after 30 seconds");
 }
 
+async function saveProgressToServer(
+  huntId: number,
+  clueId: number,
+  wallet?: string,
+): Promise<void> {
+  if (!wallet) return
+
+  const clues = getHuntClues(huntId)
+  const progress = getHuntProgress(huntId)
+  const userPointsKey = `hunt_${huntId}_my_points`
+  const totalPoints = parseInt(
+    typeof window !== "undefined"
+      ? localStorage.getItem(userPointsKey) || "0"
+      : "0",
+    10,
+  )
+
+  const solvedClueIds: number[] = []
+  for (const clue of clues) {
+    const solvedKey = `hunt_clue_solved_${huntId}_${clue.id}`
+    if (
+      typeof window !== "undefined" &&
+      localStorage.getItem(solvedKey) === "true"
+    ) {
+      solvedClueIds.push(clue.id)
+    }
+  }
+
+  const payload = {
+    wallet,
+    currentClueIndex: progress.currentClueIndex,
+    totalClues: clues.length,
+    totalPoints,
+    completedClueIds: solvedClueIds,
+    completed: progress.completed,
+  }
+
+  if (isOnline()) {
+    try {
+      const baseUrl =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      await fetch(`${baseUrl}/api/v1/hunts/${huntId}/progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+    } catch {
+      queueProgressUpdate(
+        huntId,
+        wallet,
+        payload.currentClueIndex,
+        payload.totalClues,
+        payload.totalPoints,
+        payload.completedClueIds,
+        payload.completed,
+      )
+    }
+  } else {
+    queueProgressUpdate(
+      huntId,
+      wallet,
+      payload.currentClueIndex,
+      payload.totalClues,
+      payload.totalPoints,
+      payload.completedClueIds,
+      payload.completed,
+    )
+  }
+}
+
 /**
  * Submits an answer for a specific clue. Throws AnswerIncorrectError on mismatch.
  * Mock implementation that checks against localStorage clue data.
@@ -601,6 +692,7 @@ export async function submitAnswer(
   huntId: number,
   clueId: number,
   answer: string,
+  wallet?: string,
 ): Promise<SubmitAnswerResult> {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -674,6 +766,8 @@ export async function submitAnswer(
   }
 
   advanceHuntProgress(huntId, clueIndex + 1, clues.length)
+
+  saveProgressToServer(huntId, clue.id, wallet)
 
   return {
     txHash: `mock_tx_${Date.now()}`,
