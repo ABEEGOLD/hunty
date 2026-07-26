@@ -32,6 +32,7 @@ export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled" | "Pendi
  * unrated (no badge).
  */
 export type HuntDifficulty = "Easy" | "Medium" | "Hard" | "Expert"
+export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled" | "scheduled" | "active" | "ended"
 
 export interface StoredHunt {
   id: number
@@ -70,6 +71,10 @@ export interface StoredHunt {
   startTime?: number
   /** Unix timestamp in seconds — when the hunt ends. */
   endTime?: number
+  /** Canonical UTC timestamp for scheduled lifecycle transitions. */
+  startAt?: number
+  /** Canonical UTC timestamp for scheduled lifecycle transitions. */
+  endAt?: number
   creatorEmail?: string
   emailNotifications?: boolean
   /** When true, the hunt is hidden from the public arcade grid. */
