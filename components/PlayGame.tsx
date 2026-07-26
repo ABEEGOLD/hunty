@@ -202,6 +202,13 @@ export function PlayGame({
       }
       if (huntId) {
         localStorage.setItem(`hunt_completed_${huntId}`, "true");
+        if (playerAddress) {
+          fetch(`/api/v1/hunts/${huntId}/complete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ playerAddress }),
+          }).catch((err) => console.error("Failed to register completion on server:", err));
+        }
       }
       const finalScore = score + pointsAwarded;
       if (playerAddress && attemptIdRef.current && huntId != null) {

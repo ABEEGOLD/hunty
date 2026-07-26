@@ -8,6 +8,17 @@ import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from 
 
 // ─── Hunt ────────────────────────────────────────────────────────────────────
 
+export interface HuntReview {
+  id: string
+  huntId: number
+  playerAddress: string
+  rating: number // 1 to 5
+  text?: string
+  createdAt: number
+  moderated?: boolean
+  flagged?: boolean
+}
+
 export type HuntStatus = "Active" | "Completed" | "Draft" | "Cancelled"
 
 export interface StoredHunt {
@@ -49,6 +60,15 @@ export interface StoredHunt {
   coverImageCid?: string
   /** Active editorial banner showcase at the top of the Arcade. */
   isFeaturedOfWeek?: boolean
+  /** Creator's wallet public key */
+  creator?: string
+  /** Average user rating (1-5) */
+  averageRating?: number
+  /** Number of user reviews */
+  reviewCount?: number
+  poolBalance?: number
+  rewardDistribution?: Reward[]
+  poolLowBalanceThreshold?: number
 }
 
 export type HuntInfo = {

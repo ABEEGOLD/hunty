@@ -25,6 +25,7 @@ import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
 import type { PlayerCountResult } from "@/lib/types"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
+import { StarRating } from "@/components/StarRating"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
@@ -117,6 +118,7 @@ function ActiveHuntCard({
             </span>
           )}
         </div>
+        <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
         <CardDescription className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
           {hunt.description}
         </CardDescription>
@@ -328,6 +330,7 @@ function VirtualizedInactiveHuntsGrid({
                       <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
                         {hunt.title}
                       </CardTitle>
+                      <StarRating rating={hunt.averageRating} count={hunt.reviewCount} className="mb-2" />
                       <CardDescription className="text-sm text-slate-600 mb-4 line-clamp-3">
                         {hunt.description}
                       </CardDescription>
@@ -370,7 +373,7 @@ export default function GameArcade() {
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
   const [difficultyFilter, setDifficultyFilter] = useState<"all" | "Easy" | "Medium" | "Hard">("all")
   const [categoryFilter, setCategoryFilter] = useState<"all" | "Urban" | "Campus" | "Office" | "Museum" | "General">("all")
-  const [sortBy, setSortBy] = useState<"newest" | "popular" | "reward-high" | "difficulty">("newest")
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "popular" | "reward-high" | "difficulty" | "clues-high" | "clues-low" | "rating-high">("newest")
 
   const isLoadedRef = useRef(false)
 
@@ -403,8 +406,8 @@ export default function GameArcade() {
       }
 
       const urlSort = params.get("sortBy")
-      if (urlSort && ["newest", "popular", "reward-high", "difficulty"].includes(urlSort)) {
-        setSortBy(urlSort as "newest" | "popular" | "reward-high" | "difficulty")
+      if (urlSort && ["newest", "oldest", "popular", "reward-high", "difficulty", "clues-high", "clues-low", "rating-high"].includes(urlSort)) {
+        setSortBy(urlSort as "newest" | "oldest" | "popular" | "reward-high" | "difficulty" | "clues-high" | "clues-low" | "rating-high")
       }
 
       const savedSearch = sessionStorage.getItem("arcade_searchQuery")
@@ -925,14 +928,18 @@ export default function GameArcade() {
                 <select
                   value={sortBy}
                   onChange={(e) =>
-                    setSortBy(e.target.value as "newest" | "popular" | "reward-high" | "difficulty")
+                    setSortBy(e.target.value as "newest" | "oldest" | "popular" | "reward-high" | "difficulty" | "clues-high" | "clues-low" | "rating-high")
                   }
                   className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#3737A4]/50 cursor-pointer"
                 >
                   <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
                   <option value="popular">Most Popular</option>
                   <option value="reward-high">Highest Reward</option>
                   <option value="difficulty">Hardest First</option>
+                  <option value="rating-high">Highest Rated</option>
+                  <option value="clues-high">Most Clues</option>
+                  <option value="clues-low">Fewest Clues</option>
                 </select>
 
                 <Button

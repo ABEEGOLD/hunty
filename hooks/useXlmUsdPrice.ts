@@ -69,7 +69,7 @@ export function useXlmUsdPrice(pollingMs = DEFAULT_POLLING_MS): XlmUsdPriceState
     } catch (error) {
       setState((prev) => ({
         ...prev,
-        isLoading: prev.price == null,
+        isLoading: false,
         error: error instanceof Error ? error.message : "Failed to fetch XLM/USD price",
       }))
     }

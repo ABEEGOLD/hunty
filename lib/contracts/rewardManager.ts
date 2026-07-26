@@ -40,6 +40,7 @@ export type SponsorContribution = {
 }
 
 const ESCROW_KEY = "hunty_reward_escrows"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CLAIM_TIMEOUT_MS = 120_000
 const MAX_RETRIES = 2
 
@@ -157,19 +158,39 @@ async function claimRewardInternal(huntId: number, signal?: AbortSignal): Promis
 
   const signedXdr = await wallet.signTransaction(tx.toXDR())
 
-  const receipt = getPlayerRewardReceipt(huntId, publicKey)
-  if (!receipt) {
-    throw new Error("No reward available to claim for this account")
-  }
+  if (signal?.aborted) throw new ClaimTimeoutError()
 
   const result = await server.submitTransaction(signedXdr)
-  if (!result?.hash) throw new Error("Reward claim transaction failed")
+  if (!result?.hash) throw new Error("Reward transaction failed")
 
-  return {
-    txHash: result.hash,
-    amount: receipt.amount,
-    receipt,
+  const rank = escrow.distributions.length + 1
+  const amount = getRewardForRank(escrow, rank)
+  if (amount <= 0) throw new Error("No reward available for this rank")
+
+  const txHash = result.hash
+
+  const receipt: RewardReceipt = {
+    id: receiptId("distribution", huntId),
+    huntId,
+    type: "distribution",
+    txHash,
+    amount,
+    from: escrow.creator,
+    to: recipient,
+    rank,
+    createdAt: Date.now(),
   }
+
+  const next: RewardEscrow = {
+    ...escrow,
+    balance: Math.max(0, escrow.balance - amount),
+    distributions: [...escrow.distributions, receipt],
+  }
+  saveEscrow(next)
+  localStorage.setItem(`hunt_reward_claimed_${huntId}`, "true")
+  localStorage.setItem(`hunt_reward_receipt_${huntId}_${recipient}`, JSON.stringify(receipt))
+
+  return { txHash, amount, receipt }
 }
 
 export function getRewardEscrow(huntId: number): RewardEscrow | null {
@@ -342,7 +363,6 @@ export async function distributeCompletionReward(
 
   return { txHash, amount, receipt }
 }
-
 
 export function getPlayerRewardReceipt(huntId: number, playerAddress?: string): RewardReceipt | null {
   if (!playerAddress || typeof window === "undefined") return null

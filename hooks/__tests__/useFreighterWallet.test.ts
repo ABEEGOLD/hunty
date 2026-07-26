@@ -6,6 +6,7 @@ import * as walletAdapter from "@/lib/walletAdapter"
 import * as freighterApi from "@stellar/freighter-api"
 
 let watchCallback: ((args: { address: string; network: string; networkPassphrase: string }) => void) | null = null
+const mockStop = vi.fn()
 
 vi.mock("@/lib/walletAdapter", () => ({
   connectWalletProvider: vi.fn(),
@@ -18,12 +19,12 @@ vi.mock("@stellar/freighter-api", () => ({
   isConnected: vi.fn(),
   getAddress: vi.fn(),
   requestAccess: vi.fn(),
-  WatchWalletChanges: vi.fn().mockImplementation(() => ({
-    watch: (callback: typeof watchCallback) => {
+  WatchWalletChanges: vi.fn().mockImplementation(function (this: any) {
+    this.watch = (callback: typeof watchCallback) => {
       watchCallback = callback
-    },
-    stop: vi.fn(),
-  })),
+    }
+    this.stop = mockStop
+  }),
 }))
 
 const storage: Record<string, string> = {}
@@ -37,8 +38,26 @@ const localStorageMock = {
 
 function resetMocks() {
   Object.keys(storage).forEach((key) => delete storage[key])
-  vi.clearAllMocks()
   watchCallback = null
+  mockStop.mockClear()
+
+  vi.mocked(walletAdapter.getStoredWalletSession).mockReset()
+  vi.mocked(walletAdapter.connectWalletProvider).mockReset()
+  vi.mocked(walletAdapter.setStoredWalletSession).mockReset()
+  vi.mocked(walletAdapter.clearStoredWalletSession).mockReset()
+
+  vi.mocked(freighterApi.isConnected).mockReset()
+  vi.mocked(freighterApi.getAddress).mockReset()
+  vi.mocked(freighterApi.requestAccess).mockReset()
+  vi.mocked(freighterApi.WatchWalletChanges).mockReset()
+
+  // Re-establish mock implementations
+  vi.mocked(freighterApi.WatchWalletChanges).mockImplementation(function (this: any) {
+    this.watch = (callback: any) => {
+      watchCallback = callback
+    }
+    this.stop = mockStop
+  })
 }
 
 describe("useFreighterWallet", () => {
@@ -170,7 +189,6 @@ describe("useFreighterWallet", () => {
     const { unmount } = renderHook(() => useFreighterWallet())
     unmount()
 
-    const watchWalletChangesMock = vi.mocked(freighterApi.WatchWalletChanges)
-    expect(watchWalletChangesMock().stop).toHaveBeenCalled()
+    expect(mockStop).toHaveBeenCalled()
   })
 })

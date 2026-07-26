@@ -9,6 +9,7 @@ import { GameCompleteModal } from "@/components/GameCompleteModal";
 import { ChatWindow } from "@/components/ChatWindow";
 import { RegistrationButton } from "@/components/RegistrationButton";
 import { WaitlistDisplay } from "@/components/WaitlistDisplay";
+import { HuntReviewsSection } from "@/components/HuntReviewsSection";
 import type { StoredHunt, HuntRegistrationStatus } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -414,12 +415,16 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
           />
         </PlayInterfaceGuard>
       )}
-      
+
       {/* Chat Window */}
       <ChatWindow 
         huntId={hunt.id} 
         currentUserAddress={connectedPublicKey} 
       />
+
+      <div className="mt-12 pt-8 border-t border-white/10">
+        <HuntReviewsSection huntId={hunt.id} creatorAddress={hunt.creator} />
+      </div>
     </div>
   );
 }

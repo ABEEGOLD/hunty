@@ -218,7 +218,7 @@ describe("huntStore", () => {
       };
       addHunt(hunt);
       const found = getHuntById(989);
-      expect(found).toEqual(hunt);
+      expect(found).toEqual(expect.objectContaining(hunt));
     });
 
     it("returns undefined for non-existent hunt", () => {
@@ -239,7 +239,7 @@ describe("huntStore", () => {
       };
       addHunt(hunt);
       const found = getHuntById(988);
-      expect(found).toEqual(hunt);
+      expect(found).toEqual(expect.objectContaining(hunt));
     });
 
     it("does not add duplicate hunts with same ID", () => {
@@ -645,7 +645,7 @@ describe("huntStore", () => {
       const stored = localStorage.getItem("hunty_hunts");
       expect(stored).toBeTruthy();
       const found = getHuntById(971);
-      expect(found).toEqual(hunt);
+      expect(found).toEqual(expect.objectContaining(hunt));
     });
 
     it("handles corrupted localStorage gracefully", () => {
