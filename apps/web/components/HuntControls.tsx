@@ -297,3 +297,4 @@ export function HuntControls({ hunt, connectedPublicKey, onCancelled }: HuntCont
     </>
   );
 }
+ 

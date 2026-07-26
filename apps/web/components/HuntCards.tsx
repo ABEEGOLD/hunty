@@ -646,3 +646,4 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
     </div>
   );
 };
+ 

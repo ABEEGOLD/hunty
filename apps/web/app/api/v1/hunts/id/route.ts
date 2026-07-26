@@ -39,3 +39,4 @@ export const GET = withErrorHandling<{ params: Promise<{ id: string }> }>(
     return NextResponse.json({ data: hunt });
   }
 );
+ 

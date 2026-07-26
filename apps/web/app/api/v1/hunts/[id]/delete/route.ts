@@ -60,3 +60,4 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Failed to delete hunt" }, { status: 500 });
   }
 }
+ 

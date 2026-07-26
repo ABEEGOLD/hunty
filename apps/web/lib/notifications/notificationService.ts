@@ -79,3 +79,4 @@ function showRankToast(notification: LeaderboardRankNotification): void {
       break;
   }
 }
+ 

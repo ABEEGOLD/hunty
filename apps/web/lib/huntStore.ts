@@ -902,3 +902,4 @@ export function setLocalFeaturedHunt(huntId: number | null): void {
   }));
   writeHunts(hunts);
 }
+ 

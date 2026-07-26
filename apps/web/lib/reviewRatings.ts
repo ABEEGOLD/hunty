@@ -84,3 +84,4 @@ export function applyRatingsToHunts(hunts: StoredHunt[], reviews: HuntReview[]):
 export function getHuntsWithClientRatings(hunts: StoredHunt[]): StoredHunt[] {
   return applyRatingsToHunts(hunts, readClientReviews());
 }
+ 

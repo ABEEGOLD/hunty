@@ -313,7 +313,7 @@ export function PlayGame({
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] print:bg-white print:bg-none print:min-h-0">
       <div className="print:hidden">
-        <Header balance="24.2453" />
+        <Header />
       </div>
 
       <div className="max-w-[1500px] px-14 pt-10 pb-12 bg-white mx-auto rounded-4xl relative print:px-0 print:py-0 print:w-full print:max-w-none print:rounded-none">
@@ -440,3 +440,4 @@ export function PlayGame({
     </div>
   );
 }
+ 

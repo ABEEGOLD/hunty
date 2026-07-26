@@ -79,3 +79,4 @@ export function usePlayerProfileStats(
 
   return { stats, timeline, isLoading, error };
 }
+ 

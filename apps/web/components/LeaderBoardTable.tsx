@@ -261,3 +261,4 @@ function LeaderboardTableComponent({
 }
 
 export const LeaderboardTable = memo(LeaderboardTableComponent);
+ 

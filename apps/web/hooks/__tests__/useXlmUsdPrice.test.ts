@@ -74,3 +74,4 @@ describe("useXlmUsdPrice", () => {
     await waitFor(() => expect(result.current.price).toBe(0.101), { timeout: 2000 });
   });
 });
+ 

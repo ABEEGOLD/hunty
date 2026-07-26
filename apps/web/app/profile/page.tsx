@@ -802,3 +802,4 @@ function FavoriteHuntCard({ hunt }: { hunt: StoredHunt }) {
     </Card>
   );
 }
+ 

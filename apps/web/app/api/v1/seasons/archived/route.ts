@@ -36,3 +36,4 @@ export const GET = withErrorHandling(async (req: Request) => {
   const archived = getArchivedSeasons();
   return NextResponse.json({ archived });
 });
+ 

@@ -650,3 +650,4 @@ export function HuntAnalyticsDashboard({ huntId, huntTitle }: HuntAnalyticsDashb
     </div>
   );
 }
+ 

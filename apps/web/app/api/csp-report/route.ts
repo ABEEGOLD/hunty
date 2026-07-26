@@ -31,3 +31,4 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   return new NextResponse(null, { status: 204 });
 });
+ 

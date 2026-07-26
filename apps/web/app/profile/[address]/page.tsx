@@ -49,3 +49,4 @@ export default function PublicProfilePage({ params }: PublicProfilePageProps) {
     </div>
   );
 }
+ 

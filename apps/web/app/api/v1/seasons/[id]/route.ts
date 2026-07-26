@@ -127,3 +127,4 @@ export const POST = withErrorHandling<Context>(async (req, { params }) => {
   const archived = archiveSeason(seasonId, finalLeaderboard);
   return NextResponse.json({ archived }, { status: 200 });
 });
+ 

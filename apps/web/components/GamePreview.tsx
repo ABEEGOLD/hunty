@@ -58,3 +58,4 @@ export function GamePreview({ hunts, huntId }: GamePreviewProps) {
     </div>
   );
 }
+ 

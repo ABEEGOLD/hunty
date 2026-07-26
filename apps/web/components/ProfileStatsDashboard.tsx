@@ -168,3 +168,4 @@ export function ProfileHighlightBadge({ stats }: { stats: PlayerProfileStats }) 
     </span>
   );
 }
+ 

@@ -82,3 +82,4 @@ export const POST = withErrorHandling(async (req: Request) => {
 
   return NextResponse.json({ season }, { status: 201 });
 });
+ 

@@ -55,3 +55,4 @@ export const POST = withErrorHandling(async (req: Request) => {
   const badge = awardSeasonBadge(seasonId, address, name, rank);
   return NextResponse.json({ badge }, { status: 201 });
 });
+ 

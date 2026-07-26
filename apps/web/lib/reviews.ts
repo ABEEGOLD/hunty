@@ -161,3 +161,4 @@ export async function writeCompletions(
 export function getHuntsWithRatings(hunts: StoredHunt[]): StoredHunt[] {
   return applyRatingsToHunts(hunts, readReviewsSync());
 }
+ 
