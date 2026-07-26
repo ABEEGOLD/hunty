@@ -44,19 +44,55 @@ Hunty is a cross-platform scavenger-hunt platform and dApp that combines web, mo
 
 ## Getting Started
 
-1. Install dependencies at the root:
+### Prerequisites
+
+- Node.js 18+ and pnpm
+- Git
+- For blockchain features: Stellar wallet (e.g., Freighter)
+- For file uploads: Pinata account ([Get API key](https://pinata.cloud))
+- For email features: Resend account ([Get API key](https://resend.com))
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Samuel1-ona/hunty.git
+cd hunty
+```
+
+2. Install dependencies at the root:
 
 ```bash
 pnpm install
 ```
 
-2. Run the web app in development:
+3. Set up environment variables:
+
+```bash
+# Copy the example environment file
+cp .env.example .env.local
+```
+
+Open `.env.local` and configure your environment variables. See `.env.example` for detailed documentation of all available options. Key variables include:
+
+- **PINATA_JWT** - Required for IPFS file uploads
+- **RESEND_API_KEY** - Required for email notifications  
+- **NEXT_PUBLIC_WC_PROJECT_ID** - Required for WalletConnect support
+- **DATABASE_URL** - PostgreSQL connection string
+- **Contract addresses** - Your deployed Soroban smart contract addresses
+
+For detailed setup instructions, see [DEVELOPMENT.md](./DEVELOPMENT.md).
+
+4. Run the web app in development:
 
 ```bash
 pnpm dev
 ```
 
-3. Start the mobile app from `mobile/`:
+The app will be available at `http://localhost:3000`.
+
+5. Start the mobile app from `mobile/`:
 
 ```bash
 cd mobile
@@ -64,7 +100,7 @@ pnpm install
 expo start
 ```
 
-4. Mobile EAS Build & OTA setup:
+6. Mobile EAS Build & OTA setup:
 
 ```bash
 cd mobile
@@ -80,6 +116,7 @@ export RESEND_API_KEY=your_api_key
 ```
 
 6. Run tests:
+7. Run tests:
 
 ```bash
 pnpm test

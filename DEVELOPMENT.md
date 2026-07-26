@@ -38,14 +38,38 @@ First things first, let's get the code on your machine:
    pnpm install
    ```
 
-3. **Start the development server:**
+3. **Set up your environment variables:**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env.local
+   ```
+   
+   Open `.env.local` in your editor and update the values:
+   
+   **Required for basic development:**
+   - Most variables have sensible defaults for local development
+   - You can start the app immediately and add API keys later as needed
+   
+   **Required for full functionality:**
+   - `PINATA_JWT` - For file uploads to IPFS ([Get from Pinata](https://pinata.cloud))
+   - `RESEND_API_KEY` - For email notifications ([Get from Resend](https://resend.com))
+   - `NEXT_PUBLIC_WC_PROJECT_ID` - For WalletConnect support ([Get from WalletConnect](https://cloud.walletconnect.com/))
+   
+   **Optional for blockchain integration:**
+   - `NEXT_PUBLIC_HUNTY_CORE_ADDRESS` - Your deployed Hunty contract address
+   - `NEXT_PUBLIC_REWARD_MANAGER_ADDRESS` - Your reward manager contract
+   - `NEXT_PUBLIC_NFT_REWARD_ADDRESS` - Your NFT reward contract
+   
+   See the `.env.example` file for a complete list of all available configuration options with detailed comments.
+
+4. **Start the development server:**
    ```bash
  
    # 
    pnpm dev
    ```
 
-4. **Open your browser:**
+5. **Open your browser:**
    - Navigate to `http://localhost:3000`
    - You should see the Hunty landing page!
 
@@ -474,14 +498,17 @@ Before deploying, make sure to set up environment variables for:
 - Wallet adapter configuration
 - Any API keys
 
-Create a `.env.local` file (don't commit this!) with your production values, or set them in your hosting platform's dashboard.
+Refer to `.env.example` for a complete list of all available environment variables with descriptions. In production:
+- Copy `.env.example` to `.env.local` for local development
+- Set variables in your hosting platform's dashboard (Vercel, Netlify, etc.)
+- Never commit `.env.local` to version control (it's already in `.gitignore`)
 
 ### Before You Deploy
 
 Checklist:
 - [ ] Code is linted and formatted
 - [ ] Build succeeds without errors
-- [ ] All environment variables are set
+- [ ] All environment variables are set (see `.env.example` for the complete list)
 - [ ] Test the production build locally (`pnpm run build && pnpm start`)
 - [ ] No console errors in the browser
 - [ ] All features work as expected
