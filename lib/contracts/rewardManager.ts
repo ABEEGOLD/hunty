@@ -1,6 +1,11 @@
 import Server, { Operation, TransactionBuilder } from "@stellar/stellar-sdk"
 import { getActiveWalletAdapter } from "@/lib/walletAdapter"
-import { getHunt, updateHuntRewardEscrow } from "@/lib/huntStore"
+import {
+  SPOTLIGHT_DURATION_SECONDS,
+  getHunt,
+  updateHuntPromotion,
+  updateHuntRewardEscrow,
+} from "@/lib/huntStore"
 import type { Reward, RewardReceipt } from "@/lib/types"
 import {
   SOROBAN_RPC_URL,
@@ -39,8 +44,14 @@ export type SponsorContribution = {
   createdAt: number
 }
 
+export type HuntPromotionReceipt = {
+  huntId: number
+  amount: number
+  txHash: string
+  promotedUntil: number
+}
+
 const ESCROW_KEY = "hunty_reward_escrows"
-const CLAIM_TIMEOUT_MS = 120_000
 const MAX_RETRIES = 2
 
 export class ClaimTimeoutError extends Error {
@@ -122,7 +133,7 @@ async function submitRewardReceipt(action: string, payload: Record<string, unkno
   return result.hash
 }
 
-async function claimRewardInternal(huntId: number, signal?: AbortSignal): Promise<ClaimRewardResult> {
+async function claimRewardInternal(huntId: number): Promise<ClaimRewardResult> {
   if (typeof window === "undefined") throw new Error("Browser environment required")
 
   const escrow = getRewardEscrow(huntId)
@@ -131,7 +142,6 @@ async function claimRewardInternal(huntId: number, signal?: AbortSignal): Promis
   const rewardManagerAddress = getRequiredRewardManagerAddress()
   const wallet = getActiveWalletAdapter()
   const publicKey = await wallet.getPublicKey()
-  const recipient = publicKey
   const server = new Server(SOROBAN_RPC_URL)
   const account = await server.getAccount(publicKey)
 
@@ -270,6 +280,37 @@ export async function sponsorHunt(
   saveEscrow(next)
 
   return contribution
+}
+
+export async function promoteHunt(
+  huntId: number,
+  amount = 1,
+  durationSeconds = SPOTLIGHT_DURATION_SECONDS
+): Promise<HuntPromotionReceipt> {
+  if (amount <= 0) throw new Error("Promotion amount must be greater than 0")
+  if (typeof window === "undefined") throw new Error("Browser environment required")
+
+  const hunt = getHunt(String(huntId))
+  if (!hunt) throw new Error("Hunt not found")
+  if (hunt.status !== "Active") throw new Error("Only active hunts can be promoted")
+
+  const txHash = await submitRewardReceipt("promote_hunt", {
+    huntId,
+    amount,
+    durationSeconds,
+  })
+
+  const now = Math.floor(Date.now() / 1000)
+  const currentWindow = hunt.promotedUntil && hunt.promotedUntil > now ? hunt.promotedUntil : now
+  const promotedUntil = currentWindow + durationSeconds
+  updateHuntPromotion(huntId, promotedUntil)
+
+  return {
+    huntId,
+    amount,
+    txHash,
+    promotedUntil,
+  }
 }
 
 export function getSponsorContributions(huntId: number): SponsorContribution[] {

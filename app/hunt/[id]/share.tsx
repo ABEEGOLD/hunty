@@ -29,6 +29,7 @@ import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
 import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
 import { SponsorHuntButton } from "@/components/SponsorHuntButton";
 import type { RewardReceipt } from "@/lib/types";
+import { getReferralLink, storePendingReferralCode } from "@/lib/referrals";
 
 interface HuntDetailProps {
   hunt: StoredHunt;
@@ -59,6 +60,12 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     if (searchParams.get("reattempt") !== "1" || !connectedPublicKey) return;
     prepareHuntReattempt(connectedPublicKey, hunt.id);
   }, [connectedPublicKey, hunt.id, searchParams]);
+
+  useEffect(() => {
+    const referralCode = searchParams.get("ref")
+    if (!referralCode) return
+    storePendingReferralCode(referralCode)
+  }, [searchParams])
   
   useEffect(() => {
     // Check if wallet is available
@@ -211,7 +218,12 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
   }, [hunt.id])
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/hunt/${hunt.id}`;
+    const url = connectedPublicKey
+      ? getReferralLink(connectedPublicKey, {
+          baseUrl: window.location.origin,
+          huntId: hunt.id,
+        })
+      : `${window.location.origin}/hunt/${hunt.id}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -295,6 +307,11 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
             <QrCode className="w-4 h-4" />
           </Button>
         </div>
+        {connectedPublicKey ? (
+          <p className="text-xs text-slate-500">
+            Shared links include your referral code and award bonus points after a first completed hunt.
+          </p>
+        ) : null}
         <QrCodeModal open={qrOpen} onClose={() => setQrOpen(false)} url={huntUrl} />
 
         {hunt.rewardType !== "NFT" && (

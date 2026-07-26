@@ -20,6 +20,8 @@ import {
   ensureActiveAttempt,
   getActiveAttempt,
 } from "@/lib/huntAttemptHistory";
+import { getHuntClues } from "@/lib/huntStore";
+import { awardReferralBonusOnFirstCompletion } from "@/lib/referrals";
 
 import { HuntCards } from "./HuntCards";
 import Replay from "./icons/Replay";
@@ -64,10 +66,12 @@ export function PlayGame({
     queryFn: async () => {
       if (huntId == null) return null;
       const huntInfo = await get_hunt(huntId);
+      const localClues = getHuntClues(huntId);
       const clues: Hunt[] = [];
 
       for (let i = 0; i < huntInfo.totalClues; i++) {
         const clue = await get_clue_info(huntId, i);
+        const localClue = localClues[i] ?? localClues.find((item) => item.question === clue.question);
         clues.push({
           id: clue.id,
           title: clue.question,
@@ -78,6 +82,7 @@ export function PlayGame({
           hint: clue.hint,
           hintCost: clue.hintCost,
           difficulty: clue.difficulty,
+          mediaCid: localClue?.mediaCid,
         });
       }
       return { clues, huntInfo };
@@ -175,6 +180,7 @@ export function PlayGame({
           attemptIdRef.current,
           activeAttempt?.totalPoints ?? score
         );
+        awardReferralBonusOnFirstCompletion(playerAddress, huntId);
         attemptIdRef.current = null;
         setAttemptId(null);
       }

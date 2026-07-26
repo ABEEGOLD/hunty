@@ -16,6 +16,7 @@ import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
 import { logger } from "@/lib/logger"
 import { toast } from "sonner"
 import { HuntCards } from "./HuntCards"
+import { attachMediaTypeToCid } from "@/lib/clueMedia"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
 
 interface HuntFormProps {
@@ -34,6 +35,7 @@ const clueSchema = z.object({
   hint: z.string(),
   hintCost: z.number().min(0),
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+  mediaCid: z.string().optional(),
 })
 
 const cluesFormSchema = z.object({
@@ -44,7 +46,9 @@ type CluesFormData = z.infer<typeof cluesFormSchema>
 
 export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onImageUploadStateChange }: HuntFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const clueFileInputRefs = useRef<Array<HTMLInputElement | null>>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadingClueIndex, setUploadingClueIndex] = useState<number | null>(null)
   const [isSavingClues, setIsSavingClues] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [linkEnabled, setLinkEnabled] = useState(false)
@@ -54,11 +58,13 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     control,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CluesFormData>({
     resolver: zodResolver(cluesFormSchema),
     defaultValues: {
-      clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0 }],
+      clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" }],
     },
   })
 
@@ -71,6 +77,8 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
     setImageUploadState(state)
     onImageUploadStateChange?.(state)
   }
+
+  const clueValues = watch("clues")
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -109,7 +117,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
   }
 
   const addClueRow = () => {
-    append({ question: "", answer: "", points: 10, hint: "", hintCost: 0 })
+    append({ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" })
   }
 
   const removeClueRow = (index: number) => {
@@ -136,6 +144,7 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
           hint: row.hint?.trim() || undefined,
           hintCost: row.hintCost,
           difficulty: row.difficulty,
+          mediaCid: row.mediaCid?.trim() || undefined,
         })
 
         const salt = `${huntId}_${newId}`
@@ -163,9 +172,32 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
         }
       }
       onCluesSaved?.(valid.length)
-      reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0 }] })
+      reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" }] })
     } finally {
       setIsSavingClues(false)
+    }
+  }
+
+  const handleClueMediaUpload = async (index: number, e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingClueIndex(index)
+    try {
+      const ipfsUri = await uploadToIPFS(file)
+      setValue(`clues.${index}.mediaCid`, attachMediaTypeToCid(ipfsUri, file.type), {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      toast.success(`Attached ${file.type.split("/")[0] || "media"} to clue ${index + 1}.`)
+    } catch (error) {
+      logger.error("Error uploading clue media to IPFS:", error)
+      toast.error("Failed to upload clue media. Please try again.")
+    } finally {
+      if (clueFileInputRefs.current[index]) {
+        clueFileInputRefs.current[index]!.value = ""
+      }
+      setUploadingClueIndex(null)
     }
   }
 
@@ -450,7 +482,41 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
                     </select>
                   )}
                 />
+                <input
+                  ref={(node) => {
+                    clueFileInputRefs.current[index] = node
+                  }}
+                  type="file"
+                  accept="image/*,audio/*,video/*"
+                  className="hidden"
+                  aria-label={`Upload media for clue ${index + 1}`}
+                  onChange={(e) => void handleClueMediaUpload(index, e)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => clueFileInputRefs.current[index]?.click()}
+                  disabled={uploadingClueIndex === index}
+                >
+                  {uploadingClueIndex === index ? "Uploading..." : "Add Media"}
+                </Button>
+                {clueValues?.[index]?.mediaCid ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setValue(`clues.${index}.mediaCid`, "", { shouldDirty: true, shouldTouch: true })}
+                  >
+                    Remove Media
+                  </Button>
+                ) : null}
               </div>
+              {clueValues?.[index]?.mediaCid ? (
+                <div className="pl-6 text-xs text-slate-500 dark:text-slate-400">
+                  Media attached: {clueValues[index].mediaCid}
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

@@ -14,7 +14,7 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
 import { Header } from "@/components/Header"
-import { getAllHunts, getHunt, type StoredHunt } from "@/lib/huntStore"
+import { getAllHunts, getHunt, getSpotlightHunts, isHuntPromoted, type StoredHunt } from "@/lib/huntStore"
 import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { EmptyState } from "@/components/EmptyState"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
@@ -108,6 +108,11 @@ function ActiveHuntCard({
           <CardTitle className="text-lg font-semibold line-clamp-2 dark:text-slate-100 flex-1">
             {hunt.title}
           </CardTitle>
+          {isHuntPromoted(hunt) && (
+            <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-pink-100 px-2 py-0.5 text-[10px] font-semibold text-pink-700">
+              Promoted
+            </span>
+          )}
           {playerCount?.isTrending && (
             <span
               className="shrink-0 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-700"
@@ -244,6 +249,49 @@ function VirtualizedActiveHuntsGrid({
         })}
       </div>
     </div>
+  )
+}
+
+function SpotlightCarousel({ hunts }: { hunts: StoredHunt[] }) {
+  if (hunts.length === 0) return null
+
+  return (
+    <section className="mt-10 rounded-3xl border border-pink-100 bg-linear-to-r from-pink-50 via-white to-amber-50 p-6 shadow-sm">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Spotlight Hunts</h2>
+          <p className="text-sm text-slate-600">Featured creator placements for the next 24 hours.</p>
+        </div>
+        <span className="rounded-full bg-pink-100 px-3 py-1 text-xs font-semibold text-pink-700">
+          Paid placement
+        </span>
+      </div>
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {hunts.map((hunt) => (
+          <Link
+            key={hunt.id}
+            href={`/hunt/${hunt.id}`}
+            className="min-w-[280px] max-w-[320px] rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm transition-transform hover:-translate-y-0.5"
+          >
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <span className="rounded-full bg-pink-100 px-2.5 py-1 text-[11px] font-semibold text-pink-700">
+                Promoted
+              </span>
+              <span className="text-xs text-slate-500">
+                Ends {hunt.promotedUntil ? new Date(hunt.promotedUntil * 1000).toLocaleString() : "soon"}
+              </span>
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900">{hunt.title}</h3>
+            <p className="mt-2 line-clamp-3 text-sm text-slate-600">{hunt.description}</p>
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+              <span>{hunt.cluesCount} clues</span>
+              <span>•</span>
+              <span>{hunt.rewardType} rewards</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -482,9 +530,10 @@ export default function GameArcade() {
   // Derive recently completed hunts from the local store (not limited by pagination)
   const allHuntsList = useMemo(() => {
     return fetchAllHunts();
-  }, [infiniteData]);
+  }, []);
 
   const recentlyCompleted = useRecentlyCompleted(allHuntsList);
+  const spotlightHunts = useMemo(() => getSpotlightHunts(), []);
 
   const visibleInactiveHunts = useMemo(
     () => inactiveHunts.slice(0, visibleInactiveCount),
@@ -763,6 +812,8 @@ export default function GameArcade() {
 
         {/* Recently Completed — derived from the same hunt list, no extra fetch */}
         <RecentlyCompletedSection hunts={recentlyCompleted} />
+
+        <SpotlightCarousel hunts={spotlightHunts} />
 
         {/* Active Hunts Grid */}
         <div id="discovery-arcade" className="mt-10">

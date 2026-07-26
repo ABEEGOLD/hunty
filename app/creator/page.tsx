@@ -15,8 +15,11 @@ import { Header } from "@/components/Header"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { useWallet } from "@/lib/context/WalletContext"
 import type { StoredHunt } from "@/lib/types"
-import { getHuntsByCreator } from "@/lib/huntStore"
+import { SPOTLIGHT_FEE_XLM, getHuntsByCreator, isHuntPromoted } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
+import { logger } from "@/lib/logger"
+import { promoteHunt } from "@/lib/contracts/rewardManager"
+import { toast } from "sonner"
 
 function StatusBadge({ status }: { status: StoredHunt["status"] }) {
   const config = {
@@ -40,6 +43,7 @@ export default function CreatorPage() {
   const { connected, publicKey, connect } = useWallet()
   const [hunts, setHunts] = useState<StoredHunt[]>([])
   const [rewardHistory, setRewardHistory] = useState<Awaited<ReturnType<typeof fetchCreatorRewardHistory>>>([])
+  const [promotingHuntId, setPromotingHuntId] = useState<number | null>(null)
 
   const loadHunts = useCallback(() => {
     if (!publicKey) {
@@ -66,7 +70,7 @@ export default function CreatorPage() {
         const data = await fetchCreatorRewardHistory(publicKey)
         if (!cancelled) setRewardHistory(data)
       } catch (err) {
-        console.error("Failed to load creator reward history:", err)
+        logger.error("Failed to load creator reward history:", err)
       }
     }
 
@@ -84,6 +88,19 @@ export default function CreatorPage() {
       router.push(`/creator/stats/${hunt.id}`)
     }
     // Completed: no navigation or could open a read-only summary
+  }
+
+  const handlePromote = async (huntId: number) => {
+    try {
+      setPromotingHuntId(huntId)
+      const receipt = await promoteHunt(huntId, SPOTLIGHT_FEE_XLM)
+      loadHunts()
+      toast.success(`Spotlight active until ${new Date(receipt.promotedUntil * 1000).toLocaleString()}.`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to promote hunt.")
+    } finally {
+      setPromotingHuntId(null)
+    }
   }
 
   return (
@@ -159,6 +176,7 @@ export default function CreatorPage() {
                 const isDraft = hunt.status === "Draft"
                 const isActive = hunt.status === "Active"
                 const isClickable = isDraft || isActive
+                const isPromoted = isHuntPromoted(hunt)
 
                 return (
                   <Card
@@ -175,7 +193,14 @@ export default function CreatorPage() {
                         <CardTitle className="line-clamp-2 text-lg">
                           {hunt.title}
                         </CardTitle>
-                        <StatusBadge status={hunt.status} />
+                        <div className="flex items-center gap-2">
+                          {isPromoted ? (
+                            <span className="rounded-full bg-pink-100 px-2.5 py-0.5 text-xs font-medium text-pink-700">
+                              Promoted
+                            </span>
+                          ) : null}
+                          <StatusBadge status={hunt.status} />
+                        </div>
                       </div>
                       <CardDescription className="mb-4 line-clamp-3 text-sm text-slate-600">
                         {hunt.description}
@@ -184,6 +209,20 @@ export default function CreatorPage() {
                         <span className="text-xs text-slate-500">
                           {hunt.cluesCount} {hunt.cluesCount === 1 ? "clue" : "clues"}
                         </span>
+                        {isActive && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={isPromoted ? "outline" : "primary"}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              void handlePromote(hunt.id)
+                            }}
+                            disabled={promotingHuntId === hunt.id}
+                          >
+                            {promotingHuntId === hunt.id ? "Promoting..." : isPromoted ? "Extend Spotlight" : `Promote (${SPOTLIGHT_FEE_XLM} XLM)`}
+                          </Button>
+                        )}
                         {isDraft && (
                           <span className="flex items-center gap-1 text-xs text-amber-700">
                             <Pencil className="h-3 w-3" />

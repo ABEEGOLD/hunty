@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 import sanitizeHtml from "@/lib/sanitizeHtml";
 import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
 import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
-import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
+import { calculateCluePoints } from "@/lib/scoring";
 import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
+import { getClueMediaKind, getClueMediaSource } from "@/lib/clueMedia";
 import type { HuntCard as Hunt } from "@/lib/types";
 import { usePlayerCount } from "@/hooks/usePlayerCount";
 
@@ -109,6 +110,8 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
   const [keyboardInsetHeight, setKeyboardInsetHeight] = useState(0);
   const prefersReducedMotion = useReducedMotion();
   const [shake, setShake] = useState(false);
+  const clueMediaKind = getClueMediaKind(hunt.mediaCid);
+  const clueMediaSrc = getClueMediaSource(hunt.mediaCid, imgGatewayIdx);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -170,11 +173,6 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
 
         // ClueCompleted event received
         setSuccess(true);
-
-        const actualPoints = Math.max(
-          0,
-          (points ?? DEFAULT_POINTS) - (hintRevealed ? (hunt.hintCost || 0) : 0)
-        );
 
         let updatedActualPoints = 0;
         if (playerAddress && attemptId) {
@@ -373,7 +371,31 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         </h3>
         <p className="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6 line-clamp-3 print:text-lg print:opacity-100 print:mb-8" dangerouslySetInnerHTML={{ __html: sanitizeHtml(hunt.description || "No description provided.") }} />
         <div className="flex justify-center">
-          {hunt.link || hunt.image ? (
+          {clueMediaSrc && clueMediaKind === "audio" ? (
+            <audio controls aria-label="Clue audio media" className="w-full max-w-xs">
+              <source src={clueMediaSrc} />
+            </audio>
+          ) : clueMediaSrc && clueMediaKind === "video" ? (
+            <video controls aria-label="Clue video media" className="w-full max-w-xs rounded-xl">
+              <source src={clueMediaSrc} />
+            </video>
+          ) : clueMediaSrc ? (
+            <Image
+              src={clueMediaSrc}
+              alt="clue media"
+              width={180}
+              height={180}
+              loading="lazy"
+              sizes="180px"
+              onError={() => {
+                if (imgGatewayIdx < GATEWAY_COUNT - 1) {
+                  setImgGatewayIdx((i) => i + 1)
+                }
+              }}
+              unoptimized
+              className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] object-contain print:w-64 print:h-auto print:rounded-xl"
+            />
+          ) : hunt.link || hunt.image ? (
             <Image
               src={resolveImageSrc(hunt.link || hunt.image || "", imgGatewayIdx)}
               alt="hunt"

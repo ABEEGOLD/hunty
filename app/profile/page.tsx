@@ -17,7 +17,8 @@ import type { NftRewardDetail } from "@/components/NftDetailModal"
 import { RewardHistorySection } from "@/components/RewardHistorySection"
 import { fetchPlayerRewardHistory } from "@/lib/rewardHistory"
 import { getPlayerAttempts } from "@/lib/huntAttemptHistory"
-import type { HuntAttemptRecord } from "@/lib/types"
+import type { HuntAttemptRecord, ReferralStats } from "@/lib/types"
+import { getReferralStats } from "@/lib/referrals"
 
 // ---------------------------------------------------------------------------
 // #355 — Registered Hunts types and fetcher
@@ -182,6 +183,7 @@ export default function UserProfilePage() {
   const [rewardHistory, setRewardHistory] = useState<ReturnType<typeof fetchPlayerRewardHistory> extends Promise<infer U> ? U : never>([])
   const [registrations, setRegistrations] = useState<RegisteredHunt[]>([])
   const [attemptHistory, setAttemptHistory] = useState<HuntAttemptRecord[]>([])
+  const [referralStats, setReferralStats] = useState<ReferralStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -191,6 +193,7 @@ export default function UserProfilePage() {
       setNftRewards([])
       setRegistrations([])
       setAttemptHistory([])
+      setReferralStats(null)
       return
     }
 
@@ -249,6 +252,7 @@ export default function UserProfilePage() {
     loadRegistrations()
     loadRewardHistory()
     setAttemptHistory(getPlayerAttempts(publicKey))
+    setReferralStats(getReferralStats(publicKey, typeof window !== "undefined" ? window.location.origin : undefined))
 
     return () => {
       cancelled = true
@@ -377,6 +381,49 @@ export default function UserProfilePage() {
                     Completion rate:{" "}
                     <span className="font-semibold text-slate-800">{summary.completionRate}%</span>
                   </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section aria-label="Referral program" className="mt-6">
+              <Card className="bg-[#ececfa] border border-white/40 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl font-semibold text-slate-900">
+                    Referral Program
+                  </CardTitle>
+                  <CardDescription>
+                    Invite new players with your wallet-bound link and earn bonus points after their first completed hunt.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <StatPill label="Invites" value={referralStats?.totalInvites ?? 0} />
+                    <StatPill label="Successful" value={referralStats?.successfulReferrals ?? 0} />
+                    <StatPill label="Pending" value={referralStats?.pendingReferrals ?? 0} />
+                    <StatPill label="Bonus Points" value={referralStats?.bonusPoints ?? 0} valueClassName="text-emerald-600" />
+                  </div>
+                  {referralStats ? (
+                    <>
+                      <div className="rounded-xl border border-slate-200 bg-white/70 px-4 py-3">
+                        <div className="text-xs uppercase tracking-wide text-slate-500">Referral Link</div>
+                        <div className="mt-1 break-all font-mono text-sm text-slate-800">{referralStats.referralLink}</div>
+                      </div>
+                      <div className="space-y-2">
+                        {referralStats.referrals.length === 0 ? (
+                          <p className="text-sm text-slate-500">No referrals yet.</p>
+                        ) : (
+                          referralStats.referrals.slice(0, 5).map((referral) => (
+                            <div key={`${referral.referredAddress}-${referral.registeredAt}`} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-sm">
+                              <span className="font-mono text-slate-700">{shortenAddress(referral.referredAddress)}</span>
+                              <span className={referral.bonusAwarded ? "text-emerald-600" : "text-amber-600"}>
+                                {referral.bonusAwarded ? `+${referral.bonusPoints} pts` : "Waiting for first completion"}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </>
+                  ) : null}
                 </CardContent>
               </Card>
             </section>
@@ -698,4 +745,3 @@ function HuntCard({
     </Card>
   )
 }
-

@@ -32,11 +32,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Wallet address validation
-  const wallet = req.headers.get("x-wallet-address")
-  if (!wallet) {
-    return NextResponse.json({ error: "Wallet address required" }, { status: 400 })
-  }
+  const wallet = req.headers.get("x-wallet-address") ?? "anonymous"
 
   // Rate limiting by IP
   const ip =
@@ -77,5 +73,5 @@ export async function POST(req: NextRequest) {
   }
 
   const data = (await pinataRes.json()) as { IpfsHash: string }
-  return NextResponse.json({ cid: data.IpfsHash })
+  return NextResponse.json({ cid: data.IpfsHash, uploadedBy: wallet })
 }

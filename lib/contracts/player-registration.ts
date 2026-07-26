@@ -2,6 +2,7 @@ import Server, { TransactionBuilder, Operation } from "@stellar/stellar-sdk"
 import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE } from "./config"
 import { withSorobanRpcRetry } from "../soroban/rpcRetry"
 import { RegistrationError } from "@/lib/contracts/errors"
+import { consumePendingReferral } from "@/lib/referrals"
 
 import type { PlayerProgress, RegistrationStatus, RegistrationResult } from "@/lib/types"
 
@@ -545,7 +546,8 @@ export async function registerPlayer(
 
       // Set localStorage key for registration (for mock mode)
       if (typeof window !== "undefined") {
-        localStorage.setItem(`hunt_registered_${huntId}_${playerAddress}`, "true");
+        localStorage.setItem(`hunt_registered_${huntId}_${playerAddress}`, "true")
+        consumePendingReferral(playerAddress)
       }
       
       // Clear cache after successful registration

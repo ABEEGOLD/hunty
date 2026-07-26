@@ -43,6 +43,8 @@ export interface StoredHunt {
   coverImageCid?: string
   /** Active editorial banner showcase at the top of the Arcade. */
   isFeaturedOfWeek?: boolean
+  /** Unix timestamp in seconds until a paid spotlight placement remains active. */
+  promotedUntil?: number
 }
 
 export type HuntInfo = {
@@ -77,6 +79,8 @@ export interface Clue {
   longitude?: number
   /** Allowed distance from the clue center in metres. Defaults to 100m. */
   geofenceRadiusMeters?: number
+  /** Optional IPFS media reference, optionally tagged with a type query param. */
+  mediaCid?: string
 }
 
 export type ClueInfo = {
@@ -96,6 +100,7 @@ export interface ClueRow {
   hint?: string
   hintCost?: number
   difficulty?: ClueDifficulty
+  mediaCid?: string
 }
 
 // ─── Transaction Results ─────────────────────────────────────────────────────
@@ -318,6 +323,7 @@ export interface HuntCard {
   hintCost?: number
   points?: number
   difficulty?: ClueDifficulty
+  mediaCid?: string
 }
 
 export interface HuntDraft {
@@ -330,6 +336,33 @@ export interface HuntDraft {
 }
 
 export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed"
+
+export interface PlayerProfile {
+  address: string
+  displayName?: string
+  avatarUrl?: string
+}
+
+export interface ReferralRecord {
+  code: string
+  referrerAddress: string
+  referredAddress: string
+  registeredAt: number
+  firstCompletedAt?: number
+  firstCompletedHuntId?: number
+  bonusAwarded: boolean
+  bonusPoints: number
+}
+
+export interface ReferralStats {
+  code: string
+  totalInvites: number
+  successfulReferrals: number
+  pendingReferrals: number
+  bonusPoints: number
+  referralLink: string
+  referrals: ReferralRecord[]
+}
 
 // ─── Player Count ────────────────────────────────────────────────────────────
 
