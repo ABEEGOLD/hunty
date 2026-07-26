@@ -21,6 +21,7 @@ import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
 import { logger } from "@/lib/logger"
 import { toast } from "sonner"
 import { HuntCards } from "./HuntCards"
+import { RichTextEditor } from "./RichTextEditor"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
 
 interface HuntFormProps {
@@ -236,14 +237,15 @@ export function HuntForm({ hunt, onUpdate, onRemove, huntId, onCluesSaved, onIma
           className="w-full pl-6 py-3"
         />
 
-        <div className="flex gap-1">
-          <Input
-            placeholder="Description"
-            aria-label="Hunt Description"
-            value={hunt.description}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate("description", e.target.value)}
-            className="w-full pl-6 py-3"
-          />
+        <div className="flex items-start gap-1">
+          <div className="flex-1">
+            <RichTextEditor
+              value={hunt.description}
+              onChange={(value) => onUpdate("description", value)}
+              ariaLabel="Hunt Description"
+              placeholder="Describe the hunt… Markdown, images, links and code blocks supported."
+            />
+          </div>
         <div className="relative">
           <Button
             type="button"

@@ -9,6 +9,7 @@ import picture from "@/public/static-images/image1.png";
 import { HuntCardSkeleton } from "@/components/LoadingSkeletons";
 import { cn } from "@/lib/utils";
 import sanitizeHtml from "@/lib/sanitizeHtml";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import { submitAnswer, AnswerIncorrectError, pollTransaction } from "@/lib/contracts/hunt";
 import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
 import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
@@ -371,7 +372,11 @@ export const HuntCards: React.FC<HuntCardsProps> = ({
         <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 line-clamp-2 print:text-3xl print:mb-4">
           {hunt.title || "Untitled Hunt"}
         </h3>
-        <p className="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6 line-clamp-3 print:text-lg print:opacity-100 print:mb-8" dangerouslySetInnerHTML={{ __html: sanitizeHtml(hunt.description || "No description provided.") }} />
+        <MarkdownContent
+          markdown={hunt.description || ""}
+          fallback="No description provided."
+          className="markdown-content text-xs sm:text-sm opacity-90 mb-4 sm:mb-6 line-clamp-3 print:text-lg print:opacity-100 print:mb-8"
+        />
         <div className="flex justify-center">
           {hunt.link || hunt.image ? (
             <Image
