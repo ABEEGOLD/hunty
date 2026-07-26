@@ -4,17 +4,33 @@ import React, { useState, useEffect } from "react"
 import { Bell, BellOff, ChevronUp, ChevronDown, Users, Calendar } from "lucide-react"
 import { getNotificationPreferences, setNotificationPreferences } from "@/lib/notifications/notificationPreferences"
 import type { NotificationPreferences } from "@/lib/notifications/types"
+import { PushNotificationToggle } from "@/components/PushNotificationToggle"
+import { syncPreferencesToServer } from "@/lib/notifications/webPush"
 
 interface NotificationSettingsProps {
   onClose?: () => void
+  /** Wallet address used for push subscription — pass from the connected wallet context */
+  walletAddress?: string | null
 }
 
-export function NotificationSettings({ onClose }: NotificationSettingsProps) {
+export function NotificationSettings({ onClose, walletAddress = null }: NotificationSettingsProps) {
   const [prefs, setPrefs] = useState<NotificationPreferences>(getNotificationPreferences())
 
   useEffect(() => {
     setNotificationPreferences(prefs)
-  }, [prefs])
+    // Re-sync push preferences to server whenever they change
+    if (walletAddress && prefs.pushEnabled) {
+      syncPreferencesToServer(walletAddress, {
+        huntStart: prefs.pushHuntStart,
+        overtake: prefs.pushOvertake,
+        huntCancelled: prefs.pushHuntCancelled,
+        playerRegistered: prefs.pushPlayerRegistered,
+        firstCompletion: prefs.pushFirstCompletion,
+      }).catch(() => {
+        // Non-fatal — local prefs already saved
+      })
+    }
+  }, [prefs, walletAddress])
 
   const toggle = (key: keyof NotificationPreferences) => {
     setPrefs((prev) => ({ ...prev, [key]: !prev[key] as boolean }))
@@ -111,6 +127,11 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Web Push opt-in */}
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+            <PushNotificationToggle walletAddress={walletAddress} />
           </div>
         </>
       )}

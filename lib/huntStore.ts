@@ -285,6 +285,23 @@ export function updateHuntStatus(huntId: number, status: HuntStatus): void {
   writeHunts(hunts)
 }
 
+/**
+ * Returns all wallet addresses that have registered for a hunt.
+ * Scans localStorage for keys of the form `hunt_registered_{huntId}_{address}`.
+ */
+export function getRegisteredWallets(huntId: number): string[] {
+  if (typeof window === "undefined") return []
+  const prefix = `hunt_registered_${huntId}_`
+  const wallets: string[] = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key?.startsWith(prefix) && localStorage.getItem(key) === "true") {
+      wallets.push(key.slice(prefix.length))
+    }
+  }
+  return wallets
+}
+
 /** Update a hunt's end time (e.g. after extend_end_time). */
 export function updateHuntEndTime(huntId: number, newEndTime: number): void {
   const hunts = readHunts().map((h) => (h.id === huntId ? { ...h, endTime: newEndTime } : h))

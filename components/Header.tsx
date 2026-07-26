@@ -10,6 +10,7 @@ import { useWallet } from "@/lib/context/WalletContext";
 import { WalletSelectionModal } from "./WalletSelectionModal";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSelector } from "./LanguageSelector";
+import { NotificationPanel } from "@/components/NotificationPanel";
 import {
   Copy,
   LogOut,
@@ -68,15 +69,8 @@ const NAV_ITEMS = [
   },
 ];
 
-// ÔöÇÔöÇÔöÇ Notification mock (replace with real data) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
-const MOCK_NOTIFICATIONS = [
-  { id: 1, text: "Your hunt is live!", time: "2m ago", unread: true },
-  { id: 2, text: "New player joined #42", time: "15m ago", unread: true },
-  { id: 3, text: "Hunt #38 has ended", time: "1h ago", unread: false },
-];
-
-// ÔöÇÔöÇÔöÇ Sub-components ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -118,58 +112,6 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function NotificationPanel({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => n.unread).length;
-  if (!open) return null;
-
-  return (
-    <div className="absolute right-0 top-full mt-2 w-80 z-50 bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/5">
-        <span className="font-bold text-slate-900 dark:text-white">Notifications</span>
-        {unreadCount > 0 && (
-          <span className="text-xs bg-[#E87785] text-white font-bold px-2 py-0.5 rounded-full">
-            {unreadCount} new
-          </span>
-        )}
-      </div>
-      <ul className="divide-y divide-slate-100 dark:divide-white/5 max-h-72 overflow-y-auto">
-        {MOCK_NOTIFICATIONS.map((n) => (
-          <li
-            key={n.id}
-            className={cn(
-              "flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer",
-              n.unread && "bg-[#3737A4]/5 dark:bg-indigo-900/10"
-            )}
-          >
-            {n.unread && (
-              <span className="mt-1.5 flex-shrink-0 w-2 h-2 rounded-full bg-[#3737A4] dark:bg-indigo-400" />
-            )}
-            {!n.unread && <span className="mt-1.5 flex-shrink-0 w-2 h-2" />}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-slate-800 dark:text-slate-200 leading-snug">{n.text}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{n.time}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className="px-4 py-2 border-t border-slate-100 dark:border-white/5">
-        <button
-          onClick={onClose}
-          className="w-full text-xs text-center text-[#3737A4] dark:text-indigo-400 hover:underline py-1"
-        >
-          Mark all as read
-        </button>
       </div>
     </div>
   );
