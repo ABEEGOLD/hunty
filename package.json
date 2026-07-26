@@ -22,7 +22,8 @@
     "test:mutation:registration": "stryker run --testRunner vitest stryker.registration.conf.json",
     "test:mutation": "npm run test:mutation:validation && npm run test:mutation:scoring && npm run test:mutation:registration",
     "perf:budget": "node scripts/check-performance-budgets.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "type-check": "tsc --noEmit"
   },
   "lint-staged": {
     "mobile/**/*.{js,jsx,ts,tsx}": [
@@ -30,6 +31,16 @@
     ],
     "mobile/**/*.{json,md}": [
       "npx prettier --write"
+    ],
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{js,mjs,cjs}": [
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
     ]
   },
   "dependencies": {
@@ -74,6 +85,8 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@chromatic-com/storybook": "^5.2.1",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^10.5.0",
     "@playwright/test": "^1.58.2",
@@ -107,11 +120,11 @@
     "eslint-plugin-storybook": "^10.4.6",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
-    "lint-staged": "^15.4.3",
+    "lint-staged": "15.5.2",
     "node-mocks-http": "^1.12.1",
     "playwright": "^1.61.0",
     "pnpm": "^10.33.0",
-    "prettier": "^3.5.0",
+    "prettier": "3.5.3",
     "sharp": "^0.35.2",
     "storybook": "^10.4.6",
     "supertest": "^6.3.4",
