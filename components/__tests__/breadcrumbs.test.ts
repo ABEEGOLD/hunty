@@ -1,10 +1,11 @@
 // components/__tests__/breadcrumbs.test.ts
-import { describe, it, expect } from "vitest";
+import { describe, expect,it } from "vitest";
+
 import {
-  generateBreadcrumbs,
-  truncateBreadcrumbs,
-  ROUTE_LABELS,
   defaultResolver,
+  generateBreadcrumbs,
+  ROUTE_LABELS,
+  truncateBreadcrumbs,
 } from "@/lib/breadcrumbs";
 
 describe("generateBreadcrumbs", () => {

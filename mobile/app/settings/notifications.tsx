@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text, Linking, Platform } from 'react-native';
-import { SettingsSection } from '@components/settings/SettingsSection';
 import { SettingsRow } from '@components/settings/SettingsRow';
-import { useTheme } from '@providers/ThemeProvider';
+import { SettingsSection } from '@components/settings/SettingsSection';
 import { useNotifications } from '@hooks/useNotifications';
+import { useTheme } from '@providers/ThemeProvider';
 import {
-  getPreferences,
-  setPreferences,
   DEFAULT_PREFERENCES,
+  getPreferences,
   type NotificationPreferences,
+  setPreferences,
 } from '@services/notifications/notificationPreferences';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, Platform,ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function NotificationsScreen() {
   const { colors } = useTheme();

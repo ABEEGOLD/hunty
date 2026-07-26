@@ -3,12 +3,13 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
+  DEFAULT_PREFERENCES,
   getPreferences,
+  type NotificationPreferences,
   setPreferences,
   shouldShowNotification,
-  DEFAULT_PREFERENCES,
-  type NotificationPreferences,
 } from '../../services/notifications/notificationPreferences';
 
 jest.mock('@react-native-async-storage/async-storage');

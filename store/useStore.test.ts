@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+
 import { usePlayerStore, useWalletStore } from "./useStore";
 
 const walletInitialState = useWalletStore.getState();

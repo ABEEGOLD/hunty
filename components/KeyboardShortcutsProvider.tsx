@@ -2,15 +2,16 @@
 
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import KeyboardShortcutsModal from './KeyboardShortcuts';
+import React, { useCallback,useEffect, useRef, useState } from 'react';
+
 import {
+  cleanupPrefixState,
   createDefaultShortcuts,
   createKeyboardHandler,
-  cleanupPrefixState,
   SearchBarHandle,
 } from '../lib/keyboardShortcuts';
+import KeyboardShortcutsModal from './KeyboardShortcuts';
 
 interface KeyboardShortcutsProviderProps {
   children: React.ReactNode;

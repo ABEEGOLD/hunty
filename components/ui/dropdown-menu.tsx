@@ -1,7 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+
 import { cn } from "@/lib/utils";
 
 interface DropdownMenuProps {

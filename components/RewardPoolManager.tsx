@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
-import type { StoredHunt, Reward } from "@/lib/types"
-import { getHuntById, getHuntPool, depositToPool, withdrawUnclaimedRewards, setDistributionPlan, isPoolLow } from "@/lib/huntStore"
+import { depositToPool, getHuntById, getHuntPool, isPoolLow,setDistributionPlan, withdrawUnclaimedRewards } from "@/lib/huntStore"
+import type { Reward,StoredHunt } from "@/lib/types"
 
 export function RewardPoolManager({ huntId, isOpen, onClose }: { huntId: number; isOpen: boolean; onClose: () => void }) {
   const [hunt, setHunt] = useState<StoredHunt | null>(null)

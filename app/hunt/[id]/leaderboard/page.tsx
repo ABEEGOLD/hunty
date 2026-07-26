@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { LeaderboardSharePage } from "@/components/LeaderboardSharePage";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+import { Header } from "@/components/Header";
+import { LeaderboardTable } from "@/components/LeaderBoardTable";
+import { Button } from "@/components/ui/button";
 import { getHuntById } from "@/lib/huntStore";
 import type { StoredHunt } from "@/lib/types";
 

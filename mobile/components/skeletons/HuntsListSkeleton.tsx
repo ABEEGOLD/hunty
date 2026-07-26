@@ -5,9 +5,10 @@
  * the hunts list is loading, preserving the same layout as the real HuntsList.
  */
 
+import { ThemedView } from '@components/themed';
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { ThemedView } from '@components/themed';
+
 import { HuntCardSkeleton } from './HuntCardSkeleton';
 import { SkeletonBase } from './SkeletonBase';
 

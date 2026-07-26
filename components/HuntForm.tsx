@@ -15,14 +15,23 @@ import {
   restoreHuntStoreSnapshot,
   updateClueAnswer,
 } from "@/lib/huntStore"
+import { Eye, EyeOff,Minus, Plus, Trash2 } from "lucide-react"
+import React, { ChangeEvent, useRef, useState } from "react"
+import { toast } from "sonner"
+
+import { addClue } from "@/lib/contracts/hunt"
 import { sha256Hex } from "@/lib/crypto"
-import { withTransactionToast } from "@/lib/txToast"
+import { saveClueLocally, updateClueAnswer } from "@/lib/huntStore"
 import { COVER_IMAGE_UPLOAD_ERROR_MESSAGE, uploadToIPFS } from "@/lib/ipfs"
 import { logger } from "@/lib/logger"
 import { toast } from "sonner"
 import { HuntCards } from "./HuntCards"
 import { ClueSortList } from "./ClueSortList"
+import { withTransactionToast } from "@/lib/txToast"
 import type { CoverImageUploadState, HuntDraft } from "@/lib/types"
+
+import { HuntCards } from "./HuntCards"
+import ToggleSwitch from "./ToggleButton"
 
 interface HuntFormProps {
   hunt: HuntDraft

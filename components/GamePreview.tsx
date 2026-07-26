@@ -3,9 +3,13 @@
 import Link from "next/link"
 import { Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Eye} from "lucide-react"
+
 import PlayCircle from "@/components/icons/PlayCircle"
-import { HuntCards } from "./HuntCards"
+import { Button } from "@/components/ui/button"
 import type { HuntCard } from "@/lib/types"
+
+import { HuntCards } from "./HuntCards"
 
 interface GamePreviewProps {
   hunts: HuntCard[]

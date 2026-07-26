@@ -7,11 +7,13 @@
  * - Renders play interface only for registered players
  */
 
-import React from 'react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { PlayInterfaceGuard } from '../PlayInterfaceGuard'
+import React from 'react'
+import { beforeEach,describe, expect, it, vi } from 'vitest'
+
 import * as playerRegistration from '@/lib/contracts/player-registration'
+
+import { PlayInterfaceGuard } from '../PlayInterfaceGuard'
 
 // Mock the player registration module
 vi.mock('@/lib/contracts/player-registration', () => ({

@@ -1,14 +1,21 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
-  BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
-import { useModalStore, type ModalConfig } from '@store/modalStore';
+import { type ModalConfig,useModalStore } from '@store/modalStore';
+import React, { useCallback, useMemo, useRef } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ConfirmationModalProps {
   config: ModalConfig;

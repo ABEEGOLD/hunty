@@ -1,12 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { AlertTriangle,ArrowLeft, Ban, Eye, Shield } from "lucide-react"
 import Link from "next/link"
-import { ArrowLeft, Shield, Ban, Eye, AlertTriangle } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
+
+import { Header } from "@/components/Header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Header } from "@/components/Header"
-import { toast } from "sonner"
 
 interface FlaggedUser {
   wallet: string

@@ -1,10 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach,describe, expect, it, vi } from "vitest";
+
 import {
+  clearStoredWalletSession,
+  connectWalletProvider,
+  getActiveWalletAdapter,
   getStoredWalletSession,
   setStoredWalletSession,
-  clearStoredWalletSession,
-  getActiveWalletAdapter,
-  connectWalletProvider,
 } from "../walletAdapter";
 
 // Mock @stellar/freighter-api

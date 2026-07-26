@@ -1,22 +1,22 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { usePathname } from 'expo-router';
 import {
-  initializeAnalytics,
-  trackEvent,
-  trackScreenView,
-  trackUserAction,
-  trackAppStart,
-  trackScreenLoad,
-  reportError,
-  setUserContext,
-  getOptOutStatus,
-  optIn,
-  optOut,
-  onNavigationStateChange,
   type AnalyticsEvent,
   type AnalyticsEventName,
+  getOptOutStatus,
+  initializeAnalytics,
+  onNavigationStateChange,
+  optIn,
+  optOut,
+  reportError,
+  setUserContext,
+  trackAppStart,
+  trackEvent,
+  trackScreenLoad,
+  trackScreenView,
+  trackUserAction,
 } from '@services/analytics';
 import { useWalletStore } from '@store/useStore';
+import { usePathname } from 'expo-router';
+import React, { createContext, useCallback,useContext, useEffect, useState } from 'react';
 
 // ───────────────────────────────────────────────────────────
 // Context

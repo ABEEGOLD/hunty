@@ -1,37 +1,38 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import Image from "next/image"
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
   Search,
   ShoppingCart,
   Tag,
   TrendingUp,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
   X,
 } from "lucide-react"
+import Image from "next/image"
+import React, { useEffect,useState } from "react"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { resolveImageSrc } from "@/lib/ipfs"
 import {
-  getActiveListings,
-  searchListings,
   buyNft,
-  getSaleHistory,
+  getActiveListings,
   getPriceTrends,
+  getSaleHistory,
   type MarketplaceListing,
   type SaleHistoryEntry,
+  searchListings,
 } from "@/lib/nft/marketplace"
 
 interface NftMarketplaceProps {

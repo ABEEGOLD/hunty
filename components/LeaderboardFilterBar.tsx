@@ -1,8 +1,8 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import type { LeaderboardFilters, LeaderboardTimePeriod, LeaderboardMetric } from "@/lib/types"
+import type { LeaderboardFilters, LeaderboardMetric,LeaderboardTimePeriod } from "@/lib/types"
 import type { ClueDifficulty } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 const TIME_PERIODS: { value: LeaderboardTimePeriod; label: string }[] = [
   { value: "today", label: "Today" },

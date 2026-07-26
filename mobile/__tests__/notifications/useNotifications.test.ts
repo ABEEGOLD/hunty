@@ -2,7 +2,8 @@
  * Tests for the useNotifications hook — permission flow and token registration.
  */
 
-import { renderHook, act } from '@testing-library/react-native';
+import { act,renderHook } from '@testing-library/react-native';
+
 import { useNotifications } from '../../hooks/useNotifications';
 import * as notificationService from '../../services/notifications/notificationService';
 import * as tokenRegistry from '../../services/notifications/tokenRegistry';

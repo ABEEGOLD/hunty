@@ -15,10 +15,8 @@
  * handling navigation targets.
  */
 
-import React, { createContext, useContext, useEffect, useRef } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import { useRouter } from 'expo-router';
+import { incrementBadge, resetBadge } from '@services/notifications/badgeService';
+import { shouldShowNotification } from '@services/notifications/notificationPreferences';
 import {
   configureNotificationHandler,
   ensureAndroidChannel,
@@ -27,8 +25,10 @@ import {
   registerBackgroundNotificationTask,
 } from '@services/notifications/notificationService';
 import { resolveNavTarget } from '@services/notifications/types';
-import { incrementBadge, resetBadge } from '@services/notifications/badgeService';
-import { shouldShowNotification } from '@services/notifications/notificationPreferences';
+import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 
 // ─── Context (exposed for convenience hooks) ──────────────────────────────────
 

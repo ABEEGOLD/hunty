@@ -1,7 +1,8 @@
-import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getActiveHuntsForFeed } from '@store/huntStore';
 import { ThemedCustomText, ThemedView } from '@components/themed';
+import { getActiveHuntsForFeed } from '@store/huntStore';
+import { useQuery } from '@tanstack/react-query';
+import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+
 import { HuntFeedItem } from './HuntFeedItem';
 
 export function HuntFeed() {

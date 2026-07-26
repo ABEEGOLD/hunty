@@ -3,14 +3,19 @@
 import { useContext, useState, useCallback, useRef } from "react"
 import { CheckCircle2, Loader2, ExternalLink, AlertCircle, RefreshCw, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AlertCircle, ExternalLink, Loader2, RefreshCw, Wallet } from "lucide-react"
+import { useCallback, useRef,useState } from "react"
+
+import { AnimatedCheckmark } from "@/components/AnimatedCheckmark"
 import Coin from "@/components/icons/Coin"
-import { claimReward, ClaimTimeoutError, ClaimRejectedError } from "@/lib/contracts/rewardManager"
-import { getStellarExplorerUrl } from "@/lib/constants"
+import { Button } from "@/components/ui/button"
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice"
-import { cn } from "@/lib/utils"
+import { getStellarExplorerUrl } from "@/lib/constants"
+import { ClaimRejectedError,claimReward, ClaimTimeoutError } from "@/lib/contracts/rewardManager"
 import { logger } from "@/lib/logger"
 import { WalletContext } from "@/lib/context/WalletContext"
 import { recordNftReceived } from "@/lib/contracts/player-stats"
+import { cn } from "@/lib/utils"
 
 type ClaimStage = "idle" | "preparing" | "approving" | "confirming" | "retrying" | "success" | "error"
 

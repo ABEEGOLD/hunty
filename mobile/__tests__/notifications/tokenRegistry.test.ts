@@ -10,6 +10,8 @@ import {
   getExpoPushToken,
 } from '../../services/notifications/tokenRegistry';
 
+import { getExpoPushToken,registerPushToken, unregisterPushToken } from '../../services/notifications/tokenRegistry';
+
 // ─── Mocks ─────────────────────────────────────────────────────────────────────
 
 jest.mock('expo-notifications');

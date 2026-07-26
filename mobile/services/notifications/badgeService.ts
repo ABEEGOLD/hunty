@@ -7,8 +7,8 @@
  * the app.
  */
 
-import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 
 const BADGE_COUNT_KEY = 'hunty_badge_count';
 

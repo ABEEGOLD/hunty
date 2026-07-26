@@ -10,6 +10,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 import type { PlayerProgress } from "@/lib/types";
 
 // ─── Wallet Store ─────────────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
-import { Resend } from 'resend';
-import { HuntCompletionEmail } from '@/components/emails/HuntCompletionEmail';
 import { NextResponse } from 'next/server';
 import { ValidationError } from '@/lib/api/errors';
 import { withErrorHandling } from '@/lib/api/withErrorHandling';
+import { Resend } from 'resend';
+
+import { HuntCompletionEmail } from '@/components/emails/HuntCompletionEmail';
+import { logger } from '@/lib/logger';
 
 export const POST = withErrorHandling(async (request: Request) => {
   const resend = new Resend(process.env.RESEND_API_KEY);

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import { cva } from "class-variance-authority";
+import React, { useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 type CustomToggleProps = {

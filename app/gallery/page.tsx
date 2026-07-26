@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect,useState } from "react";
+
+import { EmptyState } from "@/components/EmptyState";
+import { FilterBar } from "@/components/FilterBar";
 import { NftCard } from "@/components/NftCard";
 import { NftDetailModal } from "@/components/NftDetailModal";
-import { FilterBar } from "@/components/FilterBar";
-import { ViewToggle } from "@/components/ViewToggle";
-import { EmptyState } from "@/components/EmptyState";
-import { usePlayerNfts } from "@/hooks/usePlayerNfts";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { ViewToggle } from "@/components/ViewToggle";
+import { usePlayerNfts } from "@/hooks/usePlayerNfts";
 
 export default function GalleryPage() {
   const { address, nfts, loading, error } = usePlayerNfts();

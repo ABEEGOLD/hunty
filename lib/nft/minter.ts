@@ -12,23 +12,24 @@
  */
 
 import {
-  Operation,
-  TransactionBuilder,
-  type Transaction,
   type Account,
+  Operation,
+  type Transaction,
+  TransactionBuilder,
 } from "@stellar/stellar-sdk"
-import { getActiveWalletAdapter } from "@/lib/walletAdapter"
-import { getHunt } from "@/lib/huntStore"
-import { uploadNftMetadata } from "@/lib/nft/metadataUploader"
-import { buildNftMetadata } from "@/lib/nft/metadataBuilder"
-import { MetadataValidationError, IpfsUploadError } from "@/lib/nft/errors"
-import type { NftMetadata } from "@/lib/nft/types"
+
 import {
-  NETWORK_PASSPHRASE,
   getRequiredAddress,
+  NETWORK_PASSPHRASE,
 } from "@/lib/contracts/config"
-import { createSorobanServer } from "@/lib/soroban/client"
+import { getHunt } from "@/lib/huntStore"
 import { logger } from "@/lib/logger"
+import { IpfsUploadError,MetadataValidationError } from "@/lib/nft/errors"
+import { buildNftMetadata } from "@/lib/nft/metadataBuilder"
+import { uploadNftMetadata } from "@/lib/nft/metadataUploader"
+import type { NftMetadata } from "@/lib/nft/types"
+import { createSorobanServer } from "@/lib/soroban/client"
+import { getActiveWalletAdapter } from "@/lib/walletAdapter"
 
 export type MintStage =
   | "idle"

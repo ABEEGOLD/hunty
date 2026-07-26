@@ -10,11 +10,11 @@
  *  - Unregister on wallet disconnect to stop orphaned notifications.
  */
 
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
-import * as SecureStore from 'expo-secure-store';
 import env from '@config/env';
+import Constants from 'expo-constants';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import * as SecureStore from 'expo-secure-store';
 
 const PUSH_TOKEN_KEY = 'hunty_push_token';
 const PUSH_TOKEN_WALLET_KEY = 'hunty_push_token_wallet';

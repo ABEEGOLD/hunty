@@ -14,7 +14,19 @@ import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHisto
 import { calculateCluePoints } from "@/lib/scoring";
 import { resolveImageSrc, GATEWAY_COUNT } from "@/lib/ipfs";
 import type { ClueHint, HuntCard as Hunt } from "@/lib/types";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, CheckCircle2, Loader2, Printer } from "lucide-react";
+import React, { useEffect, useRef,useState } from "react";
+
 import { usePlayerCount } from "@/hooks/usePlayerCount";
+import { AnswerIncorrectError, pollTransaction,submitAnswer } from "@/lib/contracts/hunt";
+import { getClueElapsedSeconds, recordClueAttempt } from "@/lib/huntAttemptHistory";
+import { GATEWAY_COUNT,resolveImageSrc } from "@/lib/ipfs";
+import sanitizeHtml from "@/lib/sanitizeHtml";
+import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring";
+import type { HuntCard as Hunt } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import picture from "@/public/static-images/image1.png";
 
 export type { Hunt };
 

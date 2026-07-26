@@ -1,6 +1,9 @@
 "use client"
 
+import Server, { Account,Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk"
+import { AlertTriangle, Loader2,X } from "lucide-react"
 import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -14,6 +17,8 @@ import { EmbedModal } from "@/components/EmbedModal"
 import Server, { TransactionBuilder, Networks, Operation, Account } from "@stellar/stellar-sdk"
 import { withSorobanRpcRetry } from "@/lib/soroban/rpcRetry"
 import { logger } from "@/lib/logger"
+import { withSorobanRpcRetry } from "@/lib/soroban/rpcRetry"
+import type { StoredHunt } from "@/lib/types"
 
 async function cancelHuntOnChain(huntId: number): Promise<{ txHash: string }> {
     if (typeof window === "undefined") throw new Error("Browser environment required")

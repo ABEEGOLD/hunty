@@ -1,8 +1,9 @@
 "use client"
 
+import { ArrowRight, History } from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
-import { ArrowRight, History } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDuration } from "@/lib/huntAttemptHistory"

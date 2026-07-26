@@ -1,18 +1,19 @@
 "use client"
 
-import { useState } from "react"
 import { Heart, Loader2 } from "lucide-react"
+import { useState } from "react"
 import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog"
-import { sponsorHunt, getSponsorTotal, getSponsorContributions } from "@/lib/contracts/rewardManager"
+import { Input } from "@/components/ui/input"
+import { getSponsorContributions,getSponsorTotal, sponsorHunt } from "@/lib/contracts/rewardManager"
 import { withTransactionToast } from "@/lib/txToast"
 import { predictWalletBalanceChange } from "@/lib/wallet/balanceEvents"
 

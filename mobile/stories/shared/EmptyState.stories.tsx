@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { View } from 'react-native';
 import { EmptyState } from '../../shared/components/native/EmptyState';
+import type { Meta, StoryObj } from '@storybook/react-native'
+import { View } from 'react-native'
+
+import { EmptyState } from '../../shared/components/native/EmptyState'
 
 const meta = {
   title: 'Shared/Native/EmptyState',

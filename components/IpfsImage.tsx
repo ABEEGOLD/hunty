@@ -1,5 +1,6 @@
 import Image, { ImageProps } from 'next/image';
 import React from 'react';
+
 import { logger } from '@/lib/logger';
 
 /**

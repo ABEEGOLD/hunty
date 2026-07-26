@@ -1,28 +1,30 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import { MessageSquare, Settings, X } from "lucide-react"
+import React, { useEffect, useRef,useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Settings, MessageSquare, X } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChatMessage } from "./ChatMessage"
-import { ChatInput } from "./ChatInput"
 import {
   addChatMessage,
+  deleteChatMessage,
   getChatMessages,
   getChatSettings,
-  deleteChatMessage,
   mutePlayer,
-  unmutePlayer,
-  toggleChatEnabled,
   reportMessage,
+  toggleChatEnabled,
+  unmutePlayer,
 } from "@/lib/chat"
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
+
+import { ChatInput } from "./ChatInput"
+import { ChatMessage } from "./ChatMessage"
 
 interface ChatWindowProps {
   huntId: number

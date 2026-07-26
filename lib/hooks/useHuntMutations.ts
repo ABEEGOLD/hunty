@@ -6,6 +6,8 @@ import type { StoredHunt } from "@/lib/types"
 import { queryKeys } from "@/lib/queryKeys"
 import { getNotificationPreferences } from "@/lib/notifications/notificationPreferences"
 
+import { addHunt, restoreHuntStoreSnapshot, takeHuntStoreSnapshot, updateHuntStatus } from "@/lib/huntStore"
+
 export function useCreateHuntMutation() {
   const queryClient = useQueryClient()
 

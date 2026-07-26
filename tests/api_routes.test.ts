@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error supertest has no types installed
 import request from 'supertest';
+import { describe, expect,it } from 'vitest';
 
+import { GET as getFeatured } from '../../app/api/admin/featured/route';
+import { GET as getAnalytics } from '../../app/api/analytics/route';
+import { GET as getIpfs } from '../../app/api/ipfs/route';
+import { GET as getLeaderboard } from '../../app/api/v1/hunts/[id]/leaderboard/route';
 // Import handlers from the app directory.
 import { GET as getHunts } from '@/app/api/v1/hunts/route';
 import { GET as getLeaderboard } from '@/app/api/v1/hunts/[id]/leaderboard/route';
@@ -10,6 +15,7 @@ import { GET as getLeaderboardOgImage } from '@/app/api/og/leaderboard/route';
 import { GET as getFeatured } from '@/app/api/admin/featured/route';
 import { POST as postIpfs } from '@/app/api/ipfs/route';
 import { GET as getAnalytics } from '@/app/api/analytics/performance/route';
+import { GET as getHunts } from '../../app/api/v1/hunts/route';
 
 function handlerToExpress(handler: any) {
   return async (req: any, res: any) => {

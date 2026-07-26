@@ -23,7 +23,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { TRENDING_PLAYER_THRESHOLD, PLAYER_COUNT_CACHE_TTL_MS, type PlayerCountResult } from "@/lib/types"
+
+import { PLAYER_COUNT_CACHE_TTL_MS, type PlayerCountResult,TRENDING_PLAYER_THRESHOLD } from "@/lib/types"
 
 // Module-level cache — survives re-renders, resets on page reload.
 const cache = new Map<string, { count: number; fetchedAt: number }>()

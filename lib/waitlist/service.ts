@@ -1,5 +1,5 @@
-import type { WaitlistEntry } from "@/lib/types"
 import { getHuntById } from "@/lib/huntStore"
+import type { WaitlistEntry } from "@/lib/types"
 
 const WAITLIST_STORAGE_KEY = "hunty_waitlist"
 

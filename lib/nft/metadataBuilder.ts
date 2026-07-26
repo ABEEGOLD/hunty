@@ -6,8 +6,9 @@
  * metadataValidator and metadataUploader for those steps.
  */
 
-import type { NftMetadata, NftMetadataBuildInput, NftAttribute } from "./types"
 import { extractCID } from "@/lib/ipfs"
+
+import type { NftAttribute,NftMetadata, NftMetadataBuildInput } from "./types"
 
 /**
  * Normalises any image input (bare CID, ipfs:// URI, or https gateway URL)

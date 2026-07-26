@@ -1,8 +1,9 @@
 "use client"
 
-import { NextIntlClientProvider, useLocale, useTranslations } from "next-intl"
-import { useRouter, usePathname } from "next/navigation"
 import { Globe } from "lucide-react"
+import { usePathname,useRouter } from "next/navigation"
+import { NextIntlClientProvider, useLocale, useTranslations } from "next-intl"
+
 import { routing } from "@/i18n/routing"
 
 const LOCALE_FLAGS: Record<string, string> = {

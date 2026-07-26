@@ -1,8 +1,10 @@
-import React from "react"
 import { render, screen, waitFor } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { LeaderboardTable } from "../LeaderBoardTable"
+import React from "react"
+import { beforeEach,describe, expect, it, vi } from "vitest"
+
 import type { LeaderboardDisplayEntry } from "@/lib/types"
+
+import { LeaderboardTable } from "../LeaderBoardTable"
 
 // Mock the external dependencies
 vi.mock("@/lib/contracts/hunt", () => ({

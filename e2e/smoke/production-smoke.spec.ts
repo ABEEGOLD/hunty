@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { type APIRequestContext,expect, test } from "@playwright/test";
 
 const criticalPages = [
   { path: "/", heading: /ultimate web3 game arcade/i },

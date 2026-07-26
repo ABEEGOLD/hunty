@@ -1,6 +1,7 @@
+import { Flag, MoreHorizontal, UserX } from "lucide-react"
 import React from "react"
+
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Flag, UserX } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,

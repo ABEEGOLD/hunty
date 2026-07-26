@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import DOMPurify from "isomorphic-dompurify";
+import { beforeEach,describe, expect, it, vi } from "vitest";
+
 import { sanitizeHtml } from "../sanitizeHtml";
 
 vi.mock("isomorphic-dompurify", () => ({

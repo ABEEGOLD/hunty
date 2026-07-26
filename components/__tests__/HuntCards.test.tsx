@@ -1,9 +1,11 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import React from "react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { HuntCards } from "../HuntCards"
-import type { HuntCard } from "@/lib/types"
+import { beforeEach,describe, expect, it, vi } from "vitest"
+
 import * as usePlayerCountModule from "@/hooks/usePlayerCount"
+import type { HuntCard } from "@/lib/types"
+
+import { HuntCards } from "../HuntCards"
 
 // Mock the contract call used inside HuntCards (submitAnswer)
 vi.mock("@/lib/contracts/hunt", () => ({

@@ -1,11 +1,13 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ThemedCustomText, ThemedView } from '@components/themed';
+import type { StoredHunt } from '@lib/types';
+import { useTheme } from '@providers/ThemeProvider';
+import { getActiveHuntsForFeed } from '@store/huntStore';
+import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getActiveHuntsForFeed } from '@store/huntStore';
-import { ThemedCustomText, ThemedView } from '@components/themed';
-import { useTheme } from '@providers/ThemeProvider';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+
 import { HuntyRefreshControl } from './HuntyRefreshControl';
 import { FeedItemSkeleton } from './skeletons/FeedItemSkeleton';
 import type { StoredHunt } from '@hunty/types';

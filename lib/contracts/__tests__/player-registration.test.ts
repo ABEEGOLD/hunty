@@ -5,7 +5,8 @@
  * Install with: npm install -D vitest @vitest/ui
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import {
   checkRegistrationStatus,
   clearRegistrationCache,

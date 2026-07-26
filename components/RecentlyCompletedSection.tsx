@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+
 import { CompletedHuntCard } from "@/components/CompletedHuntCard"
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt"
 import type { StoredHunt } from "@/lib/types"

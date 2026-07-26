@@ -8,10 +8,11 @@
  *   - Two stat chips
  */
 
+import { useTheme } from '@providers/ThemeProvider';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+
 import { SkeletonBase } from './SkeletonBase';
-import { useTheme } from '@providers/ThemeProvider';
 
 export function ProfileSkeleton() {
   const { colors } = useTheme();

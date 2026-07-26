@@ -2,14 +2,15 @@
  * Tests for the achievement service
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
 import {
-  getEarnedAchievements,
-  hasAchievement,
   awardAchievement,
   checkAndAwardAchievements,
-  getAllAchievementsWithStatus,
   clearAchievements,
+  getAllAchievementsWithStatus,
+  getEarnedAchievements,
+  hasAchievement,
 } from "./service"
 
 // Mock localStorage

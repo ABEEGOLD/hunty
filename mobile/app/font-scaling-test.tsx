@@ -15,6 +15,9 @@ import {
   getSafeFontSize,
   willTextClip,
 } from '../config/fontScaling';
+import { Alert,Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+
+import { getSafeFontSize, MAX_FONT_SCALE, normalizeFont, willTextClip } from '../config/fontScaling';
 
 export default function FontScalingTestScreen() {
   const [maxScaleEnabled, setMaxScaleEnabled] = React.useState(false);

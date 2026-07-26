@@ -1,12 +1,12 @@
+import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring"
 import type {
   ClueAttemptRecord,
+  ClueDifficulty,
   FastestPlayerEntry,
   HuntAttemptRecord,
   HuntAttemptStatus,
   HuntAttemptTimeComparison,
-  ClueDifficulty,
 } from "@/lib/types"
-import { calculateCluePoints, DEFAULT_SCORING_WEIGHTS } from "@/lib/scoring"
 
 const ACTIVE_ATTEMPT_KEY_PREFIX = "hunty_active_attempt_"
 const ATTEMPTS_KEY_PREFIX = "hunty_hunt_attempts_"

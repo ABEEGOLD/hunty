@@ -2,12 +2,13 @@
  * Unit tests for shared/components/web — Button, Badge, Card, EmptyState.
  * Runs in jsdom via vitest.
  */
+import { fireEvent,render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { Button } from './Button'
+import { describe, expect, it, vi } from 'vitest'
+
 import { Badge } from './Badge'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card'
+import { Button } from './Button'
+import { Card, CardContent, CardFooter,CardHeader, CardTitle } from './Card'
 import { EmptyState } from './EmptyState'
 
 // ── Button ────────────────────────────────────────────────────────────────

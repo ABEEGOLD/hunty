@@ -5,9 +5,9 @@
  * with validation, confirmation, and transaction tracking.
  */
 
-import { getActiveWalletAdapter } from "@/lib/walletAdapter"
-import { SOROBAN_RPC_URL, NETWORK_PASSPHRASE, getRequiredAddress } from "@/lib/contracts/config"
+import { getRequiredAddress,NETWORK_PASSPHRASE, SOROBAN_RPC_URL } from "@/lib/contracts/config"
 import { logger } from "@/lib/logger"
+import { getActiveWalletAdapter } from "@/lib/walletAdapter"
 
 export interface TransferRequest {
   nftId: number

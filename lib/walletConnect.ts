@@ -1,5 +1,11 @@
 "use client"
 
+import { Core } from "@walletconnect/core"
+import type { SessionTypes } from "@walletconnect/types"
+import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
+import { Web3Wallet } from "@walletconnect/web3wallet"
+import QRCode from "qrcode"
+
 import { logger } from "@/lib/logger"
 
 const WALLET_CONNECT_SESSION_KEY = "hunty_wc_session"

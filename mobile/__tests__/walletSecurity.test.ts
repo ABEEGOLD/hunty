@@ -1,7 +1,3 @@
-import * as SecureStore from 'expo-secure-store';
-import * as LocalAuthentication from 'expo-local-authentication';
-import * as Crypto from 'expo-crypto';
-import * as Random from 'expo-random';
 import {
   authenticateBiometric,
   authenticateWithFallback,
@@ -13,6 +9,10 @@ import {
   setBiometricEnabled,
   verifyPin,
 } from '@services/walletSecurity';
+import * as Crypto from 'expo-crypto';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as Random from 'expo-random';
+import * as SecureStore from 'expo-secure-store';
 
 jest.mock('expo-secure-store');
 jest.mock('expo-local-authentication');

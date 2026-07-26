@@ -1,13 +1,16 @@
+import "../globals.css"
+
 import type { Metadata } from "next"
 import { headers } from "next/headers"
+import { notFound } from "next/navigation"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, getTranslations } from "next-intl/server"
-import { notFound } from "next/navigation"
+
+import { TxToaster } from "@/components/TxToaster"
 import { routing } from "@/i18n/routing"
 import { hankenGrotesk } from "@/lib/font"
-import { TxToaster } from "@/components/TxToaster"
+
 import Providers from "../providers"
-import "../globals.css"
 
 // RTL locales — add Arabic, Hebrew, Farsi, etc. here when supported
 const RTL_LOCALES: string[] = []

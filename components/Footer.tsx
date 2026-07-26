@@ -59,6 +59,7 @@ const socialLinks = [
     icon: Send,
   },
 ]
+import { HelpCircle } from "lucide-react"
 
 export function Footer() {
   const [email, setEmail] = useState("")

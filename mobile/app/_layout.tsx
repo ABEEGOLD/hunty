@@ -1,28 +1,30 @@
 import '../global.css';
-import { useSyncQueue } from '@hooks/useSyncQueue';
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Stack, type ErrorBoundaryProps, useRouter } from 'expo-router';
-import * as Linking from 'expo-linking';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useFonts } from 'expo-font';
-import * as Notifications from 'expo-notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { hideSplashScreen, initializeSplashScreen } from '@utils/splashScreenManager';
-import { useTheme } from '@providers/ThemeProvider';
-import { ThemedCustomText, ThemedButton } from '@components/themed';
-import ReactQueryProvider from '@providers/ReactQueryProvider';
-import { ToastProvider, useToast } from '@providers/ToastProvider';
-import { Web3Provider } from '@providers/Web3Provider';
-import { WalletSecurityProvider } from '@providers/WalletSecurityProvider';
-import { ModalProvider } from '@providers/ModalProvider';
-import { NotificationsProvider } from '@providers/NotificationsProvider';
-import { useBackHandler } from '@hooks/useBackHandler';
+
 import { MemoryDiagnosticsOverlay } from '@components/MemoryDiagnosticsOverlay';
 import { StackHeader } from '@components/navigation/StackHeader';
-import { Sentry, initializeSentry } from '@config/sentry';
-import { classifyWalletTxError } from '@/lib/walletErrors';
+import { ThemedButton,ThemedCustomText } from '@components/themed';
+import { initializeSentry,Sentry } from '@config/sentry';
+import { useBackHandler } from '@hooks/useBackHandler';
+import { useSyncQueue } from '@hooks/useSyncQueue';
+import { ModalProvider } from '@providers/ModalProvider';
+import { NotificationsProvider } from '@providers/NotificationsProvider';
+import ReactQueryProvider from '@providers/ReactQueryProvider';
+import { useTheme } from '@providers/ThemeProvider';
+import { ToastProvider, useToast } from '@providers/ToastProvider';
+import { WalletSecurityProvider } from '@providers/WalletSecurityProvider';
+import { Web3Provider } from '@providers/Web3Provider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useWalletStore } from '@store/useStore';
+import { hideSplashScreen, initializeSplashScreen } from '@utils/splashScreenManager';
+import { useFonts } from 'expo-font';
+import * as Linking from 'expo-linking';
+import * as Notifications from 'expo-notifications';
+import { type ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+import { classifyWalletTxError } from '@/lib/walletErrors';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

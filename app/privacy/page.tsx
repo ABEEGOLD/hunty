@@ -1,7 +1,8 @@
-import Link from "next/link"
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
 import { ArrowLeft, Shield } from "lucide-react"
+import Link from "next/link"
+
+import { Footer } from "@/components/Footer"
+import { Header } from "@/components/Header"
 
 export const metadata = {
   title: "Privacy Policy — Hunty",

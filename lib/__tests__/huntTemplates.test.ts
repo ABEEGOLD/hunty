@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  STARTER_HUNT_TEMPLATES,
   buildDraftHuntsFromTemplate,
   getStarterTemplateBySlug,
   getTemplateCategories,
+  STARTER_HUNT_TEMPLATES,
 } from "@/lib/huntTemplates"
 
 describe("hunt templates", () => {

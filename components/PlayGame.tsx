@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger";
 
-import { Button } from "@/components/ui/button";
-import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { Header } from "@/components/Header";
+import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
+import { Button } from "@/components/ui/button";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
 import { getHuntProgress, startHuntProgress } from "@/lib/huntStore";
 import { recordHuntCompletion } from "@/lib/contracts/player-stats";
@@ -22,6 +21,10 @@ import {
   ensureActiveAttempt,
   getActiveAttempt,
 } from "@/lib/huntAttemptHistory";
+import { logger } from "@/lib/logger";
+import { queryCachePolicy, queryKeys } from "@/lib/queryKeys";
+import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig";
+import type { HuntCard as Hunt, HuntInfo } from "@/lib/types";
 
 import { HuntCards } from "./HuntCards";
 import { LiveHuntCountdown } from "./LiveHuntCountdown";

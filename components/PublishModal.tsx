@@ -1,8 +1,8 @@
 "use client"
 
+import Coin from "@/components/icons/Coin"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import Coin from "@/components/icons/Coin"
 interface PublishModalProps {
   isOpen: boolean
   onClose: () => void

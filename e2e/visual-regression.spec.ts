@@ -29,7 +29,8 @@
  * can diff against them without a separate baseline generation step.
  */
 
-import { test, expect, type Page, type Locator } from "@playwright/test";
+import { expect, type Locator,type Page, test } from "@playwright/test";
+
 import { injectMockWallet, seedHuntData } from "./helpers/mock-wallet";
 
 // ─── Constants ────────────────────────────────────────────────────────────────

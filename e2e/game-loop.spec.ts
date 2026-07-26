@@ -1,5 +1,6 @@
-import { test, expect } from "@playwright/test";
-import { injectMockWallet, seedHuntData, MOCK_PUBLIC_KEY } from "./helpers/mock-wallet";
+import { expect,test } from "@playwright/test";
+
+import { injectMockWallet, MOCK_PUBLIC_KEY,seedHuntData } from "./helpers/mock-wallet";
 
 test.describe("Core Game Loop: Create → Join → Solve → Complete", () => {
   test.beforeEach(async ({ page }) => {

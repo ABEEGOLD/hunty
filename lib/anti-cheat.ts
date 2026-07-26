@@ -1,8 +1,9 @@
-import { matchesClueAnswer } from "@/lib/clueAnswerVerification"
-import { getServerClue } from "@/lib/server/seedClues"
-import { logger } from "@/lib/logger"
 import * as fs from "fs"
 import * as path from "path"
+
+import { matchesClueAnswer } from "@/lib/clueAnswerVerification"
+import { logger } from "@/lib/logger"
+import { getServerClue } from "@/lib/server/seedClues"
 
 const DATA_DIR = path.join(process.cwd(), "lib", "anti-cheat-data")
 const ANSWERS_FILE = path.join(DATA_DIR, "answers.json")

@@ -1,18 +1,20 @@
 "use client";
 
-import * as React from "react";
 import {
-  ChevronUp,
   ChevronDown,
-  ChevronsUpDown,
-  Search,
   ChevronLeft,
   ChevronRight,
+  ChevronsUpDown,
+  ChevronUp,
   Download,
+  Search,
 } from "lucide-react";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
 import { Button } from "./button";
 import { Input } from "./input";
-import { cn } from "@/lib/utils";
 
 export interface Column<T> {
   key: string;

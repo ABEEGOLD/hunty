@@ -1,5 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
+  addHunt,
+  archiveHunts,
+  deleteHunts,
   getAllHunts,
   getAllHuntsIncludingPrivate,
   getCreatorHunts,
@@ -18,6 +22,12 @@ import {
   restoreHuntStoreSnapshot,
   getHunt,
   getFeaturedHunts,
+  getHunt,
+  getHuntById,
+  getHuntClues,
+  getHuntsByCreator,
+  restoreHuntStoreSnapshot,
+  saveClueLocally,
   setLocalFeaturedHunt,
   getHuntProgress,
   startHuntProgress,
@@ -25,8 +35,12 @@ import {
   clearHuntProgress,
   gcHunt,
   MAX_CLUES_PER_HUNT,
+  takeHuntStoreSnapshot,
+  updateClueAnswer,
+  updateHuntEndTime,
+  updateHuntStatus,
 } from "@/lib/huntStore";
-import type { StoredHunt, Clue } from "@/lib/types";
+import type { Clue,StoredHunt } from "@/lib/types";
 
 describe("huntStore", () => {
   beforeEach(() => {

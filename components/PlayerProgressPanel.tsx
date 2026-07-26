@@ -1,7 +1,7 @@
 "use client"
 
+import { CheckCircle2,Trophy } from "lucide-react"
 import React from "react"
-import { Trophy, CheckCircle2 } from "lucide-react"
 
 interface PlayerProgressPanelProps {
   cluesSolved: number

@@ -1,21 +1,23 @@
 "use client"
 
+import { AlertCircle, CheckCircle2, Loader2,Send } from "lucide-react"
 import React, { useState } from "react"
+
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import {
   isValidStellarAddress,
   transferNft,
   type TransferResult,
 } from "@/lib/nft/transfer"
+
 import type { NftRewardDetail } from "./NftDetailModal"
 
 interface NftTransferModalProps {

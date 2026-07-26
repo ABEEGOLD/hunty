@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+
 import { SEED_HUNTS } from "@/lib/huntStore"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hunty.app"

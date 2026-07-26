@@ -2,6 +2,12 @@
 
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
+import './globals.css';
+
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+
+import KeyboardShortcutsProvider from '../components/KeyboardShortcutsProvider';
 
 import type { SearchBarHandle } from '@/lib/keyboardShortcuts';
 

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+
 import { get_hunt_leaderboard } from "@/lib/contracts/hunt";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { ValidationError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/v1/hunts/[id]/leaderboard

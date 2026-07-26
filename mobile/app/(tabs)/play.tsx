@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
+import { usePlayerLocation } from '@app/hooks/usePlayerLocation';
+import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
 import { EmptyState } from '@components/EmptyState';
 import { QRScanner } from '@components/QRScanner';
-import { useTheme } from '@providers/ThemeProvider';
+import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
 import { useHaptics } from '@hooks/useHaptics';
+import { matchesClueAnswer } from '@lib/clueAnswerVerification';
+import { verifyQrAgainstClue } from '@lib/qrCodeDecryptor';
+import type { Clue } from '@lib/types';
+import { useTheme } from '@providers/ThemeProvider';
+import { useToast } from '@providers/ToastProvider';
 import { getHuntClues } from '@store/huntStore';
 import { usePlayerStore, useWalletStore } from '@store/useStore';
 import type { Clue } from '@hunty/types';
@@ -13,8 +16,11 @@ import { verifyQrAgainstClue } from '@lib/qrCodeDecryptor';
 import { matchesClueAnswer } from '@lib/clueAnswerVerification';
 import { useToast } from '@providers/ToastProvider';
 import { ClueMarkdownRenderer } from '@components/ClueMarkdownRenderer';
+import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+
 import { verifyClueGeofence } from '@/lib/locationGate';
-import { usePlayerLocation } from '@app/hooks/usePlayerLocation';
 
 export default function PlayScreen() {
   // Network status

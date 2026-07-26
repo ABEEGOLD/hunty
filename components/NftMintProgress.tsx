@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
 import { AlertCircle, CheckCircle2, ExternalLink, Loader2, RotateCw } from "lucide-react";
+import { useEffect, useMemo } from "react";
+
 import { Button } from "@/components/ui/button";
-import { stageLabel, useNftMint, type MintStage } from "@/hooks/useNftMint";
+import { type MintStage,stageLabel, useNftMint } from "@/hooks/useNftMint";
 
 interface NftMintProgressProps {
   huntId: number;

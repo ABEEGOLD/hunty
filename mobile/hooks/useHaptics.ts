@@ -1,11 +1,12 @@
 import { useCallback, useRef } from 'react';
-import {
-  triggerNotification,
-  triggerImpact,
-  triggerSelection,
-  hapticTriggers,
-} from '../utils/haptics';
+
 import { useSettingsStore } from '../store/useStore';
+import {
+  hapticTriggers,
+  triggerImpact,
+  triggerNotification,
+  triggerSelection,
+} from '../utils/haptics';
 
 interface UseHapticsOptions {
   /** Minimum delay between haptic triggers in milliseconds. Defaults to 150ms. */

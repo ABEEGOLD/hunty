@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedButton, ThemedCustomText, ThemedInput, ThemedView } from '@components/themed';
-import { SettingsSection } from '@components/settings/SettingsSection';
 import { SettingsRow } from '@components/settings/SettingsRow';
+import { SettingsSection } from '@components/settings/SettingsSection';
+import { ThemedButton, ThemedCustomText, ThemedInput, ThemedView } from '@components/themed';
 import { useTheme } from '@providers/ThemeProvider';
 import { useToast } from '@providers/ToastProvider';
 import { useWalletSecurity } from '@providers/WalletSecurityProvider';
+import { useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 export default function WalletSecurityScreen() {
   const router = useRouter();

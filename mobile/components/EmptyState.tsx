@@ -1,7 +1,7 @@
+import { ThemedButton, ThemedCustomText, ThemedView } from '@components/themed';
+import { useTheme } from '@providers/ThemeProvider';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme } from '@providers/ThemeProvider';
-import { ThemedCustomText, ThemedButton, ThemedView } from '@components/themed';
 
 interface EmptyStateAction {
   label: string;

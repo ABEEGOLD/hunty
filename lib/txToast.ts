@@ -1,7 +1,8 @@
 import { toast } from "sonner"
-import { mapContractError } from "@/lib/contracts/errors"
+
 import { announceSr } from "@/components/SrAnnouncer"
 import { settleWalletBalance } from "@/lib/wallet/balanceEvents"
+import { mapContractError } from "@/lib/contracts/errors"
 
 // ─── Stage type ───────────────────────────────────────────────────────────────
 

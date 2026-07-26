@@ -8,8 +8,9 @@ import { getHuntsWithRatings } from "@/lib/reviews"
 import { applyHuntScheduleTransitions } from "@/lib/huntScheduling"
 import { normalizeHuntStatus } from "@/lib/huntStatus"
 import { migrateHuntScheduleFieldsInCollection } from "@/lib/huntScheduleMigration"
+import type { Clue,HuntStatus, StoredHunt } from "@/lib/types"
 
-export type { HuntStatus, StoredHunt, Clue }
+export type { Clue,HuntStatus, StoredHunt }
 
 export type HuntStoreSnapshot = {
   hunts: StoredHunt[]

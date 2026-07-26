@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { rateLimit, getIP, rateLimitResponse } from "../rate-limit";
+import { afterEach,beforeEach, describe, expect, it, vi } from "vitest";
+
+import { getIP, rateLimit, rateLimitResponse } from "../rate-limit";
 
 describe("rateLimit", () => {
   beforeEach(() => {

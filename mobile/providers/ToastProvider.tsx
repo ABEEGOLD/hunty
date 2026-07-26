@@ -1,15 +1,15 @@
+import { ThemedCustomText } from '@components/themed';
+import { useTheme } from '@providers/ThemeProvider';
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
   Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { useTheme } from '@providers/ThemeProvider';
-import { ThemedCustomText } from '@components/themed';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ToastType = 'info' | 'success' | 'warning' | 'error';
 

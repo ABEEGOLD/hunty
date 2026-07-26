@@ -1,11 +1,12 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { getFeaturedHunts } from "@/lib/huntStore"
-import { Trophy, Clock, Sparkles, ArrowRight } from "lucide-react"
+import { ArrowRight,Clock, Sparkles, Trophy } from "lucide-react"
+
+import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { HuntCoverImage } from "@/components/HuntCoverImage"
+import { getFeaturedHunts } from "@/lib/huntStore"
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import { cn } from "@/lib/utils"
 import { StarRating } from "@/components/StarRating"

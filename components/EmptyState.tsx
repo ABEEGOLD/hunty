@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import type { ReactNode } from "react"
+
+import { Button } from "@/components/ui/button"
 
 interface EmptyStateAction {
   label: string

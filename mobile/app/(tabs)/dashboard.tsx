@@ -1,8 +1,8 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
 import { HuntyRefreshControl } from '@components/HuntyRefreshControl';
 import { useRefreshByUser } from '@hooks/useRefreshByUser';
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Placeholder for dashboard data fetching
 const fetchDashboard = async () => ({ balance: 0 });

@@ -6,6 +6,9 @@ import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
 type Context = { params: Promise<{ id: string }> };
 
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { archiveSeason, getCurrentSeasonLeaderboard,getSeasonById, updateSeasonStatus } from "@/lib/seasonStore";
+
 /**
  * GET /api/v1/seasons/[id]
  * Get a specific season by ID

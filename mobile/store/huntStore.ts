@@ -11,7 +11,11 @@ import * as SecureStore from 'expo-secure-store';
 import { scheduleHuntExpiryNotification } from '@utils/huntNotifications';
 import type { HuntStatus, StoredHunt, Clue } from "@hunty/types";
 import * as SecureStore from "expo-secure-store";
+import type { Clue, HuntStatus, StoredHunt } from '@lib/types';
+import type { Clue,HuntStatus, StoredHunt } from "@lib/types";
 import { scheduleHuntExpiryNotification } from "@utils/huntNotifications";
+import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 const HUNTS_KEY = 'hunty_hunts';
 const CLUES_KEY = 'hunty_clues';
 

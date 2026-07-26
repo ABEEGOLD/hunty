@@ -2,22 +2,23 @@
  * Tests for seasonStore
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest"
+import { afterEach,beforeEach, describe, expect, it } from "vitest"
+
 import {
-  getAllSeasons,
-  getActiveSeason,
-  getSeasonById,
-  createSeason,
-  updateSeasonStatus,
   archiveSeason,
-  getArchivedSeasons,
-  getArchivedSeasonById,
   awardSeasonBadge,
-  getPlayerSeasonBadges,
-  getAllSeasonBadges,
-  getCurrentSeasonLeaderboard,
   checkSeasonReset,
+  createSeason,
+  getActiveSeason,
+  getAllSeasonBadges,
+  getAllSeasons,
+  getArchivedSeasonById,
+  getArchivedSeasons,
+  getCurrentSeasonLeaderboard,
+  getPlayerSeasonBadges,
+  getSeasonById,
   getSeasonTimeRemaining,
+  updateSeasonStatus,
 } from "@/lib/seasonStore"
 
 describe("seasonStore", () => {

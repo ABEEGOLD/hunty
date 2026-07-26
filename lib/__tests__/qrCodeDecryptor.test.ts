@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+
 import { sha256Hex } from '../crypto';
-import type { Clue } from '../types';
 import {
   encodeHuntyQrPayload,
   parseQrPayload,
   verifyQrAgainstClue,
 } from '../qrCodeDecryptor';
+import type { Clue } from '../types';
 
 const clue: Clue = {
   id: 7,

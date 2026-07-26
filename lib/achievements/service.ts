@@ -3,9 +3,10 @@
  * Handles achievement logic and storage.
  */
 
+import { logger } from "@/lib/logger"
+
 import type { AchievementId } from "./config"
 import { ACHIEVEMENTS } from "./config"
-import { logger } from "@/lib/logger"
 
 export interface EarnedAchievement {
   id: AchievementId

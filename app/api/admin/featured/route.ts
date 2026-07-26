@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
-import { logger } from "@/lib/logger"
 import fs from "fs"
+import { NextRequest, NextResponse } from "next/server"
 import path from "path"
 import { ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"
+
+import { logger } from "@/lib/logger"
 
 const FILE_PATH = path.join(process.cwd(), "lib", "featuredHuntServer.json")
 

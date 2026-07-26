@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server"
-import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit"
+
 import {
-  verifyAnswer,
-  checkMinInterval,
-  trackClueSubmission,
-  detectAnomalies,
-  recordAnswer,
-  isBanned,
   calculateScore,
+  checkMinInterval,
+  detectAnomalies,
   getConfig,
+  isBanned,
+  recordAnswer,
+  trackClueSubmission,
+  verifyAnswer,
 } from "@/lib/anti-cheat"
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit"
 import { getServerClue } from "@/lib/server/seedClues"
 import { ForbiddenError, NotFoundError, RateLimitError, ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"

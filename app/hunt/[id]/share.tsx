@@ -1,7 +1,6 @@
 "use client";
 
-import { HuntControls } from "@/components/HuntControls";
-import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 import { QrCode, Trophy } from "lucide-react";
 import { QrCodeModal } from "@/components/QrCodeModal";
 import { EmbedModal } from "@/components/EmbedModal";
@@ -14,24 +13,33 @@ import { HuntReviewsSection } from "@/components/HuntReviewsSection";
 import type { StoredHunt, HuntRegistrationStatus } from "@/lib/types";
 import { updateHuntStatus } from "@/lib/huntStore";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect,useState } from "react";
+
+import { ChatWindow } from "@/components/ChatWindow";
+import { GameCompleteModal } from "@/components/GameCompleteModal";
+import { HuntControls } from "@/components/HuntControls";
+import { PlayGame } from "@/components/PlayGame";
 import { PlayInterfaceGuard } from "@/components/PlayInterfaceGuard";
 import { PlayGame } from "@/components/PlayGame";
 import { GameCompleteModal } from "@/components/GameCompleteModal";
+import { QrCodeModal } from "@/components/QrCodeModal";
+import { RegistrationButton } from "@/components/RegistrationButton";
+import { SponsorHuntButton } from "@/components/SponsorHuntButton";
+import { Button } from "@/components/ui/button";
+import { WaitlistDisplay } from "@/components/WaitlistDisplay";
 import { 
   checkRegistrationStatus, 
-  registerPlayer, 
   clearRegistrationCache,
   isWalletAvailable,
+  registerPlayer, 
 } from "@/lib/contracts/player-registration";
-import { useQueryClient } from "@tanstack/react-query";
-import { debounce } from "@/lib/debounce";
-import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
 import { distributeCompletionReward } from "@/lib/contracts/rewardManager";
-import { withTransactionToast } from "@/lib/txToast";
+import { debounce } from "@/lib/debounce";
 import { prepareHuntReattempt } from "@/lib/huntAttemptHistory";
-import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
-import { SponsorHuntButton } from "@/components/SponsorHuntButton";
+import { updateHuntStatus } from "@/lib/huntStore";
+import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
+import { withTransactionToast } from "@/lib/txToast";
+import type { HuntRegistrationStatus,StoredHunt } from "@/lib/types";
 import type { RewardReceipt } from "@/lib/types";
 import {
   buildDeepLink,
@@ -41,6 +49,7 @@ import {
   shareOnTwitter,
   shareOnWhatsApp,
 } from "@/lib/downloadAsImage";
+import { addToWaitlist, getWaitlistPosition } from "@/lib/waitlist";
 
 interface HuntDetailProps {
   hunt: StoredHunt;

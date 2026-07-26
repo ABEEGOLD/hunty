@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect,test } from "@playwright/test";
+
 import { injectMockWallet, MOCK_PUBLIC_KEY, seedHuntData } from "./helpers/mock-wallet";
 
 test.describe("Profile and Settings", () => {

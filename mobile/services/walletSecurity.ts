@@ -1,7 +1,7 @@
-import * as SecureStore from 'expo-secure-store';
-import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
+import * as LocalAuthentication from 'expo-local-authentication';
 import * as Random from 'expo-random';
+import * as SecureStore from 'expo-secure-store';
 
 export type BiometricTypeName = 'Face ID' | 'Touch ID' | 'Face Unlock' | 'Fingerprint' | null;
 

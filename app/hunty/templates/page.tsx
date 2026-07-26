@@ -1,6 +1,6 @@
+import { ArrowLeft, Sparkles } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowLeft, Sparkles } from "lucide-react"
 
 import { Header } from "@/components/Header"
 import { Button } from "@/components/ui/button"

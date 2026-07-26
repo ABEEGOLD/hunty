@@ -1,16 +1,20 @@
-import { Suspense } from "react";
-import { Header } from "@/components/Header";
-import { getAllHunts, getHunt } from "@/lib/huntStore";
-import type { HuntStatus } from "@/lib/types";
-import { formatTimestamp } from "@/lib/dateUtils";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import HuntDetailClient from "./share";
 import { HuntCountdown } from "./HuntCountdown";
 import { StructuredData, huntStructuredData } from "@/components/StructuredData";
+import { Suspense } from "react";
+
 import { FastestPlayersStrip } from "@/components/FastestPlayersStrip";
+import { Header } from "@/components/Header";
+import { huntStructuredData,StructuredData } from "@/components/StructuredData";
+import { formatTimestamp } from "@/lib/dateUtils";
+import { getAllHunts, getHunt } from "@/lib/huntStore";
+import type { HuntStatus } from "@/lib/types";
+
+import { HuntCountdown } from "./HuntCountdown";
 import HuntPageSkeleton from "./loading";
-import { StructuredData, huntStructuredData } from "@/components/StructuredData";
+import HuntDetailClient from "./share";
 
 export async function generateMetadata({
   params,

@@ -1,8 +1,9 @@
 "use client";
 
-import * as React from 'react';
 import Lottie from 'lottie-react';
 import Image from 'next/image';
+import * as React from 'react';
+
 import { useXlmUsdPrice } from "@/hooks/useXlmUsdPrice";
 
 type NFT = {

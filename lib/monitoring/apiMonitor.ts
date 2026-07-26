@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger"
+
 import { MONITORING } from "./config"
 import type { ApiMetric } from "./types"
-import { logger } from "@/lib/logger"
 
 const metrics: ApiMetric[] = []
 const MAX_METRICS = 1000

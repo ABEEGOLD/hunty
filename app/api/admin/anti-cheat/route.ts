@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
+
 import {
-  getFlaggedUsers,
-  getAnomalyHistory,
-  getSubmissionHistory,
-  getBannedUsers,
   banUser,
-  unbanUser,
+  getAnomalyHistory,
+  getBannedUsers,
   getConfig,
+  getFlaggedUsers,
+  getSubmissionHistory,
   setConfig,
+  unbanUser,
 } from "@/lib/anti-cheat"
 import { NotFoundError, ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"

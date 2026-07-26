@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { Check,X } from "lucide-react";
+import React from "react";
+
 import { cn } from "@/lib/utils";
-import { X, Check } from "lucide-react";
 
 interface ToggleButtonProps {
   isActive: boolean;

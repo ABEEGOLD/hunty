@@ -8,6 +8,11 @@ import {
   CardContent,
   CardFooter,
 } from '../../shared/components/native/Card';
+import type { Meta, StoryObj } from '@storybook/react-native'
+import { View } from 'react-native'
+
+import { ThemedCustomText } from '../../components/themed/ThemedCustomText'
+import { Card, CardContent, CardFooter,CardHeader, CardTitle } from '../../shared/components/native/Card'
 
 const meta = {
   title: 'Shared/Native/Card',

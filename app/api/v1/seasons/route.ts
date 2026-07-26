@@ -4,6 +4,9 @@ import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { NotFoundError, ValidationError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
 
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { archiveSeason, checkSeasonReset, createSeason, getActiveSeason, getAllSeasons, getCurrentSeasonLeaderboard } from "@/lib/seasonStore";
+
 /**
  * GET /api/v1/seasons
  * Get all seasons or the active season

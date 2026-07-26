@@ -1,6 +1,7 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach,beforeEach, describe, expect, it, vi } from "vitest"
+
+import { IpfsUploadError,MetadataValidationError } from "../errors"
 import { uploadNftMetadata } from "../metadataUploader"
-import { MetadataValidationError, IpfsUploadError } from "../errors"
 import type { NftMetadata } from "../types"
 
 const VALID_METADATA: NftMetadata = {

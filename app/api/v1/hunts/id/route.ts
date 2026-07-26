@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+
 import { getHuntById } from "@/lib/huntStore";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/v1/hunts/[id]

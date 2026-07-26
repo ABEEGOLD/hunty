@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+
 import { getAllHuntViewCounts, getHuntViewCount, recordHuntView } from "@/lib/analytics"
 import { ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"

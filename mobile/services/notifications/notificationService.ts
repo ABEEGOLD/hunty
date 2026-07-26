@@ -6,11 +6,12 @@
  * the NotificationsProvider consumes.
  */
 
+import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-import * as Device from 'expo-device';
-import type { NotificationPayload } from './types';
+
 import { incrementBadge } from './badgeService';
+import type { NotificationPayload } from './types';
 
 // ─── Background task ─────────────────────────────────────────────────────────
 

@@ -11,6 +11,7 @@ import type { ReactNode } from "react"
 import type { HuntCategoryId } from "./categories"
 import type { CollaboratorRole, HuntCollaborator } from "./collaboration"
 import type { AnswerStrictness } from "./fuzzyAnswer"
+
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring"
 import type { ClueDifficulty, PlayerProgress, Reward as DomainReward } from "@hunty/types"
 

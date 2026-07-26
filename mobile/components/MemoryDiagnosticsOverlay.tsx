@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text,View } from 'react-native';
+
 import { dumpDiagnostics } from '../lib/memoryDiagnostics';
 
 export function MemoryDiagnosticsOverlay() {

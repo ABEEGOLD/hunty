@@ -1,7 +1,8 @@
 "use client"
 
-import React from "react"
 import Link from "next/link"
+import React from "react"
+
 import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { truncateAddress } from "@/lib/walletAddress"
 import type { StoredHunt } from "@/lib/types"

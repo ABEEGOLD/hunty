@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger"
+
 import { MONITORING } from "./config"
 import type { WebVitalMetric } from "./types"
-import { logger } from "@/lib/logger"
 
 type VitalCallback = (metric: WebVitalMetric) => void
 

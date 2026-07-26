@@ -1,15 +1,15 @@
+import { ThemedCustomText } from '@components/themed/ThemedCustomText'
+import { useTheme } from '@providers/ThemeProvider'
+import type { ButtonSize,ButtonVariant, SharedButtonProps } from '@shared/types/components'
 import React, { useState } from 'react'
 import {
   ActivityIndicator,
   Pressable,
+  type PressableProps,
   StyleSheet,
   View,
-  type PressableProps,
   type ViewStyle,
 } from 'react-native'
-import { useTheme } from '@providers/ThemeProvider'
-import { ThemedCustomText } from '@components/themed/ThemedCustomText'
-import type { SharedButtonProps, ButtonVariant, ButtonSize } from '@shared/types/components'
 
 export interface ButtonProps extends Omit<PressableProps, 'style'>, SharedButtonProps {
   icon?: React.ReactNode

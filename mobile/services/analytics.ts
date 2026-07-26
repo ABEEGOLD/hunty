@@ -1,6 +1,6 @@
-import * as Sentry from '@sentry/react-native';
+import { type AnalyticsConfig,analyticsConfig } from '@config/analytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { analyticsConfig, type AnalyticsConfig } from '@config/analytics';
+import * as Sentry from '@sentry/react-native';
 
 // ───────────────────────────────────────────────────────────
 // Types

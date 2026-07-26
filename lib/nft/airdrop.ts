@@ -6,6 +6,7 @@
  */
 
 import { logger } from "@/lib/logger"
+
 import { isValidStellarAddress } from "./transfer"
 
 export type AirdropTargetType = "all_players" | "hunt_completers" | "wallet_list"

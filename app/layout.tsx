@@ -1,3 +1,5 @@
+import "./globals.css"
+
 import type { Metadata, Viewport } from "next"
 import { Suspense } from "react"
 
@@ -8,9 +10,14 @@ import { EnvironmentIndicator } from "@/components/EnvironmentIndicator"
 import { Footer } from "@/components/Footer"
 import { FavoriteNotifications } from "@/components/FavoriteNotifications"
 import { PageSkeleton } from "@/components/PageSkeleton"
+import { PageSkeleton } from "@/components/PageSkeleton"
 import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
-import Providers from "./providers"
+import { PageTransitionWrapper } from "@/components/PageTransitionWrapper"
 import PWAInstallPrompt from "@/components/PWAInstallPrompt"
+import { TxToaster } from "@/components/TxToaster"
+import { hankenGrotesk } from "@/lib/font"
+
+import Providers from "./providers"
 
 export const viewport: Viewport = {
   themeColor: "#7c3aed",

@@ -1,9 +1,10 @@
 "use client"
 
-import React from "react"
 import { Award } from "lucide-react"
-import { cn } from "@/lib/utils"
+import React from "react"
+
 import type { SeasonBadge as SeasonBadgeType } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface SeasonBadgeProps {
   badge: SeasonBadgeType

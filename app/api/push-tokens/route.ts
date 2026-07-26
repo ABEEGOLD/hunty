@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"
 
+import { logger } from "@/lib/logger"
+
 interface PushTokenRecord {
   token: string
   walletAddress: string

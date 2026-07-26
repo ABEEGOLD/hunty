@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
+import { useEffect, useMemo, useState } from 'react';
 
 export type PlayerLocation = {
   latitude: number;

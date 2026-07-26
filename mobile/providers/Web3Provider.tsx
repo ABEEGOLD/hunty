@@ -1,10 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useWalletSecurity } from '@providers/WalletSecurityProvider';
+import { registerPushToken, unregisterPushToken } from '@services/notifications/tokenRegistry';
+import { clearSession,loadSession, saveSession } from '@services/walletSession';
+import { useWalletStore } from '@store/useStore';
 import SignClient from '@walletconnect/sign-client';
 import Constants from 'expo-constants';
-import { useWalletSecurity } from '@providers/WalletSecurityProvider';
-import { useWalletStore } from '@store/useStore';
-import { saveSession, loadSession, clearSession } from '@services/walletSession';
-import { registerPushToken, unregisterPushToken } from '@services/notifications/tokenRegistry';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 type SessionInfo = {
   topic: string;

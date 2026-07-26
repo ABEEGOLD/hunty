@@ -1,6 +1,6 @@
 // End-to-end tests for keyboard shortcuts
 
-import { test, expect } from '@playwright/test';
+import { expect,test } from '@playwright/test';
 
 test.describe('Keyboard Shortcuts', () => {
   test.beforeEach(async ({ page }) => {

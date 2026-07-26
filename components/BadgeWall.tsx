@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { RARITY_COLORS, RARITY_BORDER_COLORS } from "@/lib/achievements/config"
-import { getAllAchievementsWithStatus } from "@/lib/achievements/service"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+import { RARITY_BORDER_COLORS,RARITY_COLORS } from "@/lib/achievements/config"
+import { getAllAchievementsWithStatus } from "@/lib/achievements/service"
 import { logger } from "@/lib/logger"
+import { cn } from "@/lib/utils"
 
 interface BadgeWallProps {
   playerAddress: string

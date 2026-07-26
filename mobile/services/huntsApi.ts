@@ -1,6 +1,9 @@
 import type { StoredHunt } from '@hunty/types';
 import { fetchActiveHuntsFromIndexer, fetchHuntByIdFromIndexer } from '@/lib/graphql/hunts';
+import type { StoredHunt } from '@lib/types';
 import { getActiveHuntsForFeed, getHuntById } from '@store/huntStore';
+
+import { fetchActiveHuntsFromIndexer, fetchHuntByIdFromIndexer } from '@/lib/graphql/hunts';
 
 /**
  * Fetch active hunts from the Hunty GraphQL indexer, falling back to local seed

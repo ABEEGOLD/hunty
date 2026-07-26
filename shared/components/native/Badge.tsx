@@ -1,8 +1,8 @@
-import React from 'react'
-import { StyleSheet, View } from 'react-native'
 import { ThemedCustomText } from '@components/themed/ThemedCustomText'
 import { colors as tokenColors } from '@shared/tokens/colors'
-import type { SharedBadgeProps, BadgeVariant } from '@shared/types/components'
+import type { BadgeVariant,SharedBadgeProps } from '@shared/types/components'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 
 const variantColors: Record<BadgeVariant, { bg: string; text: string }> = {
   primary: { bg: tokenColors.badgePrimary, text: tokenColors.badgePrimaryText },

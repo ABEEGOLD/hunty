@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
+import { useState } from "react"
+
 import { GATEWAY_COUNT, resolveImageSrc } from "@/lib/ipfs"
 
 interface HuntCoverImageProps {

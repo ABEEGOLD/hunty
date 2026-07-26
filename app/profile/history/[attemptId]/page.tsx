@@ -1,7 +1,8 @@
 "use client"
 
-import { useContext, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import { useContext, useEffect, useState } from "react"
+
 import { Header } from "@/components/Header"
 import { HuntReplayDetail } from "@/components/HuntReplayDetail"
 import { WalletContext } from "@/lib/context/WalletContext"
