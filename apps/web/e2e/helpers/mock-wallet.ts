@@ -15,6 +15,14 @@ import { Page } from "@playwright/test";
 export const MOCK_PUBLIC_KEY =
   "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
 
+/** Mainnet-formatted Stellar public key used for wrong-network tests. */
+export const MOCK_MAINNET_PUBLIC_KEY =
+  "GAHK7EEG2WWHVKDNT4CEQFGOEKILTEKSHEMY4MJBARPUW3KPL6JAMOLW";
+
+/** Stellar mainnet passphrase. */
+export const MAINNET_PASSPHRASE =
+  "Public Global Stellar Network ; September 2015";
+
 export async function injectMockWallet(page: Page) {
   await page.addInitScript((publicKey: string) => {
     // 1. Set window.freighter so isConnected() short-circuits to true
@@ -173,6 +181,174 @@ export async function simulateWalletConnectionFailure(page: Page) {
       isConnected: false,
     };
   });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Wallet Connection Failure Path Helpers (Issue #901)
+// ─────────────────────────────────────────────────────────────────
+
+/**
+ * Inject a mock Freighter that reports as connected but rejects the
+ * access request — simulating the user clicking "Deny" in the
+ * Freighter popup.
+ *
+ * All standard requests (connection status, network) succeed normally;
+ * only REQUEST_ACCESS returns an error, matching the real Freighter
+ * behaviour when the user declines the permission prompt.
+ */
+export async function injectRejectedAccessWallet(page: Page) {
+  await page.addInitScript((publicKey: string) => {
+    (window as any).freighter = true;
+
+    // No pre-seeded key — user hasn't connected yet
+
+    window.addEventListener("message", (event) => {
+      if (
+        event.source !== window ||
+        event.data?.source !== "FREIGHTER_EXTERNAL_MSG_REQUEST"
+      ) {
+        return;
+      }
+
+      const { messageId, type } = event.data;
+      let response: Record<string, unknown> = {};
+
+      switch (type) {
+        case "REQUEST_CONNECTION_STATUS":
+          response = { isConnected: true };
+          break;
+        case "REQUEST_PUBLIC_KEY":
+          response = { publicKey };
+          break;
+        case "REQUEST_ACCESS":
+          // Simulate user rejecting the access request
+          response = { error: "User rejected access" };
+          break;
+        case "REQUEST_NETWORK":
+          response = {
+            network: "TESTNET",
+            networkPassphrase: "Test SDF Network ; September 2015",
+          };
+          break;
+        case "REQUEST_NETWORK_DETAILS":
+          response = {
+            network: "TESTNET",
+            networkUrl: "https://horizon-testnet.stellar.org",
+            networkPassphrase: "Test SDF Network ; September 2015",
+            sorobanRpcUrl: "https://soroban-testnet.stellar.org",
+          };
+          break;
+        default:
+          response = {};
+      }
+
+      window.postMessage(
+        {
+          source: "FREIGHTER_EXTERNAL_MSG_RESPONSE",
+          messagedId: messageId,
+          ...response,
+        },
+        window.location.origin
+      );
+    });
+  }, MOCK_PUBLIC_KEY);
+}
+
+/**
+ * Inject a mock Freighter that reports the wallet is on **mainnet**
+ * (PUBLIC) instead of testnet.
+ *
+ * The wallet still connects normally — the address and signing work —
+ * but all network requests return mainnet passphrases and URLs.
+ * This allows testing that the app detects the network mismatch and
+ * surfaces appropriate guidance to the user.
+ */
+export async function injectWrongNetworkWallet(page: Page) {
+  await page.addInitScript(
+    ({ publicKey, mainnetPassphrase }: { publicKey: string; mainnetPassphrase: string }) => {
+      (window as any).freighter = true;
+
+      // Pre-seed localStorage so the hook restores session immediately
+      localStorage.setItem("freighter_public_key", publicKey);
+
+      window.addEventListener("message", (event) => {
+        if (
+          event.source !== window ||
+          event.data?.source !== "FREIGHTER_EXTERNAL_MSG_REQUEST"
+        ) {
+          return;
+        }
+
+        const { messageId, type } = event.data;
+        let response: Record<string, unknown> = {};
+
+        switch (type) {
+          case "REQUEST_CONNECTION_STATUS":
+            response = { isConnected: true };
+            break;
+          case "REQUEST_PUBLIC_KEY":
+            response = { publicKey };
+            break;
+          case "REQUEST_ACCESS":
+            response = { publicKey };
+            break;
+          case "SUBMIT_TRANSACTION":
+            response = {
+              signedTransaction:
+                event.data.transactionXdr || "mock_signed_xdr",
+              signerAddress: publicKey,
+            };
+            break;
+          case "REQUEST_NETWORK":
+            response = {
+              network: "PUBLIC",
+              networkPassphrase: mainnetPassphrase,
+            };
+            break;
+          case "REQUEST_NETWORK_DETAILS":
+            response = {
+              network: "PUBLIC",
+              networkUrl: "https://horizon.stellar.org",
+              networkPassphrase: mainnetPassphrase,
+              sorobanRpcUrl: "https://soroban.stellar.org",
+            };
+            break;
+          case "REQUEST_ALLOWED_STATUS":
+            response = { isAllowed: true };
+            break;
+          default:
+            response = {};
+        }
+
+        window.postMessage(
+          {
+            source: "FREIGHTER_EXTERNAL_MSG_RESPONSE",
+            messagedId: messageId,
+            ...response,
+          },
+          window.location.origin
+        );
+      });
+
+      // Also expose window wallet objects
+      const mockWallet = {
+        isConnected: true,
+        getPublicKey: () => Promise.resolve(publicKey),
+        signTransaction: (xdr: string) => Promise.resolve(xdr),
+        request: ({ method }: { method: string }) => {
+          if (method === "getPublicKey") return Promise.resolve(publicKey);
+          return Promise.resolve(null);
+        },
+      };
+      (window as any).freighter = mockWallet;
+      (window as any).soroban = mockWallet;
+      (window as any).sorobanWallet = mockWallet;
+    },
+    {
+      publicKey: MOCK_MAINNET_PUBLIC_KEY,
+      mainnetPassphrase: MAINNET_PASSPHRASE,
+    }
+  );
 }
 
 /**
