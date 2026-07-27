@@ -175,6 +175,10 @@ docker compose down
 - Add creator templates, analytics, and better minting tools.
 - Build community features like messaging, team hunts, and governance.
 
+## Documentation
+
+- See [`docs/`](./docs/) for detailed guides on achievements, security, testing, and development setup.
+
 ## Contributing
 
 - See `CONTRIBUTING.md` for contribution guidelines.
