@@ -40,6 +40,7 @@ import {
   updateHuntStatus,
   validateHuntInvite,
 } from "@/lib/huntStore";
+import { getHuntCapacity, getRemainingSpots } from "@/lib/huntStore";
 import { REGISTRATION_STATUS_DEBOUNCE_MS } from "@/lib/soroban/queryConfig";
 import { withTransactionToast } from "@/lib/txToast";
 import type {
@@ -75,7 +76,8 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
 
   // Get current players (using stored hunt's playerCount, defaulting to 0)
   const currentPlayers = hunt.playerCount ?? 0;
-  const maxCapacity = hunt.maxCapacity;
+  const maxCapacity = getHuntCapacity(hunt);
+  const remainingSpots = getRemainingSpots(hunt);
 
   useEffect(() => {
     if (searchParams.get("reattempt") !== "1" || !connectedPublicKey) return;
@@ -298,13 +300,18 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
                 currentPlayers={currentPlayers}
               />
               {/* Waitlist/Spot Display */}
-              {maxCapacity && (
+              {maxCapacity !== undefined && (
                 <WaitlistDisplay
                   huntId={hunt.id}
                   currentPlayers={currentPlayers}
                   maxCapacity={maxCapacity}
                   playerAddress={connectedPublicKey}
                 />
+              )}
+              {maxCapacity !== undefined && remainingSpots !== undefined && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                  {remainingSpots} of {maxCapacity} spots left
+                </div>
               )}
             </div>
           ) : (
@@ -491,7 +498,6 @@ export default function HuntShare({ hunt }: HuntDetailProps) {
     </div>
   );
 }
-
 
 
 
