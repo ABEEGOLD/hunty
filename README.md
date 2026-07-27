@@ -175,6 +175,23 @@ docker compose down
 - Add creator templates, analytics, and better minting tools.
 - Build community features like messaging, team hunts, and governance.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[Browser] --> Next[Next.js App]
+    Next --> Soroban[Soroban RPC]
+    Soroban --> Contracts[Hunty Core / Reward Manager / NFT Reward]
+    Next --> Freighter[Freighter Wallet]
+    Next --> IPFS[Pinata / IPFS]
+    Next --> Resend[Resend Email]
+```
+
+## Deployment
+
+- See [docs/deployment.md](./docs/deployment.md) for production deployment guidance.
+- Vercel is the recommended hosting path for the web app.
+
 ## Contributing
 
 - See `CONTRIBUTING.md` for contribution guidelines.
