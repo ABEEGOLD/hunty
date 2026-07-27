@@ -25,6 +25,7 @@ import type { CoverImageUploadState, HuntDraft } from "@/lib/types";
 import { ClueSortList } from "./ClueSortList";
 import { HuntCards } from "./HuntCards";
 import ToggleSwitch from "./ToggleButton";
+import { useIsFeatureEnabled } from "@/hooks/useFeatureFlag";
 
 interface HuntFormProps {
   hunt: HuntDraft
@@ -68,6 +69,7 @@ export function HuntForm({
   const [showReorder, setShowReorder] = useState(false);
   const [linkEnabled, setLinkEnabled] = useState(false);
   const [imageUploadState, setImageUploadState] = useState<CoverImageUploadState>("idle");
+  const dragDropEnabled = useIsFeatureEnabled("dragDropClues");
 
   const {
     control,
@@ -588,7 +590,9 @@ export function HuntForm({
                   className="mt-3 p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/50"
                 >
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                    Drag clues or use the arrow buttons to reorder. Keyboard:{" "}
+                    {dragDropEnabled
+                      ? "Drag clues or use the arrow buttons to reorder. Keyboard:"
+                      : "Use the arrow buttons to reorder clues. Keyboard:"}{" "}
                     <kbd className="px-1 py-0.5 text-[10px] font-mono bg-slate-200 dark:bg-slate-700 rounded">
                       Alt
                     </kbd>{" "}
@@ -601,6 +605,7 @@ export function HuntForm({
                     items={clueSortItems}
                     onReorder={handleClueReorder}
                     disabled={isSavingClues}
+                    enableDrag={dragDropEnabled}
                   />
                 </div>
               )}

@@ -1,5 +1,6 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
 import Link from "next/link"
 import { useEffect } from "react"
 
@@ -14,7 +15,9 @@ export default function Error({
 }) {
   useEffect(() => {
     logger.error("[RouteError] Unhandled error:", error)
-    // Sentry-ready: Sentry.captureException(error)
+    Sentry.captureException(error, {
+      tags: { boundary: "RouteError", digest: error.digest },
+    })
   }, [error])
 
   return (
