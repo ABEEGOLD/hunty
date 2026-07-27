@@ -201,7 +201,7 @@ You've written the code, written the tests, and everything passes. Awesome! Now 
 
 ### Writing Your PR Description
 
-A good PR description helps reviewers understand your work quickly:
+A good PR description helps reviewers understand your work quickly. Please note: **Completion reports and implementation summaries belong in the PR description.** Do not commit them to the repository as tracked documents.
 
 ```markdown
 ## What This Does
