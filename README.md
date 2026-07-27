@@ -206,6 +206,9 @@ See [turbo.json](./turbo.json) for the full task pipeline configuration.
 - Add creator templates, analytics, and better minting tools.
 - Build community features like messaging, team hunts, and governance.
 
+## Documentation
+
+- See [`docs/`](./docs/) for detailed guides on achievements, security, testing, and development setup.
 ## Architecture
 
 ```mermaid
