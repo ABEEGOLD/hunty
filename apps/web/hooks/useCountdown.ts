@@ -9,6 +9,8 @@ import { getCountdown } from "@/lib/dateUtils"
  * Returns null when the deadline has passed.
  *
  * @param endUnixSeconds - target time as Unix timestamp in seconds
+ * @returns A human-readable countdown string while the deadline is upcoming,
+ *   or null once the target time has elapsed.
  */
 export function useCountdown(endUnixSeconds: number | undefined | null): string | null {
   const [display, setDisplay] = useState<string | null>(() =>
