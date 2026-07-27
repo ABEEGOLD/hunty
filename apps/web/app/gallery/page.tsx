@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState } from "@/components/QueryState";
 import { FilterBar } from "@/components/FilterBar";
 import { GalleryGridSkeleton } from "@/components/LoadingSkeletons";
 import { NftCard } from "@/components/NftCard";

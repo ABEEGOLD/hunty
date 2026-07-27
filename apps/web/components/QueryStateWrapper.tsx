@@ -1,7 +1,6 @@
 import React from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
-import { EmptyState } from './EmptyState';
-import { ErrorState } from './ErrorState';
+import { EmptyState, ErrorState } from './QueryState';
 
 interface QueryStateWrapperProps<TData, TError> {
   query: UseQueryResult<TData, TError>;
