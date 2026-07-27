@@ -15,19 +15,21 @@ interface ClueSortListProps {
   onReorder: (newItems: ClueItem[]) => void
   /** Whether the list is disabled (e.g. while saving). */
   disabled?: boolean
+  /** Whether mouse drag-and-drop is enabled. When false, only keyboard/button reordering works. */
+  enableDrag?: boolean
 }
 
 /**
  * Accessible, keyboard-navigable drag-and-drop clue list.
  *
  * Supports:
- * - Mouse drag-and-drop with visual feedback
+ * - Mouse drag-and-drop with visual feedback (can be disabled via enableDrag prop)
  * - Keyboard reordering via Alt+ArrowUp / Alt+ArrowDown
  * - Touch-friendly move buttons for mobile
  * - Smooth CSS transition animations during reorder
  * - Screen-reader live region announcements
  */
-export function ClueSortList({ items, onReorder, disabled = false }: ClueSortListProps) {
+export function ClueSortList({ items, onReorder, disabled = false, enableDrag = true }: ClueSortListProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const liveRegionRef = useRef<HTMLDivElement>(null)
@@ -145,32 +147,34 @@ export function ClueSortList({ items, onReorder, disabled = false }: ClueSortLis
         return (
           <div
             key={item.id}
-            draggable={!disabled}
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, index)}
-            onDragEnd={handleDragEnd}
+            draggable={enableDrag && !disabled}
+            onDragStart={enableDrag ? (e) => handleDragStart(e, index) : undefined}
+            onDragOver={enableDrag ? (e) => handleDragOver(e, index) : undefined}
+            onDragLeave={enableDrag ? handleDragLeave : undefined}
+            onDrop={enableDrag ? (e) => handleDrop(e, index) : undefined}
+            onDragEnd={enableDrag ? handleDragEnd : undefined}
             onKeyDown={(e) => handleKeyDown(e, index)}
-            aria-roledescription="sortable clue"
+            aria-roledescription={enableDrag ? "sortable clue" : "clue"}
             aria-label={`Clue ${index + 1}: ${item.label}`}
             tabIndex={disabled ? -1 : 0}
             className={`
               group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm
               transition-all duration-200 ease-in-out
-              ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"}
+              ${disabled ? "opacity-50 cursor-not-allowed" : enableDrag ? "cursor-grab active:cursor-grabbing" : "cursor-default"}
               ${isDragged ? "opacity-40 scale-[0.98]" : ""}
               ${isOver ? "border-[#3737A4] bg-indigo-50 dark:bg-indigo-950/30 scale-[1.01]" : "border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50"}
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3737A4] focus-visible:ring-offset-1
             `}
           >
-            {/* Drag handle */}
-            <div
-              className="shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
-              aria-hidden
-            >
-              <GripVertical className="w-4 h-4" />
-            </div>
+            {/* Drag handle (only shown when drag is enabled) */}
+            {enableDrag && (
+              <div
+                className="shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+                aria-hidden
+              >
+                <GripVertical className="w-4 h-4" />
+              </div>
+            )}
 
             {/* Clue number + label */}
             <div className="flex-1 min-w-0 truncate">
