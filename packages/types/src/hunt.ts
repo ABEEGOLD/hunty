@@ -46,7 +46,9 @@ export interface StoredHunt {
   rewardEscrowBalance?: number;
   /** Creator-side participant count snapshot for dashboard sorting. */
   playerCount?: number;
-  /** Max number of participants for limited spots */
+  /** Max number of participants for limited spots. */
+  maxParticipants?: number;
+  /** @deprecated Use `maxParticipants`. */
   maxCapacity?: number;
   /** Unix timestamp in seconds when the hunt draft was created locally. */
   createdAt?: number;
@@ -89,4 +91,5 @@ export interface HuntDraft {
   code: string;
   image?: string;
   sequential?: boolean;
+  maxParticipants?: number;
 }

@@ -1,7 +1,7 @@
 import Server, { Operation,TransactionBuilder } from "@stellar/stellar-sdk"
 
 import { RegistrationError } from "@/lib/contracts/errors"
-import { advanceHuntProgress, getHuntProgress } from "@/lib/huntStore"
+import { advanceHuntProgress, getHuntById, getHuntCapacity, getHuntProgress, getRegisteredWallets } from "@/lib/huntStore"
 import type { PlayerProgress, RegistrationResult,RegistrationStatus } from "@/lib/types"
 
 import { withSorobanRpcRetry } from "../soroban/rpcRetry"
@@ -33,6 +33,7 @@ const NON_RETRYABLE_ERROR_CODES = [
   "WALLET_NOT_CONNECTED",
   "WALLET_SIGNING_FAILED",
   "ADDRESS_MISMATCH",
+  "CONTRACT_HUNT_FULL",
 ]
 
 class NonRetryableRegistrationError extends Error {
@@ -512,6 +513,21 @@ export async function registerPlayer(
     // Validate inputs first
     validateHuntId(huntId)
     validatePlayerAddress(playerAddress)
+
+    const hunt = getHuntById(huntId)
+    const capacity = getHuntCapacity(hunt)
+    if (capacity !== undefined) {
+      const registered = new Set(getRegisteredWallets(huntId))
+      if (!registered.has(playerAddress)) {
+        const currentPlayers = hunt?.playerCount ?? registered.size
+        if (currentPlayers >= capacity) {
+          throw new RegistrationError(
+            `This hunt is full. ${capacity} participant${capacity === 1 ? "" : "s"} max.`,
+            "CONTRACT_HUNT_FULL",
+          )
+        }
+      }
+    }
 
     // Check wallet availability
     if (!isWalletAvailable()) {
