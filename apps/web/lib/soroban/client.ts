@@ -1,4 +1,7 @@
-import Server from "@stellar/stellar-sdk";
+import * as Sentry from "@sentry/nextjs"
+import Server from "@stellar/stellar-sdk"
+
+import { createSorobanRpcOptimizer } from "./rpcOptimization"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SorobanServer = Server as any;
@@ -122,5 +125,16 @@ export async function readSorobanContractState<T>(request: {
   params?: unknown[]
   parser?: (response: unknown) => unknown
 }): Promise<T> {
-  return getSorobanRpcOptimizer().readContractState<T>(request)
+  try {
+    return await getSorobanRpcOptimizer().readContractState<T>(request)
+  } catch (err) {
+    // Previously, this call could never succeed because createSorobanRpcOptimizer
+    // was not imported (undefined at runtime). Now that the import is fixed,
+    // any genuine RPC failures are forwarded to Sentry.
+    Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+      tags: { source: "sorobanRpc", method: request.method },
+      extra: { key: request.key, params: request.params },
+    })
+    throw err
+  }
 }
