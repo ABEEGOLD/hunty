@@ -35,7 +35,15 @@ eslintConfig.push({
     "jsx-a11y/interactive-supports-focus": "error",
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",
+    "@typescript-eslint/no-explicit-any": "error",
     ...reactHooks.configs.recommended.rules,
+  },
+});
+
+eslintConfig.push({
+  files: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**/*"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
   },
 });
 

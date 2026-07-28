@@ -286,7 +286,7 @@ function CreateGameContent() {
   const rewardItemSchema = z.object({
     place: z.number().int().positive(),
     amount: z.number().positive("Reward amount must be greater than 0."),
-    icon: z.any().optional(),
+    icon: z.unknown().optional(),
   });
 
   const formSchema = z
