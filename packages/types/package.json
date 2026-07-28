@@ -10,6 +10,11 @@
     "./schemas": "./src/schemas.ts"
   },
   "sideEffects": false,
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run"
+  },
   "peerDependencies": {
     "zod": "^4.0.0"
   },
@@ -17,5 +22,10 @@
     "zod": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
