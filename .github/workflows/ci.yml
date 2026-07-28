@@ -34,6 +34,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Run Vitest with coverage
+        run: npm run test:coverage --workspace=@hunty/web
         run: pnpm test:coverage
 
       - name: Upload coverage report artifact
@@ -41,13 +42,13 @@ jobs:
         if: always()
         with:
           name: vitest-coverage-report
-          path: coverage/
+          path: apps/web/coverage/
           retention-days: 30
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/coverage-final.json
+          files: ./apps/web/coverage/coverage-final.json
           flags: unittests
           name: codecov-umbrella
         continue-on-error: true
