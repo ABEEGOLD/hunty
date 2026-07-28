@@ -9,6 +9,9 @@
     ".": "./src/index.ts",
     "./schemas": "./src/schemas.ts"
   },
+  "scripts": {
+    "test": "vitest run"
+  },
   "sideEffects": false,
   "peerDependencies": {
     "zod": "^4.0.0"
