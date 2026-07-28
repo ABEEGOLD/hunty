@@ -189,9 +189,7 @@ eas credentials --platform android --list
 
 ## Full Documentation
 
-- **Setup Guide:** [EAS_SETUP_DEPLOYMENT_GUIDE.md](./EAS_SETUP_DEPLOYMENT_GUIDE.md)
-- **Credentials Guide:** [EAS_CREDENTIALS_GUIDE.md](./EAS_CREDENTIALS_GUIDE.md)
-- **Build Profiles:** [EAS_BUILD_UPDATE_GUIDE.md](./EAS_BUILD_UPDATE_GUIDE.md)
+- **EAS Guide:** [EAS_GUIDE.md](./EAS_GUIDE.md)
 - **Android Keystore:** [ANDROID_KEYSTORE.md](./ANDROID_KEYSTORE.md)
 
 ---
@@ -278,4 +276,4 @@ git push origin v1.1.0
 
 ---
 
-**For detailed information, see [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)**
+**For detailed information, see [EAS_GUIDE.md](./EAS_GUIDE.md)**
