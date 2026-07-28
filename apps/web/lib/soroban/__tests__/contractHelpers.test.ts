@@ -725,7 +725,13 @@ describe("retry logic integration", () => {
   })
 
   it("withSorobanRpcRetry is invoked for RPC reads in readContract", async () => {
-    const mockFetch = vi.mocked(globalThis.fetch as ReturnType<typeof vi.fn>)
+    // Create the fetch mock as a vi.fn() BEFORE wrapping with vi.mocked so the
+    // spy methods (mockResolvedValueOnce) are present. The previous version
+    // called `vi.mocked(globalThis.fetch as ReturnType<typeof vi.fn>)` on the
+    // real fetch function — that wasn't a spy and threw
+    // "mockFetch.mockResolvedValueOnce is not a function".
+    vi.stubGlobal("fetch", vi.fn())
+    const mockFetch = vi.mocked(globalThis.fetch)
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ result: null }),
@@ -733,8 +739,6 @@ describe("retry logic integration", () => {
 
     const { withSorobanRpcRetry } = await import("../rpcRetry")
     const retryMock = vi.mocked(withSorobanRpcRetry)
-
-    vi.stubGlobal("fetch", mockFetch)
 
     await readContract({ contractId: "C...", method: "test_read" })
 
