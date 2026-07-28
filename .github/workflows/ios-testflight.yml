@@ -1,6 +1,6 @@
 name: iOS TestFlight Distribution
 
-# paths + working-dirs target apps/mobile (post-restructure). Closes #887.
+# paths and working-dirs target apps/mobile (post-monorepo-restructure).
 on:
   push:
     branches:
