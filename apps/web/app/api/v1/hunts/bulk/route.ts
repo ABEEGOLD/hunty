@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 /**
  * POST /api/v1/hunts/bulk
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
-    console.error("Bulk hunt operation error:", error);
+    logger.error("Bulk hunt operation error:", error);
     return NextResponse.json({ error: "Failed to perform bulk operation" }, { status: 500 });
   }
 }

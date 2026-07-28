@@ -45,6 +45,7 @@ import type { StoredHunt } from "@/lib/types"
 import { getHuntsByCreator, getArchivedHunts, getSoftDeletedHunts, hideHuntsFromPublic, unhideHuntsFromPublic, softDeleteHunts, restoreHunts, permanentDeleteHunts, duplicateHunt } from "@/lib/huntStore"
 import { fetchCreatorRewardHistory } from "@/lib/rewardHistory"
 import { DraftListPanel } from "@/components/DraftListPanel"
+import { logger } from "@/lib/logger"
 import { getHuntsByCreator } from "@/lib/huntStore"
 });
 import { Header } from "@/components/Header";
@@ -127,7 +128,7 @@ export default function CreatorPage() {
         const data = await fetchCreatorRewardHistory(publicKey);
         if (!cancelled) setRewardHistory(data);
       } catch (err) {
-        console.error("Failed to load creator reward history:", err);
+        logger.error("Failed to load creator reward history:", err);
       }
     };
 

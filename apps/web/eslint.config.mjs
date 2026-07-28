@@ -18,16 +18,32 @@ const eslintConfig = [
   ...storybook.configs["flat/recommended"],
 ]
 
-const isProduction = process.env.NODE_ENV === "production"
-
 eslintConfig.push({
   plugins: {
     "jsx-a11y": jsxA11y,
   },
   rules: {
-    "no-console": isProduction ? "error" : "warn",
+    // Direct console calls bypass the structured logger (@/lib/logger) and can leak
+    // values into browser consoles in production, so they're always an error outside
+    // tests and scripts (see the override below).
+    "no-console": "error",
     "jsx-a11y/control-has-associated-label": "error",
     "jsx-a11y/interactive-supports-focus": "error",
+  },
+})
+
+// Tests, e2e specs, and standalone scripts legitimately use console output
+// (test reporters, CLI progress) and aren't part of the runtime the logger covers.
+eslintConfig.push({
+  files: [
+    "**/__tests__/**",
+    "**/*.test.{ts,tsx}",
+    "**/*.spec.{ts,tsx}",
+    "e2e/**",
+    "scripts/**",
+  ],
+  rules: {
+    "no-console": "off",
   },
 })
 
