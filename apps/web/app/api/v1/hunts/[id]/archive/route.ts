@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rateLimit, getIP, rateLimitResponse } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 /**
  * POST /api/v1/hunts/[id]/archive
@@ -41,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
-    console.error("Archive hunt error:", error);
+    logger.error("Archive hunt error:", error);
     return NextResponse.json({ error: "Failed to archive hunt" }, { status: 500 });
   }
 }
