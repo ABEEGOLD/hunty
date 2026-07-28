@@ -19,12 +19,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Invalid hunt ID" }, { status: 400 });
   }
 
+  let body: { action?: string; confirmed?: boolean };
   try {
-    const body = await req.json();
-    const { action, confirmed } = body;
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
+  const { action, confirmed } = body;
+
+  try {
     if (action === "soft-delete") {
-      // Soft delete with 30-day recovery window
       const { softDeleteHunts } = await import("@/lib/huntStore");
       softDeleteHunts([huntId]);
       return NextResponse.json({
@@ -32,12 +37,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         message: "Hunt soft-deleted successfully. You can restore it within 30 days.",
       });
     } else if (action === "restore") {
-      // Restore soft-deleted hunt
       const { restoreHunts } = await import("@/lib/huntStore");
       restoreHunts([huntId]);
       return NextResponse.json({ success: true, message: "Hunt restored successfully" });
     } else if (action === "permanent-delete") {
-      // Permanent delete requires confirmation
       if (!confirmed) {
         return NextResponse.json(
           {
@@ -60,4 +63,3 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Failed to delete hunt" }, { status: 500 });
   }
 }
- 

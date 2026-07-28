@@ -19,17 +19,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Invalid hunt ID" }, { status: 400 });
   }
 
+  let body: { action?: string };
   try {
-    const body = await req.json();
-    const { action } = body;
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
+  const { action } = body;
+
+  try {
     if (action === "archive") {
-      // Archive the hunt
       const { hideHuntsFromPublic } = await import("@/lib/huntStore");
       hideHuntsFromPublic([huntId]);
       return NextResponse.json({ success: true, message: "Hunt archived successfully" });
     } else if (action === "unarchive") {
-      // Unarchive the hunt
       const { unhideHuntsFromPublic } = await import("@/lib/huntStore");
       unhideHuntsFromPublic([huntId]);
       return NextResponse.json({ success: true, message: "Hunt unarchived successfully" });
@@ -41,4 +45,3 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Failed to archive hunt" }, { status: 500 });
   }
 }
- 

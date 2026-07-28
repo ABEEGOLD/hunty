@@ -202,11 +202,11 @@ export function createMockSql(tables: Record<string, Row[]>): MockSql {
       const table = findTable(sql)
       if (!table) return []
       const whereStr = parseWhere(sql)
-      let rows = applyWhere(tables[table], whereStr)
+      const rows = applyWhere(tables[table], whereStr)
       const groupCols = groupByMatch[1].split(",").map((c) => c.trim().toLowerCase())
 
       // Parse SELECT columns to find aggregates
-      const selectMatch = sql.match(/SELECT\s+(.+?)\s+FROM/i)
+      const selectMatch = sql.match(/SELECT\s+(.+?)\s+FROM/is)
       const selectClause = selectMatch ? selectMatch[1] : ""
 
       // Group rows
@@ -224,11 +224,11 @@ export function createMockSql(tables: Record<string, Row[]>): MockSql {
           out[gc] = groupRows[0][gc]
         }
         // Parse aggregates: COUNT(*)::int AS count, MAX(col) AS alias
-        const countAgg = selectMatch?.match(/COUNT\(\s*\*?\s*(?:::(\w+))?\s*\)\s*(?:AS\s+(\w+))?/i)
+        const countAgg = selectClause.match(/COUNT\(\s*\*?\s*\)\s*(?:::(\w+))?\s*(?:AS\s+(\w+))?/i)
         if (countAgg) {
           out[countAgg[2] || "count"] = groupRows.length
         }
-        const maxAgg = selectMatch?.match(/MAX\((\w+)\)\s*(?:AS\s+(\w+))?/i)
+        const maxAgg = selectClause.match(/MAX\((\w+)\)\s*(?:AS\s+(\w+))?/i)
         if (maxAgg) {
           const col = maxAgg[1].toLowerCase()
           out[maxAgg[2] || col] = Math.max(...groupRows.map((r) => r[col] as number))
