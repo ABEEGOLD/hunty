@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"],
+      "@/components": ["./components"],
+      "@/components/*": ["./components/*"],
+      "@/lib": ["./lib"],
+      "@/lib/*": ["./lib/*"],
+      "@/hooks": ["./hooks"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/store": ["./store"],
+      "@/store/*": ["./store/*"],
+      "@/types": ["./types"],
+      "@/types/*": ["./types/*"],
+      "@shared/*": ["./shared/*"],
+      "@hunty/types": ["../../packages/types/src/index.ts"],
+      "@hunty/types/*": ["../../packages/types/src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "mobile/**/*",
+    "shared/**/*",
+    "stories/**/*",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
+}
