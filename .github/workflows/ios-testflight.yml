@@ -1,5 +1,8 @@
 name: iOS TestFlight Distribution
 
+# Trigger paths and step working-directories target apps/mobile after the
+# monorepo restructure (previously mobile/). See #887 for the original
+# path-mismatch fix and rationale.
 on:
   push:
     branches:
