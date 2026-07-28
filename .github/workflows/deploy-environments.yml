@@ -53,6 +53,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Build for Staging
         run: pnpm build
@@ -108,6 +110,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Build for Production
         run: pnpm build
