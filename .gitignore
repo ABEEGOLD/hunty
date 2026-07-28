@@ -43,6 +43,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+.env.local
 !.env.example
 !.env.staging
 !.env.production
@@ -54,3 +55,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build logs
+*_log.txt
+build_log*
