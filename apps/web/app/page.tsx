@@ -6,6 +6,10 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import Image from "next/image"
 import Link from "next/link"
 import dynamic from "next/dynamic"
+import { useTranslations } from "next-intl"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { X, ArrowRight, Trophy, Search, HelpCircle } from "lucide-react"
 import { getHuntCapacity, getRemainingSpots } from "@/lib/huntStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
@@ -419,6 +423,28 @@ function VirtualizedInactiveHuntsGrid({ hunts }: { hunts: StoredHunt[] }) {
 }
 
 export default function GameArcade() {
+  const t = useTranslations("home")
+  const queryClient = useQueryClient()
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const [isConnectingWallet, setIsConnectingWallet] = useState(false)
+  const [displayName, setDisplayName] = useState("")
+  const [gameLink, setGameLink] = useState("")
+  const [walletAddress, setWalletAddress] = useState("")
+
+  const [visibleActiveCount, setVisibleActiveCount] = useState(ACTIVE_PAGE_SIZE)
+  const [isLoadingMoreActive, setIsLoadingMoreActive] = useState(false)
+  const [inactiveHunts, setInactiveHunts] = useState<StoredHunt[]>([])
+  const [visibleInactiveCount, setVisibleInactiveCount] = useState(INACTIVE_PAGE_SIZE)
+  const [isLoadingMoreInactive, setIsLoadingMoreInactive] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState<"leaderboard" | "none">("none")
+  const [rewardFilter, setRewardFilter] = useState<"all" | "XLM" | "NFT" | "Both">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Completed">("Active")
+  const [difficultyFilter, setDifficultyFilter] = useState<"all" | "Easy" | "Medium" | "Hard">("all")
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "Urban" | "Campus" | "Office" | "Museum" | "General">("all")
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "popular" | "reward-high" | "difficulty" | "clues-high" | "clues-low" | "rating-high">("newest")
+
+  const isLoadedRef = useRef(false)
   const queryClient = useQueryClient();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
@@ -642,8 +668,7 @@ export default function GameArcade() {
   // Refresh player counts whenever the hunt list loads/changes.
   useEffect(() => {
     if (filteredHunts.length > 0) refetchPlayerCounts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredHunts.length]);
+  }, [filteredHunts.length, refetchPlayerCounts]);
 
   // Derive recently completed hunts from the local store (not limited by pagination)
   const allHuntsList = useMemo(() => {
@@ -807,6 +832,7 @@ export default function GameArcade() {
             {/* logo */}
             <Image src="/icons/logo.png" alt="Logo" width={96} height={96} />
           </div>
+          <h1 className={`text-4xl md:text-5xl bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent font-bold mb-12 ${hankenGrotesk.variable} antialiased bg-gradient-to-br from-#3737A4 to-#0C0C4F mt-12`}>{t("title")}</h1>
           <h1
             className={`text-4xl md:text-5xl bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] bg-clip-text text-transparent font-bold mb-12 ${hankenGrotesk.variable} antialiased bg-gradient-to-br from-#3737A4 to-#0C0C4F mt-12`}
           >
@@ -816,6 +842,11 @@ export default function GameArcade() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <Button className="bg-[#0C0C4F] hover:bg-slate-700 text-white px-6 py-3 rounded-lg text-xl font-black" onClick={handleCreateGame}>
+            {t("createGame")}
+          </Button>
+          <Button asChild variant="outline" className="border-2 border-[#0C0C4F] text-[#0C0C4F] hover:bg-[#0C0C4F]/10 px-6 py-3 rounded-lg text-xl font-black">
+            <Link href="/dashboard">{t("myHunts")}</Link>
           <Button
             className="bg-[#0C0C4F] hover:bg-slate-700 text-white px-6 py-3 rounded-lg text-xl font-black"
             onClick={handleCreateGame}
@@ -837,8 +868,9 @@ export default function GameArcade() {
             }`}
             onClick={() => setActiveTab(activeTab === "leaderboard" ? "none" : "leaderboard")}
           >
-            Leaderboard
+            {t("leaderboard")}
           </Button>
+          <Button id="play-button" className="bg-[#E87785] hover:bg-[#d4606f] text-white px-6 py-3 rounded-lg text-xl font-black">{t("playGame")}</Button>
           <Button
             id="play-button"
             className="bg-[#E87785] hover:bg-[#d4606f] text-white px-6 py-3 rounded-lg text-xl font-black"
@@ -853,7 +885,7 @@ export default function GameArcade() {
             <div className="max-w-4xl mx-auto bg-[#f9f9ff] rounded-3xl p-8 border border-slate-100 shadow-inner">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 className="text-3xl font-bold bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text">
-                  Global Leaderboard
+                  {t("globalLeaderboard")}
                 </h2>
                 <div className="flex items-center gap-2">
                   <Button
@@ -881,15 +913,16 @@ export default function GameArcade() {
 
         {/* Game Link Input */}
         <div className="text-center mb-12">
-          <p className="text-slate-700 mb-4 font-medium">Enter Game Link</p>
+          <p className="text-slate-700 mb-4 font-medium">{t("enterGameLink")}</p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <Input
               type="url"
-              placeholder="https://www.galagorch.com/g/***"
+              placeholder={t("gameLinkPlaceholder")}
               value={gameLink}
               onChange={(e) => setGameLink(e.target.value)}
               className="flex-1 px-4 py-2 rounded-lg border-2 border-gray-300 focus:border-pink-400"
             />
+            <Button className="bg-[#E87785] hover:bg-[#d4606f] text-white px-6 py-3 rounded-lg text-xl font-black">{t("playGame")}</Button>
             <Button className="bg-[#E87785] hover:bg-[#d4606f] text-white px-6 py-3 rounded-lg text-xl font-black">
               Play Game
             </Button>

@@ -2,6 +2,7 @@
   "name": "hunty",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "description": "Cross-platform scavenger hunt dApp using Next.js, Expo, IPFS, and Stellar/Soroban.",
   "scripts": {
     "dev": "turbo run dev",
@@ -19,6 +20,12 @@
     "analyze": "npm run analyze --workspace @hunty/web",
     "bundle:check": "npm run bundle:check --workspace @hunty/web",
     "perf:budget": "npm run perf:budget --workspace @hunty/web",
+    "e2e": "pnpm e2e --workspace @hunty/web",
+    "smoke": "pnpm smoke --workspace @hunty/web",
+    "test:e2e": "pnpm test:e2e --workspace @hunty/web",
+    "analyze": "pnpm analyze --workspace @hunty/web",
+    "bundle:check": "pnpm bundle:check --workspace @hunty/web",
+    "perf:budget": "pnpm perf:budget --workspace @hunty/web",
     "clean": "turbo run clean",
     "prepare": "husky"
   },
@@ -87,6 +94,7 @@
     "@commitlint/config-conventional": "19.8.1",
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^10.5.0",
+    "@hunty/config": "workspace:*",
     "@playwright/test": "^1.58.2",
     "@storybook/addon-a11y": "^10.4.6",
     "@storybook/addon-docs": "^10.4.6",
