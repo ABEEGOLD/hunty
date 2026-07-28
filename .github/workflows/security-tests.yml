@@ -25,6 +25,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Build Next.js app
         run: pnpm build
@@ -39,9 +41,12 @@ jobs:
 
       - name: Run Playwright security tests
         run: pnpm run security:test || true
+        run: pnpm security:test || true
 
       - name: OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
           target: "http://localhost:3000"
         continue-on-error: true
+        continue-on-error: true # prevents workflow failure if ZAP fails
+        # NOTE: The ZAP baseline expects a running server; we started it above.

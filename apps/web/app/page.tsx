@@ -642,8 +642,7 @@ export default function GameArcade() {
   // Refresh player counts whenever the hunt list loads/changes.
   useEffect(() => {
     if (filteredHunts.length > 0) refetchPlayerCounts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredHunts.length]);
+  }, [filteredHunts.length, refetchPlayerCounts]);
 
   // Derive recently completed hunts from the local store (not limited by pagination)
   const allHuntsList = useMemo(() => {
