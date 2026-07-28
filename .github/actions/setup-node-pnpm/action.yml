@@ -1,0 +1,58 @@
+name: "Setup Node.js with pnpm"
+description: "Sets up Node.js, enables Corepack, configures pnpm, caches dependencies, and installs with frozen lockfile"
+
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: false
+    default: "20"
+  pnpm-version:
+    description: "pnpm version to use"
+    required: false
+    default: "10.33.0"
+  working-directory:
+    description: "Working directory for pnpm install"
+    required: false
+    default: "."
+  install-args:
+    description: "Additional arguments for pnpm install"
+    required: false
+    default: "--frozen-lockfile"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.working-directory }}/pnpm-lock.yaml
+
+    - name: Get pnpm store directory
+      id: pnpm-cache
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles(format('{0}/pnpm-lock.yaml', inputs.working-directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: pnpm install ${{ inputs.install-args }}
