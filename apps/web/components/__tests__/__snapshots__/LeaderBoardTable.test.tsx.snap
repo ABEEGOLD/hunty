@@ -1,5 +1,75 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`LeaderboardTable > render > renders snapshot of empty state 1`] = `
+<div>
+  <div
+    class="rounded-none max-w-2xl mx-auto p-0"
+  >
+    <div
+      class="rounded-3xl border border-dashed p-8 text-center shadow-sm dark:bg-slate-900/60 border-slate-300 bg-slate-50/90 dark:border-slate-700"
+    >
+      <div
+        class="mx-auto flex h-20 w-20 items-center justify-center rounded-full shadow-sm dark:bg-slate-800 bg-white text-slate-700 dark:text-slate-200"
+      >
+        <svg
+          aria-hidden="true"
+          class="lucide lucide-trophy w-10 h-10 text-slate-500 dark:text-slate-400"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"
+          />
+          <path
+            d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"
+          />
+          <path
+            d="M18 9h1.5a1 1 0 0 0 0-5H18"
+          />
+          <path
+            d="M4 22h16"
+          />
+          <path
+            d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"
+          />
+          <path
+            d="M6 9H4.5a1 1 0 0 1 0-5H6"
+          />
+        </svg>
+      </div>
+      <h2
+        class="mt-6 text-xl font-semibold text-slate-900 dark:text-slate-100"
+      >
+        No results for these filters
+      </h2>
+      <p
+        class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400"
+      >
+        Try adjusting the time period, category, or difficulty to see more players.
+      </p>
+      <div
+        class="mt-6"
+      >
+        <a
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 has-[>svg]:px-3 rounded-full px-6 py-3 text-sm font-semibold"
+          data-slot="button"
+          href="/leaderboard"
+        >
+          Clear filters
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`LeaderboardTable > render > renders snapshot of loading state 1`] = `
 <div>
   <div
@@ -57,7 +127,7 @@ exports[`LeaderboardTable > render > renders snapshot of loading state 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                29
+                30
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
@@ -67,17 +137,7 @@ exports[`LeaderboardTable > render > renders snapshot of loading state 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                23
-              </span>
-              <span
-                class="text-slate-600 dark:text-slate-400"
-              >
-                h
-              </span>
-              <span
-                class="font-semibold text-[#3737A4] dark:text-blue-400"
-              >
-                59
+                0
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
@@ -87,7 +147,7 @@ exports[`LeaderboardTable > render > renders snapshot of loading state 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                58
+                0
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
@@ -375,7 +435,7 @@ exports[`LeaderboardTable > render > renders snapshot of table with data 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                29
+                30
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
@@ -385,17 +445,7 @@ exports[`LeaderboardTable > render > renders snapshot of table with data 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                23
-              </span>
-              <span
-                class="text-slate-600 dark:text-slate-400"
-              >
-                h
-              </span>
-              <span
-                class="font-semibold text-[#3737A4] dark:text-blue-400"
-              >
-                59
+                0
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
@@ -405,7 +455,7 @@ exports[`LeaderboardTable > render > renders snapshot of table with data 1`] = `
               <span
                 class="font-semibold text-[#3737A4] dark:text-blue-400"
               >
-                59
+                0
               </span>
               <span
                 class="text-slate-600 dark:text-slate-400"
