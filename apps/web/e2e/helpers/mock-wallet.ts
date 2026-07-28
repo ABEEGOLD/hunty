@@ -1,5 +1,11 @@
 import { Page } from "@playwright/test";
 
+type MockWalletWindow = Window & {
+  freighter?: unknown
+  soroban?: unknown
+  sorobanWallet?: unknown
+}
+
 /**
  * Mock Freighter wallet adapter for E2E testing.
  *
@@ -17,8 +23,9 @@ export const MOCK_PUBLIC_KEY =
 
 export async function injectMockWallet(page: Page) {
   await page.addInitScript((publicKey: string) => {
+    const win = window as MockWalletWindow
     // 1. Set window.freighter so isConnected() short-circuits to true
-    (window as any).freighter = true;
+    win.freighter = true;
 
     // 2. Pre-seed localStorage so the hook restores session immediately
     localStorage.setItem("freighter_public_key", publicKey);
@@ -93,9 +100,9 @@ export async function injectMockWallet(page: Page) {
         return Promise.resolve(null);
       },
     };
-    (window as any).freighter = mockWallet;
-    (window as any).soroban = mockWallet;
-    (window as any).sorobanWallet = mockWallet;
+    win.freighter = mockWallet;
+    win.soroban = mockWallet;
+    win.sorobanWallet = mockWallet;
   }, MOCK_PUBLIC_KEY);
 }
 
@@ -166,7 +173,8 @@ export async function seedHuntData(
  */
 export async function simulateWalletConnectionFailure(page: Page) {
   await page.addInitScript(() => {
-    (window as any).freighter = {
+    const win = window as MockWalletWindow
+    win.freighter = {
       request: async () => {
         throw new Error("User rejected the request");
       },
@@ -181,9 +189,10 @@ export async function simulateWalletConnectionFailure(page: Page) {
  */
 export async function simulateWalletDisconnection(page: Page) {
   await page.evaluate(() => {
+    const win = window as MockWalletWindow
     localStorage.removeItem("freighter_public_key");
-    (window as any).freighter = null;
-    (window as any).soroban = null;
+    win.freighter = null;
+    win.soroban = null;
   });
 }
 
