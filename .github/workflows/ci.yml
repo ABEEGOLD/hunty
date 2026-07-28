@@ -14,6 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
@@ -21,7 +33,7 @@ jobs:
         run: pnpm lint
 
       - name: Type check with TypeScript
-        run: npx tsc --noEmit
+        run: pnpm tsc --noEmit
 
   test:
     name: Unit Tests & Coverage
@@ -30,6 +42,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Vitest with coverage
+        run: pnpm run test:coverage
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
@@ -60,13 +87,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run mutation testing
+        run: pnpm run test:mutation
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Run mutation testing
         run: pnpm test:mutation
 
-  # Build verification - runs after test and mutation
   build:
     name: Build Verification
     runs-on: ubuntu-latest
@@ -75,14 +116,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Build Next.js application
         run: pnpm build
         env:
-          # Sentry source-map upload — only runs when SENTRY_AUTH_TOKEN is present.
-          # Add this secret in: Settings → Secrets → Actions → SENTRY_AUTH_TOKEN
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
@@ -95,14 +146,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Visual Regression Tests
-        run: npx playwright test visual-regression --reporter=github
+        run: pnpm exec playwright test visual-regression --reporter=github
         continue-on-error: true
 
       - name: Upload Visual Diff Artifacts
@@ -123,11 +186,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Setup Node.js with pnpm
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
         run: pnpm test:e2e
@@ -144,13 +219,14 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, build, e2e, visual-regression]
+    needs: [lint, test, mutation, build, e2e, visual-regression]
     if: always()
     steps:
       - name: Check CI status
         run: |
           if [ "${{ needs.lint.result }}" = "failure" ] || \
              [ "${{ needs.test.result }}" = "failure" ] || \
+             [ "${{ needs.mutation.result }}" = "failure" ] || \
              [ "${{ needs.build.result }}" = "failure" ] || \
              [ "${{ needs.e2e.result }}" = "failure" ] || \
              [ "${{ needs.visual-regression.result }}" = "failure" ]; then
