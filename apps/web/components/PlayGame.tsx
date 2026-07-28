@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Header } from "@/components/Header";
@@ -49,6 +50,7 @@ export function PlayGame({
   huntId,
   playerAddress,
 }: PlayGameProps) {
+  const t = useTranslations("playGame");
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [solvedClues, setSolvedClues] = useState<Set<number>>(new Set());
@@ -107,7 +109,7 @@ export function PlayGame({
           huntInfo?.sequential && index > currentUnlockedIndex
             ? {
                 ...clue,
-                title: "Locked until the previous clue is solved.",
+                title: t("lockedClue"),
                 hint: undefined,
                 hintCost: undefined,
               }
@@ -168,6 +170,9 @@ export function PlayGame({
   }, [huntInfo?.endTime]);
 
   const handleTimeExpired = () => {
+    if (huntEnded) return
+    setHuntEnded(true)
+    toast.message(t("timeExpired"))
     if (huntEnded) return;
     setHuntEnded(true);
     toast.message("Time's up — progress auto-submitted");
@@ -262,9 +267,14 @@ export function PlayGame({
         <div className="text-center rounded-3xl bg-white px-8 py-10 shadow-lg">
           <p className="text-red-500 text-lg mb-4">{error}</p>
           <div className="flex items-center justify-center gap-3">
+            {huntId != null && (
+              <Button onClick={() => refetch()}>
+                {t("retry")}
+              </Button>
+            )}
             {huntId != null && <Button onClick={() => refetch()}>Retry</Button>}
             <Button variant="ghost" onClick={handleExit}>
-              Go Back
+              {t("goBack")}
             </Button>
           </div>
         </div>
@@ -276,9 +286,12 @@ export function PlayGame({
     return (
       <div className="min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] flex items-center justify-center">
         <div className="text-center rounded-3xl bg-white px-8 py-10 shadow-lg">
+          <p className="text-slate-700 text-lg mb-4">
+            {t("noClues")}
+          </p>
           <p className="text-slate-700 text-lg mb-4">No clues available for this hunt yet.</p>
           <Button variant="ghost" onClick={onExit}>
-            Go Back
+            {t("goBack")}
           </Button>
         </div>
       </div>
@@ -290,6 +303,15 @@ export function PlayGame({
     return (
       <div className="min-h-screen bg-gradient-to-tr from-blue-100 bg-purple-100 to-[#f9f9ff] flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6 text-center rounded-3xl bg-white dark:bg-slate-900 px-8 py-10 shadow-lg border border-slate-100 dark:border-white/5">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {t("huntEnded")}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-lg">
+            {t("finalScore")}: <span className="font-bold text-slate-900 dark:text-white">{score}</span>
+          </p>
+          <div className="pt-4">
+            <Button onClick={handleExit} className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white px-6 py-2 rounded-full">
+              {t("goHome")}
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Hunt Ended</h2>
           <p className="text-slate-600 dark:text-slate-400 text-lg">
             This hunt has ended. Final score:{" "}
@@ -325,16 +347,16 @@ export function PlayGame({
           >
             <ArrowLeft className="w-6 h-6 fill-[#0C0C4F]" />
             <span className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-transparent bg-clip-text text-xl font-normal">
-              Go Home
+              {t("goHome")}
             </span>
           </Button>
           <div className="text-right ml-auto">
             <span className="bg-gradient-to-b from-[#E3225C] to-[#7B1C4A] text-transparent bg-clip-text text-xl font-normal">
-              Edit Game
+              {t("editGame")}
             </span>
             <br />
             <span className="text-sm bg-gradient-to-b from-[#787884] to-[#576065] text-transparent bg-clip-text">
-              (Only You Can See This)
+              {t("onlyYouSeeThis")}
             </span>
           </div>
         </div>
@@ -344,7 +366,7 @@ export function PlayGame({
             <Image src="/icons/logo.png" alt="Logo" width={96} height={96} />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-b to-[#3737A4] from-[#0C0C4F] bg-clip-text text-transparent mb-6">
-            Play {gameName}
+            {t("play")} {gameName}
           </h1>
 
           <PlayerProgressPanel
@@ -365,11 +387,11 @@ export function PlayGame({
 
           <div className="flex justify-center gap-4 mb-8">
             <Button className="bg-gradient-to-b from-[#E3225C] to-[#7B1C4A] hover:bg-pink-600 text-white px-6 py-2 rounded-full flex items-center gap-2">
-              <Replay /> Reset
+              <Replay /> {t("reset")}
             </Button>
             <Button className="bg-gradient-to-b from-[#39A437] to-[#194F0C] hover:bg-green-700 text-white px-6 py-2 rounded-full flex items-center gap-2">
               <Share />
-              Share Link
+              {t("shareLink")}
             </Button>
           </div>
         </div>
@@ -427,7 +449,7 @@ export function PlayGame({
                 ))}
                 {currentCardIndex + 3 < hunts.length && (
                   <div className="text-center text-slate-600 text-sm mt-2 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                    +{hunts.length - currentCardIndex - 3} more cards
+                    +{hunts.length - currentCardIndex - 3} {t("moreCards")}
                   </div>
                 )}
               </div>
