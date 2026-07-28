@@ -67,6 +67,10 @@ jobs:
   mutation:
     name: Mutation Tests
     runs-on: ubuntu-latest
+    # Three sequential Stryker configurations can take a while; cap the job
+    # so a stuck run fails with a clean timeout instead of silently exhausting
+    # the 360-minute default for a stalled mutation step.
+    timeout-minutes: 120
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
