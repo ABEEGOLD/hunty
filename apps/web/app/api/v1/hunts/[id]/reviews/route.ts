@@ -22,8 +22,9 @@ export async function GET(
     const huntReviews = reviews.filter((r) => r.huntId === huntId && !r.moderated)
 
     return NextResponse.json({ data: huntReviews })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to retrieve reviews" }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to retrieve reviews"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -49,7 +50,7 @@ export async function POST(
     }
 
     const body = await req.json().catch(() => ({}))
-    const { playerAddress, rating, text } = body
+    const { playerAddress, rating, text, difficultyRating } = body
 
     if (!playerAddress || typeof playerAddress !== "string" || playerAddress.trim() === "") {
       return NextResponse.json({ error: "Player address is required" }, { status: 400 })
@@ -82,6 +83,7 @@ export async function POST(
       playerAddress,
       rating: ratingVal,
       text: typeof text === "string" ? text.trim() : undefined,
+      difficultyRating: typeof difficultyRating === "string" ? difficultyRating : undefined,
       createdAt: Date.now(),
     }
 
@@ -89,7 +91,8 @@ export async function POST(
     await writeReviews(reviews)
 
     return NextResponse.json({ data: newReview })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to submit review" }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to submit review"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

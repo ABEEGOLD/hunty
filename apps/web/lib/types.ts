@@ -32,6 +32,7 @@ export interface HuntReview {
   playerAddress: string;
   rating: number; // 1 to 5
   text?: string;
+  difficultyRating?: HuntDifficulty | "";
   createdAt: number;
   moderated?: boolean;
   flagged?: boolean;
@@ -85,6 +86,8 @@ export interface StoredHunt {
   /** Creator-side participant count snapshot for dashboard sorting. */
   playerCount?: number;
   /** Max number of participants for limited spots. */
+  maxParticipants?: number;
+  /** @deprecated Use `maxParticipants`. Kept for older stored hunts. */
   maxCapacity?: number;
   /** Unix timestamp in seconds when the hunt draft was created locally. */
   createdAt?: number;
@@ -110,6 +113,8 @@ export interface StoredHunt {
   creator?: string;
   /** Average user rating (1-5). */
   averageRating?: number;
+  /** Average user difficulty rating (1-4). */
+  averageDifficulty?: number;
   /** Number of user reviews. */
   reviewCount?: number;
   /** When true, the hunt is archived (hidden from public but data preserved). */
@@ -447,6 +452,7 @@ export interface HuntDraft {
   code: string;
   image?: string;
   sequential?: boolean;
+  maxParticipants?: number;
 }
 
 /**

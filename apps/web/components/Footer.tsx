@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { FormEvent, useState } from "react"
-import Link from "next/link"
+import { FormEvent, useState } from "react";
+import Link from "next/link";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
+} from "lucide-react";
 
 const footerSections = [
   {
@@ -41,7 +42,7 @@ const footerSections = [
       { label: "FAQ", href: "/help" },
     ],
   },
-]
+];
 
 const socialLinks = [
   {
@@ -59,23 +60,24 @@ const socialLinks = [
     href: "https://t.me/huntyapp",
     icon: Send,
   },
-]
-import { HelpCircle } from "lucide-react"
+];
 
 export function Footer() {
   const t = useTranslations("footer")
   const commonT = useTranslations("common")
   const [email, setEmail] = useState("")
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const handleSubscribe = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    if (!email.trim()) return
+    if (!email.trim()) return;
 
-    setIsSubscribed(true)
-    setEmail("")
-  }
+    setIsSubscribed(true);
+    setEmail("");
+  };
 
   return (
     <footer className="mt-12 border-t border-slate-200/80 bg-white/90 text-slate-700 dark:border-white/10 dark:bg-slate-950/90 dark:text-slate-300">
@@ -90,6 +92,7 @@ export function Footer() {
             </Link>
             <p className="max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-400">
               {t("description")}
+              Create, discover, and complete Web3 scavenger hunts powered by Stellar rewards.
             </p>
             <Link
               href="https://stellar.org"
@@ -104,10 +107,7 @@ export function Footer() {
             </Link>
           </div>
 
-          <nav
-            className="grid grid-cols-1 gap-8 sm:grid-cols-3"
-            aria-label="Footer navigation"
-          >
+          <nav className="grid grid-cols-1 gap-8 sm:grid-cols-3" aria-label="Footer navigation">
             {footerSections.map((section) => (
               <div key={section.title}>
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -134,14 +134,12 @@ export function Footer() {
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                 {t("stayInHunt")}
               </h2>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Stay in the hunt</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                 {t("getUpdates")}
               </p>
             </div>
-            <form
-              onSubmit={handleSubscribe}
-              className="flex flex-col gap-3 sm:max-w-md"
-            >
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-3 sm:max-w-md">
               <label htmlFor="footer-email" className="sr-only">
                 Email address
               </label>
@@ -155,8 +153,8 @@ export function Footer() {
                     aria-label="Email address"
                     value={email}
                     onChange={(event) => {
-                      setEmail(event.target.value)
-                      setIsSubscribed(false)
+                      setEmail(event.target.value);
+                      setIsSubscribed(false);
                     }}
                     placeholder="you@example.com"
                     className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-[#3737A4] focus:ring-2 focus:ring-[#3737A4]/20 dark:border-white/10 dark:bg-slate-900 dark:text-white"
@@ -209,5 +207,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
+ 

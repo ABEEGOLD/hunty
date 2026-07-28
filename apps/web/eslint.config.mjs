@@ -1,5 +1,4 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook"
+import nextConfig from "@hunty/config/eslint/next";
 
 import { dirname } from "path"
 import { fileURLToPath } from "url"
@@ -37,3 +36,4 @@ eslintConfig.push({
 })
 
 export default eslintConfig
+export default nextConfig;

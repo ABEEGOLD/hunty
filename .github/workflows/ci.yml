@@ -17,17 +17,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Type check with TypeScript
-        run: npx tsc --noEmit
+        run: pnpm tsc --noEmit
 
   test:
     name: Unit Tests & Coverage
@@ -39,27 +45,37 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run Vitest with coverage
-        run: npm run test:coverage
+        run: pnpm run test:coverage
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Run Vitest with coverage
+        run: npm run test:coverage --workspace=@hunty/web
+        run: pnpm test:coverage
 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: vitest-coverage-report
-          path: coverage/
+          path: apps/web/coverage/
           retention-days: 30
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/coverage-final.json
+          files: ./apps/web/coverage/coverage-final.json
           flags: unittests
           name: codecov-umbrella
         continue-on-error: true
@@ -75,15 +91,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run mutation testing
-        run: npm run test:mutation
+        run: pnpm run test:mutation
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
-  # Build verification - runs after test and mutation
+      - name: Run mutation testing
+        run: pnpm test:mutation
+
   build:
     name: Build Verification
     runs-on: ubuntu-latest
@@ -96,13 +120,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Build Next.js application
-        run: npm run build
+        run: pnpm build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
 
   visual-regression:
     name: Visual Regression Tests
@@ -115,17 +149,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Visual Regression Tests
-        run: npx playwright test visual-regression --reporter=github
+        run: pnpm exec playwright test visual-regression --reporter=github
         continue-on-error: true
 
       - name: Upload Visual Diff Artifacts
@@ -149,17 +189,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+      - name: Setup Node.js with pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npm run test:e2e
+        run: pnpm test:e2e
         continue-on-error: true
 
       - name: Upload Playwright report
@@ -173,13 +219,14 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, build, e2e, visual-regression]
+    needs: [lint, test, mutation, build, e2e, visual-regression]
     if: always()
     steps:
       - name: Check CI status
         run: |
           if [ "${{ needs.lint.result }}" = "failure" ] || \
              [ "${{ needs.test.result }}" = "failure" ] || \
+             [ "${{ needs.mutation.result }}" = "failure" ] || \
              [ "${{ needs.build.result }}" = "failure" ] || \
              [ "${{ needs.e2e.result }}" = "failure" ] || \
              [ "${{ needs.visual-regression.result }}" = "failure" ]; then
