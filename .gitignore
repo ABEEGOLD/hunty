@@ -24,6 +24,9 @@ playwright/.cache/
 .next/
 out/
 
+# turborepo
+.turbo/
+
 # mutation testing artifacts
 mutation-report/
 .stryker-tmp/
