@@ -232,7 +232,7 @@ export function PlayGame({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ playerAddress }),
-          }).catch((err) => console.error("Failed to register completion on server:", err));
+          }).catch((err) => logger.error("Failed to register completion on server:", err));
         }
       }
       const finalScore = score + pointsAwarded;
