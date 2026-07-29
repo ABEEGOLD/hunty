@@ -12,7 +12,7 @@ import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
 import { Button } from "@/components/ui/button";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
-import { getHuntProgress, startHuntProgress } from "@/lib/huntStore";
+import { getHuntClues, getHuntProgress, startHuntProgress } from "@/lib/huntStore";
 import { recordHuntCompletion } from "@/lib/contracts/player-stats";
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys";
 import { SOROBAN_READ_STALE_TIME_MS } from "@/lib/soroban/queryConfig";
@@ -23,6 +23,7 @@ import {
   getActiveAttempt,
 } from "@/lib/huntAttemptHistory";
 import { logger } from "@/lib/logger";
+import { awardReferralBonusOnFirstCompletion } from "@/lib/referrals";
 import type { HuntCard as Hunt, HuntInfo } from "@/lib/types";
 
 import { HuntCards } from "./HuntCards";
@@ -73,10 +74,12 @@ export function PlayGame({
     queryFn: async () => {
       if (huntId == null) return null;
       const huntInfo = await get_hunt(huntId);
+      const localClues = getHuntClues(huntId);
       const clues: Hunt[] = [];
 
       for (let i = 0; i < huntInfo.totalClues; i++) {
         const clue = await get_clue_info(huntId, i);
+        const localClue = localClues[i] ?? localClues.find((item) => item.question === clue.question);
         clues.push({
           id: clue.id,
           title: clue.question,
@@ -87,6 +90,7 @@ export function PlayGame({
           hint: clue.hint,
           hintCost: clue.hintCost,
           difficulty: clue.difficulty,
+          mediaCid: localClue?.mediaCid,
         });
       }
       return { clues, huntInfo };
@@ -170,12 +174,9 @@ export function PlayGame({
   }, [huntInfo?.endTime]);
 
   const handleTimeExpired = () => {
-    if (huntEnded) return
-    setHuntEnded(true)
-    toast.message(t("timeExpired"))
     if (huntEnded) return;
     setHuntEnded(true);
-    toast.message("Time's up — progress auto-submitted");
+    toast.message(t("timeExpired"));
     if (playerAddress && attemptIdRef.current && huntId != null) {
       const activeAttempt = getActiveAttempt(playerAddress, huntId);
       completeHuntAttempt(playerAddress, attemptIdRef.current, activeAttempt?.totalPoints ?? score);
@@ -239,6 +240,7 @@ export function PlayGame({
       if (playerAddress && attemptIdRef.current && huntId != null) {
         const activeAttempt = getActiveAttempt(playerAddress, huntId);
         completeHuntAttempt(playerAddress, attemptIdRef.current, finalScore);
+        awardReferralBonusOnFirstCompletion(playerAddress, huntId);
         attemptIdRef.current = null;
         setAttemptId(null);
       }
@@ -312,17 +314,6 @@ export function PlayGame({
           <div className="pt-4">
             <Button onClick={handleExit} className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white px-6 py-2 rounded-full">
               {t("goHome")}
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Hunt Ended</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">
-            This hunt has ended. Final score:{" "}
-            <span className="font-bold text-slate-900 dark:text-white">{score}</span>
-          </p>
-          <div className="pt-4">
-            <Button
-              onClick={handleExit}
-              className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] text-white px-6 py-2 rounded-full"
-            >
-              Go Home
             </Button>
           </div>
         </div>
