@@ -1,4 +1,4 @@
-import nextConfig from "@hunty/config/eslint/next";
+import nextConfig from "@hunty/config/eslint/next.mjs";
 
 import { dirname } from "path"
 import { fileURLToPath } from "url"
@@ -14,7 +14,6 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  ...storybook.configs["flat/recommended"],
 ]
 
 eslintConfig.push({
@@ -51,5 +50,5 @@ eslintConfig.push({
   },
 })
 
-export default eslintConfig
-export default nextConfig;
+export default eslintConfig;
+
