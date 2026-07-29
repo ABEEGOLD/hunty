@@ -29,7 +29,7 @@ import {
   updateHuntPromotion,
   updateHuntStatus,
 } from "@/lib/huntStore";
-import type { Clue,StoredHunt } from "@/lib/types";
+import type { Clue, StoredHunt } from "@/lib/types";
 
 describe("huntStore", () => {
   beforeEach(() => {
