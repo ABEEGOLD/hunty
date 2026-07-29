@@ -1,4 +1,4 @@
-import baseConfig from "@hunty/config/eslint/base";
+import baseConfig from "@hunty/config/eslint/base.mjs";
 import reactHooks from "eslint-plugin-react-hooks";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
@@ -14,8 +14,7 @@ const eslintConfig = [
       "simple-import-sort/exports": "error",
       ...reactHooks.configs.recommended.rules,
     },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  ...storybook.configs["flat/recommended"]
+  },
 ];
 
 const isProduction = process.env.NODE_ENV === "production";
