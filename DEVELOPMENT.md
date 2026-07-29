@@ -8,10 +8,12 @@ Hey there! 👋 Welcome to the Hunty frontend development guide. This is your fr
 
 Before we dive in, make sure you have these installed on your computer:
 
-**Node.js and npm** (or yarn/pnpm if you prefer)
-- You'll need Node.js version 18 or higher
-- Check if you have it: `node --version` and `npm --version`
-- If not, grab it from [nodejs.org](https://nodejs.org/)
+**Node.js and pnpm**
+- We have standardized on **pnpm** (version 10+) as our package manager to ensure fast, deterministic, and space-efficient builds across our monorepo workspaces.
+- You'll need Node.js version 18 or higher and pnpm version 10 or higher.
+- Check if you have them: `node --version` and `pnpm --version`
+- To install pnpm: `npm install -g pnpm` or visit [pnpm.io](https://pnpm.io/)
+- If Node.js is not installed, grab it from [nodejs.org](https://nodejs.org/)
 
 **A code editor**
 - VS Code is popular, but use whatever you're comfortable with
