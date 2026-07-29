@@ -19,7 +19,7 @@ import type { PushEventType } from "@/lib/notifications/types"
  */
 export async function POST(request: NextRequest) {
   const ip = getIP(request)
-  const { success, reset } = rateLimit(ip, { limit: 50, windowMs: 60 * 1000 })
+  const { success, reset } = await rateLimit(ip, { limit: 50, windowMs: 60 * 1000 })
   if (!success) return rateLimitResponse(reset)
 
   const secret = process.env.PUSH_API_SECRET

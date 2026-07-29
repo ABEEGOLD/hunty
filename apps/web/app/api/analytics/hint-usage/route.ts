@@ -12,7 +12,7 @@ import { logger } from "@/lib/logger"
  */
 export async function POST(req: Request) {
   const ip = getIP(req)
-  const { success, reset } = rateLimit(ip, { limit: 60, windowMs: 60_000 })
+  const { success, reset } = await rateLimit(ip, { limit: 60, windowMs: 60_000 })
   if (!success) return rateLimitResponse(reset)
 
   let body: { huntId?: unknown; clueId?: unknown; hintIndex?: unknown; wallet?: unknown }
