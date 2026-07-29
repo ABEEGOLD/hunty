@@ -13,6 +13,12 @@ Before we dive in, make sure you have these installed on your computer:
 - You'll need Node.js version 18 or higher
 - Check if you have it: `node --version` and `npm --version`
 - If not, grab it from [nodejs.org](https://nodejs.org/)
+**Node.js and pnpm**
+- We have standardized on **pnpm** (version 10+) as our package manager to ensure fast, deterministic, and space-efficient builds across our monorepo workspaces.
+- You'll need Node.js version 18 or higher and pnpm version 10 or higher.
+- Check if you have them: `node --version` and `pnpm --version`
+- To install pnpm: `npm install -g pnpm` or visit [pnpm.io](https://pnpm.io/)
+- If Node.js is not installed, grab it from [nodejs.org](https://nodejs.org/)
 
 **A code editor**
 
@@ -417,6 +423,38 @@ Just remember to remove these before committing!
 ## Code Style & Best Practices
 
 We want the codebase to be clean, readable, and consistent. Here's how we do things:
+
+### Data Fetching & State Management
+To ensure a seamless user experience, every query-backed view must explicitly handle loading, error, and empty states. We use a standardized QueryStateWrapper to manage this systematically and prevent layout shifts.
+
+When creating a new view that fetches data via `@tanstack/react-query`, always wrap your component logic like this:
+
+```tsx
+import { useQuery } from '@tanstack/react-query';
+import { QueryStateWrapper } from '@/components/QueryState';
+import { GenericPageSkeleton } from '@/components/LoadingSkeletons';
+import { FileSearch } from 'lucide-react'; // Example icon
+
+export function DataBackedView() {
+  const query = useQuery({ queryKey: ['dataKey'], queryFn: fetchApiData });
+
+  return (
+    <QueryStateWrapper
+      query={query}
+      skeleton={<GenericPageSkeleton />}
+      emptyProps={{
+        icon: <FileSearch className="w-10 h-10" />,
+        title: "No Data Found",
+        description: "There is currently nothing to display here."
+      }}
+    >
+      {(data) => <YourDataComponent data={data} />}
+    </QueryStateWrapper>
+  );
+}
+```
+This guarantees that errors offer a retry affordance, loading states use skeletons, and empty states match the app's design system.
+
 
 ### Formatting
 
