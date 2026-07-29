@@ -6,7 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@lib/*": ["../lib/*"],
+      "@lib/*": ["./lib/*"],
       "@store/*": ["./store/*"],
       "@providers/*": ["./providers/*"],
       "@components/*": ["./components/*"],
@@ -15,7 +15,6 @@
       "@utils/*": ["./utils/*"],
       "@config/*": ["./config/*"],
       "@app/*": ["./app/*"],
-      "@shared/*": ["../shared/*"],
       "@hunty/types": ["../../packages/types/src/index.ts"],
       "@hunty/types/*": ["../../packages/types/src/*"],
       "@hunty/ui": ["../../packages/ui/src/index.ts"],
