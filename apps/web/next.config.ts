@@ -1,24 +1,8 @@
 import type { NextConfig } from "next";
-// Load next-intl plugin dynamically so linting doesn't crash when the
-// dependency tree is split or the package isn't resolvable from this
-// workspace layout (see issue #850).
-let withNextIntl: (config: NextConfig) => NextConfig;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const plugin = require("next-intl/plugin");
-  // Support both CJS and ESM default export shapes
-  const createNextIntlPlugin = (plugin && (plugin.default ?? plugin)) as (
-    path: string
-  ) => (cfg: NextConfig) => NextConfig;
-  withNextIntl = createNextIntlPlugin("./i18n/request.ts");
-} catch (err) {
-  // If the plugin cannot be resolved, provide a no-op passthrough so Next
-  // commands (like `next lint`) do not crash in contributor environments.
-  withNextIntl = (cfg: NextConfig) => cfg;
-}
 import { withSentryConfig } from "@sentry/nextjs";
+import { createWithNextIntl } from "./lib/nextIntlConfig";
 
-const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
+const withNextIntl = createWithNextIntl();
 
 const nextConfig: NextConfig = {
   experimental: {
