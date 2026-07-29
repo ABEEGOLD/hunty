@@ -10,6 +10,7 @@
 import type {
   HuntCategory as DomainHuntCategory,
   HuntInvite,
+  HuntStatus,
   PlayerProgress,
   Reward as DomainReward,
 } from "@hunty/types";
@@ -37,16 +38,6 @@ export interface HuntReview {
   moderated?: boolean;
   flagged?: boolean;
 }
-
-export type HuntStatus =
-  | "Active"
-  | "Completed"
-  | "Draft"
-  | "Cancelled"
-  | "PendingReview"
-  | "scheduled"
-  | "active"
-  | "ended";
 
 /**
  * Hunt-level difficulty rating set by the creator so players can gauge
@@ -233,6 +224,7 @@ export type {
   HuntCategory,
   HuntInvite,
   HuntProgressStatus,
+  HuntStatus,
   PlayerHuntProgress,
   PlayerProgress,
   RewardHistoryEntry,
