@@ -626,6 +626,11 @@ export interface SeasonBadge {
   earnedAt: number;
 }
 
+// ─── Hunt Feed ───────────────────────────────────────────────────────────────
+
+export type HuntFeedCategory = "trending" | "new" | "nearby" | "featured"
+
+
 // ─── Core Web Vitals ────────────────────────────────────────────────────────────
 
 export type WebVitalMetric = "LCP" | "FID" | "CLS" | "TTFB" | "INP" | "FCP";

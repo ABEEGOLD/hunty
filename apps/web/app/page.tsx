@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { X, ArrowRight, Trophy, Search, HelpCircle, Compass } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { X, ArrowRight, Trophy, Search, HelpCircle } from "lucide-react"
@@ -822,6 +823,12 @@ export default function GameArcade() {
             onClick={() => setActiveTab(activeTab === "leaderboard" ? "none" : "leaderboard")}
           >
             {t("leaderboard")}
+          </Button>
+          <Button asChild className="bg-gradient-to-b from-[#3737A4] to-[#0C0C4F] hover:opacity-90 text-white px-6 py-3 rounded-lg text-xl font-black gap-2">
+            <Link href="/feed">
+              <Compass className="w-5 h-5" />
+              {t("huntFeed")}
+            </Link>
           </Button>
           <Button id="play-button" className="bg-[#E87785] hover:bg-[#d4606f] text-white px-6 py-3 rounded-lg text-xl font-black">{t("playGame")}</Button>
         </div>
