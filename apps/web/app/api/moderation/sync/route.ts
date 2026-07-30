@@ -21,6 +21,12 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     })
   }
 
+import { NotFoundError } from "@/lib/api/errors"
+import { withValidation } from "@/lib/api/withValidation"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
+import { moderationSyncBodySchema } from "@hunty/types/api-schemas"
+
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url)
   const email = searchParams.get("email") || undefined
   const huntIdsParam = searchParams.get("huntIds")
@@ -65,3 +71,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
   return NextResponse.json({ success: true })
 })
+
+export const POST = withValidation(
+  { body: moderationSyncBodySchema },
+  async (_req, _context, { body }) => {
+    const ok = await markNotificationRead(body.notificationId)
+    if (!ok) {
+      throw new NotFoundError("Notification not found")
+    }
+    return NextResponse.json({ success: true })
+  }
+)
