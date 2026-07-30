@@ -6,7 +6,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import Image from "next/image"
 import Link from "next/link"
 import dynamic from "next/dynamic"
-import { useTranslations } from "next-intl";
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -14,15 +14,11 @@ import { X, ArrowRight, Trophy, Search, HelpCircle } from "lucide-react"
 import { getHuntCapacity, getRemainingSpots } from "@/lib/huntStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Header } from "@/components/Header";
+import { Header } from "@/components/Header"
 import { HuntCoverImage } from "@/components/HuntCoverImage"
 import { HuntOfTheWeekBanner } from "@/components/HuntOfTheWeekBanner"
-import { LeaderboardTable } from "@/components/LeaderBoardTable"
 import { HuntCardSkeletonGrid } from "@/components/LoadingSkeletons"
-import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePlayerCounts } from "@/hooks/usePlayerCounts"
 import { useRecentlyCompleted } from "@/hooks/useRecentlyCompleted"
@@ -31,12 +27,19 @@ import { getAllHunts, getHunt, getSpotlightHunts, isHuntPromoted, type StoredHun
 import { queryCachePolicy, queryKeys } from "@/lib/queryKeys"
 import { StarRating } from "@/components/StarRating"
 import { FavoriteButton } from "@/components/FavoriteButton"
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { PlayerCountResult } from "@/lib/types"
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
-});
+})
+
+const LeaderboardTable = dynamic(
+  () => import("@/components/LeaderBoardTable").then((mod) => mod.LeaderboardTable),
+  {
+    ssr: false,
+  }
+)
 
 const FeaturedHunts = dynamic(
   () => import("@/components/FeaturedHunts").then((mod) => mod.FeaturedHunts),
@@ -48,6 +51,7 @@ const FeaturedHunts = dynamic(
 const GlobalActivityFeed = dynamic(
   () => import("@/components/GlobalActivityFeed").then((mod) => mod.GlobalActivityFeed),
   {
+    ssr: false,
     loading: () => <Skeleton className="h-40 w-full rounded-2xl" />,
   }
 );
