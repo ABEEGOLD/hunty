@@ -30,7 +30,6 @@
       "@/store/*": ["./store/*"],
       "@/types": ["./types"],
       "@/types/*": ["./types/*"],
-      "@shared/*": ["./shared/*"],
       "@hunty/types": ["../../packages/types/src/index.ts"],
       "@hunty/types/*": ["../../packages/types/src/*"],
       "@stellar/stellar-sdk": ["../../node_modules/@stellar/stellar-sdk"],
@@ -42,7 +41,6 @@
   "exclude": [
     "node_modules",
     "mobile/**/*",
-    "shared/**/*",
     "stories/**/*",
     "**/*.stories.ts",
     "**/*.stories.tsx",
