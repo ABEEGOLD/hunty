@@ -95,6 +95,9 @@ vi.mock("@/lib/moderation/dbStore", () => ({
   rejectSubmission: vi.fn(),
   flagContentPolicyViolation: vi.fn(),
   submitHuntForModeration: vi.fn(),
+  getCreatorNotifications: async () => [],
+  getModerationStatusForHunts: async () => ({}),
+  markNotificationRead: async () => true,
 }))
 
 vi.mock("@/lib/moderation/email", () => ({
@@ -178,7 +181,7 @@ const ROUTE_MANIFEST: RouteEntry[] = [
 
   // ── moderation ───────────────────────────────────────────────────────
   { file: "moderation/submit/route.ts",             path: "/api/moderation/submit",             methods: ["POST"],          auth: "public" },
-  { file: "moderation/sync/route.ts",               path: "/api/moderation/sync",               methods: ["GET", "POST"],   auth: "public" },
+  { file: "moderation/sync/route.ts",               path: "/api/moderation/sync",               methods: ["GET", "POST"],   auth: "admin" },
 
   // ── notifications ────────────────────────────────────────────────────
   { file: "notifications/complete/route.tsx",       path: "/api/notifications/complete",        methods: ["POST"],          auth: "public" },

@@ -5,6 +5,8 @@ import { notifyWallet, notifyWallets } from "@/lib/notifications/pushService"
 import type { PushEventType } from "@/lib/notifications/types"
 import { AuthError, InternalError, ValidationError } from "@/lib/api/errors"
 import { withErrorHandling } from "@/lib/api/withErrorHandling"
+import { withValidation } from "@/lib/api/withValidation"
+import { pushSendBodySchema } from "@hunty/types/api-schemas"
 
 /**
  * POST /api/push/send
@@ -68,14 +70,34 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (!Array.isArray(walletAddresses) || walletAddresses.length === 0) {
     throw new ValidationError("walletAddresses must be a non-empty array", { field: "walletAddresses" })
   }
+export const POST = withValidation(
+  { body: pushSendBodySchema },
+  async (request: NextRequest, _context, { body }) => {
+    const ip = getIP(request)
+    const { success, reset } = await rateLimit(ip, { limit: 50, windowMs: 60 * 1000 })
+    if (!success) return rateLimitResponse(reset)
 
-  const validTypes: PushEventType[] = [
-    "hunt_start",
-    "hunt_cancelled",
-    "leaderboard_overtake",
-    "player_registered",
-    "first_completion",
-  ]
+    const secret = process.env.PUSH_API_SECRET
+    if (secret) {
+      const authHeader = request.headers.get("Authorization")
+      if (!authHeader || authHeader !== `Bearer ${secret}`) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+    }
+
+    try {
+      if (body.walletAddresses.length === 1) {
+        await notifyWallet(body.walletAddresses[0], body.type as PushEventType, body.context)
+      } else {
+        await notifyWallets(body.walletAddresses, body.type as PushEventType, body.context)
+      }
+    } catch (error) {
+      logger.error("[push/send] Failed to send push notification:", error)
+      return NextResponse.json(
+        { error: "Failed to send push notification" },
+        { status: 500 }
+      )
+    }
 
   if (!validTypes.includes(type as PushEventType)) {
     throw new ValidationError(`Invalid type. Must be one of: ${validTypes.join(", ")}`, { field: "type" })
@@ -96,3 +118,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   return NextResponse.json({ success: true, sent: walletAddresses.length })
 })
+    logger.info(
+      `[push/send] Sent "${body.type}" to ${body.walletAddresses.length} wallet(s)`
+    )
+
+    return NextResponse.json({ success: true, sent: body.walletAddresses.length })
+  }
+)

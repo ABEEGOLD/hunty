@@ -32,6 +32,9 @@ function secretMatches(walletAddress: string, candidate: string | null | undefin
   if (!stored || !candidate) return false
   return timingSafeEqual(digest(stored), digest(candidate))
 }
+import { withValidation } from "@/lib/api/withValidation"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
+import { pushTokenRegisterBodySchema, pushTokenDeleteBodySchema } from "@hunty/types/api-schemas"
 
 function mintSecret(): string {
   return randomBytes(32).toString("hex")
@@ -79,9 +82,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     // push subscription later.
     return NextResponse.json({ success: true, ownerSecret: secret })
   }
+export const POST = withValidation(
+  { body: pushTokenRegisterBodySchema },
+  async (_request: NextRequest, _context, { body }) => {
+    const { token, walletAddress } = body
 
-  return NextResponse.json({ success: true })
-})
+    const existingIndex = tokensStore.findIndex(
+      (t) => t.token === token || t.walletAddress === walletAddress
+    )
 
 export const DELETE = withErrorHandling(async (request: NextRequest) => {
   let body: { walletAddress?: string; ownerSecret?: string }
@@ -114,6 +122,33 @@ export const DELETE = withErrorHandling(async (request: NextRequest) => {
 
   return NextResponse.json({ success: true })
 })
+    if (existingIndex !== -1) {
+      tokensStore[existingIndex] = { token, walletAddress, registeredAt: Date.now() }
+    } else {
+      tokensStore.push({ token, walletAddress, registeredAt: Date.now() })
+    }
+
+    return NextResponse.json({ success: true })
+  }
+)
+
+export const DELETE = withValidation(
+  { body: pushTokenDeleteBodySchema },
+  async (_request: NextRequest, _context, { body }) => {
+    if (body.token) {
+      const idx = tokensStore.findIndex((t) => t.token === body.token)
+      if (idx !== -1) tokensStore.splice(idx, 1)
+    } else if (body.walletAddress) {
+      for (let i = tokensStore.length - 1; i >= 0; i--) {
+        if (tokensStore[i].walletAddress === body.walletAddress) {
+          tokensStore.splice(i, 1)
+        }
+      }
+    }
+
+    return NextResponse.json({ success: true })
+  }
+)
 
 export const GET = withErrorHandling(async (request: Request) => {
   const { searchParams } = new URL(request.url)
