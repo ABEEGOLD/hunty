@@ -1,21 +1,11 @@
-import nextConfig from "@hunty/config/eslint/next";
-
-import { dirname } from "path"
-import { fileURLToPath } from "url"
-import { FlatCompat } from "@eslint/eslintrc"
 import jsxA11y from "eslint-plugin-jsx-a11y"
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import nextConfig from "@hunty/config/eslint/next"
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-})
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  ...storybook.configs["flat/recommended"],
-]
+// @hunty/config/eslint/next already provides next/core-web-vitals,
+// next/typescript, the Storybook flat config, and the shared base config —
+// build on top of it instead of re-deriving those via a second FlatCompat.
+const eslintConfig = [...nextConfig]
 
 eslintConfig.push({
   plugins: {
@@ -52,4 +42,3 @@ eslintConfig.push({
 })
 
 export default eslintConfig
-export default nextConfig;
