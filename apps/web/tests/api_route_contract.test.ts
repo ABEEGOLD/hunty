@@ -191,7 +191,9 @@ const ROUTE_MANIFEST: RouteEntry[] = [
   { file: "og/leaderboard/route.ts",                path: "/api/og/leaderboard",                methods: ["GET"],           auth: "public" },
 
   // ── push ─────────────────────────────────────────────────────────────
-  { file: "push/send/route.ts",                     path: "/api/push/send",                     methods: ["POST"],          auth: "public" },
+  // Requires PUSH_API_SECRET or ADMIN_API_SECRET as a bearer token; see
+  // app/api/push/send/route.ts and its __tests__ for the credential checks.
+  { file: "push/send/route.ts",                     path: "/api/push/send",                     methods: ["POST"],          auth: "admin" },
 
   // ── push-tokens ──────────────────────────────────────────────────────
   { file: "push-tokens/route.ts",                   path: "/api/push-tokens",                   methods: ["GET", "POST", "DELETE"], auth: "public" },
