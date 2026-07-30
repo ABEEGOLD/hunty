@@ -1,4 +1,5 @@
 import baseConfig from "@hunty/config/eslint/base.mjs";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactHooks from "eslint-plugin-react-hooks";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
@@ -36,7 +37,7 @@ eslintConfig.push({
     "@typescript-eslint/no-explicit-any": "error",
     ...reactHooks.configs.recommended.rules,
   },
-];
+});
 
 eslintConfig.push({
   files: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**/*"],
