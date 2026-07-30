@@ -296,6 +296,25 @@ describe("API route manifest", () => {
 
   // ── Auth classification ───────────────────────────────────────────────
 
+  describe("OG hunt route ownership", () => {
+    it("keeps exactly one handler for /api/og/hunt/[id]", () => {
+      const ogRouteFiles = routeFiles
+        .map((file) => file.replace(/\\/g, "/"))
+        .filter((file) => file.startsWith("og/hunt/[id]/route."))
+
+      expect(ogRouteFiles).toEqual(["og/hunt/[id]/route.ts"])
+      expect(
+        ROUTE_MANIFEST.filter((entry) => entry.path === "/api/og/hunt/[id]"),
+      ).toEqual([
+        expect.objectContaining({
+          file: "og/hunt/[id]/route.ts",
+          methods: ["GET"],
+          auth: "public",
+        }),
+      ])
+    })
+  })
+
   describe("auth classification", () => {
     for (const entry of ROUTE_MANIFEST) {
       it(`${entry.methods.join(",")} ${entry.path} is explicitly classified (auth=${entry.auth})`, () => {
