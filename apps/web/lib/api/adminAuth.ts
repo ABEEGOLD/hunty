@@ -20,13 +20,12 @@ import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { logger } from "@/lib/logger"
+import { AppError } from "./errors"
 
-class AdminAuthError extends Error {
-  readonly status: number
+class AdminAuthError extends AppError {
   constructor(message: string, status = 401) {
-    super(message)
+    super(message, status, "UNAUTHORIZED")
     this.name = "AdminAuthError"
-    this.status = status
   }
 }
 
@@ -89,7 +88,7 @@ export function adminAuthResponse(req: Request): NextResponse | null {
     return null // null means "auth passed, proceed"
   } catch (err) {
     if (err instanceof AdminAuthError) {
-      return NextResponse.json({ error: err.message }, { status: err.status })
+      return NextResponse.json({ error: err.message }, { status: err.statusCode })
     }
     throw err
   }
