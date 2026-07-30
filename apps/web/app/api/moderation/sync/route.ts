@@ -3,9 +3,13 @@ import {
   getCreatorNotifications,
   getModerationStatusForHunts,
   markNotificationRead,
-} from "@/lib/moderation/store"
+} from "@/lib/moderation/dbStore"
+import { NotFoundError } from "@/lib/api/errors"
+import { withValidation } from "@/lib/api/withValidation"
+import { withErrorHandling } from "@/lib/api/withErrorHandling"
+import { moderationSyncBodySchema } from "@hunty/types/api-schemas"
 
-export async function GET(req: NextRequest) {
+export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url)
   const email = searchParams.get("email") || undefined
   const huntIdsParam = searchParams.get("huntIds")
@@ -15,27 +19,19 @@ export async function GET(req: NextRequest) {
       .split(",")
       .map((id) => parseInt(id.trim(), 10))
       .filter((id) => !Number.isNaN(id))
-    return NextResponse.json({ statuses: getModerationStatusForHunts(huntIds) })
+    return NextResponse.json({ statuses: await getModerationStatusForHunts(huntIds) })
   }
 
-  return NextResponse.json({ notifications: getCreatorNotifications(email) })
-}
+  return NextResponse.json({ notifications: await getCreatorNotifications(email) })
+})
 
-export async function POST(req: NextRequest) {
-  let body: { notificationId?: string }
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+export const POST = withValidation(
+  { body: moderationSyncBodySchema },
+  async (_req, _context, { body }) => {
+    const ok = await markNotificationRead(body.notificationId)
+    if (!ok) {
+      throw new NotFoundError("Notification not found")
+    }
+    return NextResponse.json({ success: true })
   }
-
-  if (!body.notificationId) {
-    return NextResponse.json({ error: "notificationId is required" }, { status: 400 })
-  }
-
-  const ok = markNotificationRead(body.notificationId)
-  if (!ok) {
-    return NextResponse.json({ error: "Notification not found" }, { status: 404 })
-  }
-  return NextResponse.json({ success: true })
-}
+)

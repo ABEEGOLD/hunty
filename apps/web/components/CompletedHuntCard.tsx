@@ -4,6 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import { HuntCoverImage } from "@/components/HuntCoverImage"
+import { StarRating } from "@/components/StarRating"
 import { truncateAddress } from "@/lib/walletAddress"
 import type { StoredHunt } from "@/lib/types"
 
@@ -44,6 +45,9 @@ export function CompletedHuntCard({ hunt, winnerAddress }: CompletedHuntCardProp
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug">
           {hunt.title}
         </h3>
+
+        {/* Aggregate rating */}
+        <StarRating rating={hunt.averageRating} count={hunt.reviewCount} />
 
         {/* Metadata row */}
         <div className="flex items-center gap-2 flex-wrap">

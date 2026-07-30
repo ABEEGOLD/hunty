@@ -8,12 +8,24 @@
  */
 
 import type { HuntCategory, PlayerProgress, Reward as DomainReward } from "@hunty/types";
+import type {
+  HuntCategory as DomainHuntCategory,
+  HuntInvite,
+  HuntStatus,
+  PlayerProgress,
+  Reward as DomainReward,
+} from "@hunty/types";
 import type { ReactNode } from "react";
 
 import type { HuntCategoryId } from "./categories";
 import type { CollaboratorRole, HuntCollaborator } from "./collaboration";
 import type { AnswerStrictness } from "./fuzzyAnswer";
 import type { ClueScoringBreakdown, HuntScoringBreakdown, ScoringWeights } from "./scoring";
+import type {
+  ClueScoringBreakdown,
+  HuntScoringBreakdown,
+  ScoringWeights,
+} from "./scoring";
 
 // ─── Shared domain types (single source of truth: @hunty/types) ──────────────
 
@@ -23,6 +35,7 @@ export interface HuntReview {
   playerAddress: string;
   rating: number; // 1 to 5
   text?: string;
+  difficultyRating?: HuntDifficulty | "";
   createdAt: number;
   moderated?: boolean;
   flagged?: boolean;
@@ -53,6 +66,8 @@ export interface StoredHunt {
   cluesCount: number;
   /** Broad hunt category used in discovery filters. */
   category?: HuntCategory | HuntCategoryId;
+  /** Broad category used by legacy and current discovery filters. */
+  category?: DomainHuntCategory | HuntCategoryId;
   /** Overall hunt difficulty tag used in discovery filters. */
   difficulty?: HuntDifficulty;
   status: HuntStatus;
@@ -76,6 +91,9 @@ export interface StoredHunt {
   /** Creator-side participant count snapshot for dashboard sorting. */
   playerCount?: number;
   /** Max number of participants for limited spots */
+  /** Max number of participants for limited spots. */
+  maxParticipants?: number;
+  /** @deprecated Use `maxParticipants`. Kept for older stored hunts. */
   maxCapacity?: number;
   /** Unix timestamp in seconds when the hunt draft was created locally. */
   createdAt?: number;
@@ -91,6 +109,8 @@ export interface StoredHunt {
   emailNotifications?: boolean;
   /** When true, the hunt is hidden from the public arcade grid. */
   is_private?: boolean;
+  /** The active private-hunt invite. Replaced on regeneration and removed on revoke. */
+  invite?: HuntInvite;
   /** Optional game cover CID/URL for hunt cards and sharing previews. */
   coverImageCid?: string;
   /** Active editorial banner showcase at the top of the Arcade. */
@@ -100,6 +120,15 @@ export interface StoredHunt {
   /** Average user rating (1-5) */
   averageRating?: number;
   /** Number of user reviews */
+  /** Unix timestamp in seconds until a paid spotlight placement remains active. */
+  promotedUntil?: number;
+  /** Creator's wallet public key. */
+  creator?: string;
+  /** Average user rating (1-5). */
+  averageRating?: number;
+  /** Average user difficulty rating (1-4). */
+  averageDifficulty?: number;
+  /** Number of user reviews. */
   reviewCount?: number;
   /** When true, the hunt is archived (hidden from public but data preserved). */
   isArchived?: boolean;
@@ -175,6 +204,8 @@ export interface Clue {
   alternativeAnswers?: string[];
   /** Fuzzy matching strictness for this clue. Defaults to "normal". */
   answerStrictness?: AnswerStrictness;
+  /** Optional IPFS media reference, optionally tagged with a type query param. */
+  mediaCid?: string;
 }
 
 export type ClueInfo = {
@@ -203,6 +234,8 @@ export interface ClueRow {
   difficulty?: ClueDifficulty;
   alternativeAnswers?: string[];
   answerStrictness?: AnswerStrictness;
+  /** Optional IPFS media reference, optionally tagged with a type query param. */
+  mediaCid?: string;
 }
 export type {
   Achievement,
@@ -210,6 +243,9 @@ export type {
   AchievementRarity,
   HuntCategory,
   HuntProgressStatus,
+  HuntInvite,
+  HuntProgressStatus,
+  HuntStatus,
   PlayerHuntProgress,
   PlayerProgress,
   RewardHistoryEntry,
@@ -384,6 +420,10 @@ export interface RewardPlayerProgress {
 // ─── Activity Feed ───────────────────────────────────────────────────────────
 
 export type ActivityEventType = "HuntCompleted" | "ClueCompleted" | "HuntSponsored";
+export type ActivityEventType =
+  | "HuntCompleted"
+  | "ClueCompleted"
+  | "HuntSponsored";
 
 export interface ActivityEvent {
   id: string;
@@ -421,6 +461,8 @@ export interface HuntCard {
    * (passed in from individual clue views), so both are allowed here.
    */
   difficulty?: HuntDifficulty | ClueDifficulty;
+  /** Optional IPFS media reference, optionally tagged with a type query param. */
+  mediaCid?: string;
 }
 
 // HuntDraft and PlayerStats now live in @hunty/types (re-exported above).
@@ -432,6 +474,7 @@ export interface HuntDraft {
   code: string;
   image?: string;
   sequential?: boolean;
+  maxParticipants?: number;
 }
 
 /**
@@ -481,6 +524,40 @@ export interface PlayerStats {
 }
 
 export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed";
+}
+
+export type CoverImageUploadState =
+  | "idle"
+  | "uploading"
+  | "succeeded"
+  | "failed";
+
+export interface PlayerProfile {
+  address: string
+  displayName?: string
+  avatarUrl?: string
+}
+
+export interface ReferralRecord {
+  code: string
+  referrerAddress: string
+  referredAddress: string
+  registeredAt: number
+  firstCompletedAt?: number
+  firstCompletedHuntId?: number
+  bonusAwarded: boolean
+  bonusPoints: number
+}
+
+export interface ReferralStats {
+  code: string
+  totalInvites: number
+  successfulReferrals: number
+  pendingReferrals: number
+  bonusPoints: number
+  referralLink: string
+  referrals: ReferralRecord[]
+}
 
 // ─── Player Count ────────────────────────────────────────────────────────────
 

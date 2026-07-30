@@ -1,20 +1,13 @@
-import { NextRequest, NextResponse } from "next/server"
-import { submitHuntForModeration } from "@/lib/moderation/store"
+import { NextResponse } from "next/server"
+import { submitHuntForModeration } from "@/lib/moderation/dbStore"
 import type { StoredHunt } from "@/lib/types"
+import { withValidation } from "@/lib/api/withValidation"
+import { moderationSubmitBodySchema } from "@hunty/types/api-schemas"
 
-export async function POST(req: NextRequest) {
-  let body: { hunt?: StoredHunt }
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+export const POST = withValidation(
+  { body: moderationSubmitBodySchema },
+  async (_req, _context, { body }) => {
+    const submission = await submitHuntForModeration(body.hunt as StoredHunt)
+    return NextResponse.json({ success: true, submission })
   }
-
-  const hunt = body.hunt
-  if (!hunt?.id || !hunt.title) {
-    return NextResponse.json({ error: "hunt with id and title is required" }, { status: 400 })
-  }
-
-  const submission = submitHuntForModeration(hunt)
-  return NextResponse.json({ success: true, submission })
-}
+)

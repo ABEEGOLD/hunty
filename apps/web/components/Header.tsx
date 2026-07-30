@@ -1,58 +1,46 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useIsMounted } from "@/hooks/useIsMounted";
-import { useWallet } from "@/lib/context/WalletContext";
-import { WalletSelectionModal } from "./WalletSelectionModal";
-import { WalletBalance } from "./WalletBalance";
-import { ThemeToggle } from "./ThemeToggle";
-import { LanguageSelector } from "./LanguageSelector";
-import { NotificationPanel } from "@/components/NotificationPanel";
-import { WalletAddress } from "./WalletAddress";
-import { WalletIdenticon } from "./WalletIdenticon";
-import { getStellarAccountExplorerUrl } from "@/lib/walletAddress";
-import { toast } from "sonner";
 import {
   Bell,
-  Search,
-  X,
-  Menu,
-  Compass,
-  PlusCircle,
-  User,
   Check,
   ChevronDown,
   Compass,
   Copy,
+  ExternalLink,
   Gamepad2,
   HelpCircle,
-  ExternalLink,
   LogOut,
   Menu,
   PlusCircle,
   Search,
-  Trophy,
   User,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback,useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
+import { NotificationPanel } from "@/components/NotificationPanel";
 import { Button } from "@/components/ui/button";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import { useWallet } from "@/lib/context/WalletContext";
-import { getUnreadNotificationCount } from "@/lib/notifications/rankTracker"
-import { createWeeklyDigestNotification, shouldSendWeeklyDigest } from "@/lib/notifications/weeklyDigest"
+import { getUnreadNotificationCount } from "@/lib/notifications/rankTracker";
+import {
+  createWeeklyDigestNotification,
+  shouldSendWeeklyDigest,
+} from "@/lib/notifications/weeklyDigest";
 import { cn } from "@/lib/utils";
+import { getStellarAccountExplorerUrl } from "@/lib/walletAddress";
 
-import Coin from "./icons/Coin";
+import { LanguageSelector } from "./LanguageSelector";
 import { ThemeToggle } from "./ThemeToggle";
-import { WalletBottomSheet } from "./WalletBottomSheet";
+import { WalletAddress } from "./WalletAddress";
+import { WalletBalance } from "./WalletBalance";
+import { WalletIdenticon } from "./WalletIdenticon";
+import { WalletSelectionModal } from "./WalletSelectionModal";
 
-// ÔöÇÔöÇÔöÇ Nav structure ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Nav structure ─────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
   {
@@ -91,7 +79,6 @@ const NAV_ITEMS = [
   },
 ];
 
-
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -111,16 +98,23 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
           <input
             ref={inputRef}
             type="search"
-            placeholder="Search hunts, creators, rewardsÔÇª"
+            aria-label="Search hunts, creators, rewards"
+            placeholder="Search hunts, creators, rewards…"
             className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none text-base"
             onKeyDown={(e) => e.key === "Escape" && onClose()}
           />
-          <button onClick={onClose} aria-label="Close search" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <button
+            onClick={onClose}
+            aria-label="Close search"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
         <div className="border-t border-slate-100 dark:border-white/5 px-4 py-3">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Quick links</p>
+          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+            Quick links
+          </p>
           <div className="flex flex-wrap gap-2">
             {["Active hunts", "XLM rewards", "NFT prizes", "Trending"].map((tag) => (
               <Link
@@ -184,7 +178,11 @@ function MobileMenu({
         <span className="text-2xl font-black bg-gradient-to-br from-[#2F2FFF] to-[#E87785] bg-clip-text text-transparent">
           Hunty
         </span>
-        <button onClick={onClose} aria-label="Close menu" className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5">
+        <button
+          onClick={onClose}
+          aria-label="Close menu"
+          className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5"
+        >
           <X className="w-6 h-6 text-slate-700 dark:text-slate-300" />
         </button>
       </div>
@@ -226,7 +224,10 @@ function MobileMenu({
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-900">
               <WalletBalance variant="row" />
               <button
-                onClick={() => { onDisconnect(); onClose(); }}
+                onClick={() => {
+                  onDisconnect();
+                  onClose();
+                }}
                 className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 font-medium"
               >
                 <LogOut className="w-4 h-4" />
@@ -236,7 +237,10 @@ function MobileMenu({
           </div>
         ) : (
           <Button
-            onClick={() => { onConnectWallet(); onClose(); }}
+            onClick={() => {
+              onConnectWallet();
+              onClose();
+            }}
             className="w-full bg-gradient-to-r from-[#3737A4] to-[#0C0C4F] hover:opacity-90 text-white font-bold py-3 rounded-2xl text-base"
           >
             Connect Wallet
@@ -247,9 +251,10 @@ function MobileMenu({
   );
 }
 
-// ÔöÇÔöÇÔöÇ Main Header ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Main Header ───────────────────────────────────────────────────────────────
 
 export function Header() {
+  const t = useTranslations("header");
   const mounted = useIsMounted();
   const { connected, displayKey, publicKey, connect, disconnect, walletProvider } = useWallet();
 
@@ -261,6 +266,7 @@ export function Header() {
   const [copied, setCopied] = useState(false);
   const [activeMega, setActiveMega] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(() => getUnreadNotificationCount());
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -273,21 +279,20 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Update unread notification count
+  // Poll unread notification count
   useEffect(() => {
-    setUnreadCount(getUnreadNotificationCount())
     const interval = setInterval(() => {
-      setUnreadCount(getUnreadNotificationCount())
-    }, 30000)
-    return () => clearInterval(interval)
-  }, [])
+      setUnreadCount(getUnreadNotificationCount());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Weekly digest check on mount
   useEffect(() => {
     if (shouldSendWeeklyDigest()) {
-      createWeeklyDigestNotification()
+      createWeeklyDigestNotification();
     }
-  }, [])
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -332,8 +337,6 @@ export function Header() {
     megaTimeoutRef.current = setTimeout(() => setActiveMega(null), 120);
   }, []);
 
-  const [unreadCount, setUnreadCount] = useState(0)
-
   return (
     <>
       <header
@@ -345,7 +348,6 @@ export function Header() {
         )}
       >
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4 h-16 md:h-18">
-
           {/* Logo */}
           <Link
             href="/"
@@ -383,10 +385,7 @@ export function Header() {
                   )}
                 </Link>
                 {mega && activeMega === label && (
-                  <div
-                    onMouseEnter={() => openMega(label)}
-                    onMouseLeave={() => closeMega()}
-                  >
+                  <div onMouseEnter={() => openMega(label)} onMouseLeave={() => closeMega()}>
                     <MegaMenu items={mega} />
                   </div>
                 )}
@@ -398,7 +397,10 @@ export function Header() {
           <div className="flex items-center gap-2 ml-auto">
             {/* Search */}
             <button
-              onClick={() => { setSearchOpen((v) => !v); setNotifOpen(false); }}
+              onClick={() => {
+                setSearchOpen((v) => !v);
+                setNotifOpen(false);
+              }}
               aria-label="Search"
               className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-[#3737A4] dark:hover:text-indigo-400 transition-colors"
             >
@@ -408,13 +410,19 @@ export function Header() {
             {/* Notification bell */}
             <div className="relative" ref={notifRef}>
               <button
-                onClick={() => { setNotifOpen((v) => !v); setSearchOpen(false); }}
+                onClick={() => {
+                  setNotifOpen((v) => !v);
+                  setSearchOpen(false);
+                }}
                 aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
                 className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-[#3737A4] dark:hover:text-indigo-400 transition-colors"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#E87785] ring-2 ring-white dark:ring-slate-950" aria-hidden="true" />
+                  <span
+                    className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#E87785] ring-2 ring-white dark:ring-slate-950"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
               <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
@@ -468,7 +476,9 @@ export function Header() {
                           />
                         )}
                         <div className="min-w-0">
-                          <p className="text-xs text-blue-200 font-medium mb-0.5">Connected wallet</p>
+                          <p className="text-xs text-blue-200 font-medium mb-0.5">
+                            {t("connectedWallet")}
+                          </p>
                           <p className="text-[11px] uppercase tracking-wide text-blue-200/80 mb-1">
                             {walletProvider ?? "freighter"}
                           </p>
@@ -486,7 +496,7 @@ export function Header() {
                           ) : (
                             <Copy className="w-4 h-4 text-slate-400 flex-shrink-0" />
                           )}
-                          {copied ? "Copied!" : "Copy address"}
+                          {copied ? t("copied") : t("copyAddress")}
                         </button>
 
                         {publicKey && (
@@ -504,8 +514,14 @@ export function Header() {
 
                         <button
                           onClick={() => {
-                            const type = window.location.pathname.includes("/creator") ? "creator" : "player";
-                            window.dispatchEvent(new CustomEvent("start-onboarding-tour", { detail: { tourType: type } }));
+                            const type = window.location.pathname.includes("/creator")
+                              ? "creator"
+                              : "player";
+                            window.dispatchEvent(
+                              new CustomEvent("start-onboarding-tour", {
+                                detail: { tourType: type },
+                              })
+                            );
                             setDropdownOpen(false);
                           }}
                           aria-label="Take onboarding tour"
@@ -521,7 +537,7 @@ export function Header() {
                           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left font-medium"
                         >
                           <LogOut className="w-4 h-4 flex-shrink-0" />
-                          Disconnect wallet
+                          {t("disconnectWallet")}
                         </button>
                       </div>
                     </div>
@@ -534,7 +550,7 @@ export function Header() {
                 onClick={() => setModalOpen(true)}
                 className="hidden sm:inline-flex bg-gradient-to-r from-[#3737A4] to-[#0C0C4F] hover:opacity-90 text-white font-bold px-4 py-2 rounded-xl text-sm"
               >
-                Connect Wallet
+                {t("connectWallet")}
               </Button>
             )}
 

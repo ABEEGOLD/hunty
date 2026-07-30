@@ -1,7 +1,7 @@
-import Server from "@stellar/stellar-sdk";
+import * as Sentry from "@sentry/nextjs"
+import Server from "@stellar/stellar-sdk"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SorobanServer = Server as any;
+import { createSorobanRpcOptimizer } from "./rpcOptimization"
 
 /**
  * Testnet network configuration
@@ -71,18 +71,16 @@ export function getSorobanNetworkType(): "testnet" | "mainnet" {
  * Creates a Soroban Server instance for the configured RPC URL.
  * Uses the same Server API as soroban-client (stellar-sdk is the maintained package).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let sharedServer: any | null = null;
+let sharedServer: Server | null = null;
 let sharedServerRpcUrl: string | null = null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createSorobanServer(): any {
+export function createSorobanServer(): Server {
   const rpcUrl = getRpcUrl();
   if (sharedServer && sharedServerRpcUrl === rpcUrl) {
     return sharedServer;
   }
 
-  sharedServer = new SorobanServer(rpcUrl);
+  sharedServer = new Server(rpcUrl);
   sharedServerRpcUrl = rpcUrl;
   return sharedServer;
 }
@@ -122,5 +120,16 @@ export async function readSorobanContractState<T>(request: {
   params?: unknown[]
   parser?: (response: unknown) => unknown
 }): Promise<T> {
-  return getSorobanRpcOptimizer().readContractState<T>(request)
+  try {
+    return await getSorobanRpcOptimizer().readContractState<T>(request)
+  } catch (err) {
+    // Previously, this call could never succeed because createSorobanRpcOptimizer
+    // was not imported (undefined at runtime). Now that the import is fixed,
+    // any genuine RPC failures are forwarded to Sentry.
+    Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+      tags: { source: "sorobanRpc", method: request.method },
+      extra: { key: request.key, params: request.params },
+    })
+    throw err
+  }
 }
