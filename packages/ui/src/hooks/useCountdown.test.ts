@@ -1,5 +1,5 @@
-import { act,renderHook } from '@testing-library/react'
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useCountdown } from './useCountdown'
 
@@ -87,7 +87,6 @@ describe('useCountdown', () => {
 
     const { unmount } = renderHook(() => useCountdown(end))
 
-    // unmount should call the cleanup which clears the interval
     unmount()
 
     expect(clearSpy).toHaveBeenCalled()

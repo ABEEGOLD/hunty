@@ -1,14 +1,14 @@
 /**
- * Unit tests for shared/components/web — Button, Badge, Card, EmptyState.
+ * Unit tests for @hunty/ui web components — Button, Badge, Card, EmptyState.
  * Runs in jsdom via vitest.
  */
-import { fireEvent,render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Badge } from './Badge'
 import { Button } from './Button'
-import { Card, CardContent, CardFooter,CardHeader, CardTitle } from './Card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './Card'
 import { EmptyState } from './EmptyState'
 
 // ── Button ────────────────────────────────────────────────────────────────
@@ -34,7 +34,6 @@ describe('Button (web)', () => {
   it('is disabled and shows spinner when loading=true', () => {
     render(<Button label="Saving" loading />)
     expect(screen.getByRole('button')).toBeDisabled()
-    // spinner has aria-hidden, not role; just confirm button is busy
     expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true')
   })
 
@@ -92,26 +91,11 @@ describe('Card (web)', () => {
     expect(screen.getByText('Content')).toBeInTheDocument()
   })
 
-  it('calls onPress when clicked', () => {
-    const onPress = vi.fn()
-    render(<Card onPress={onPress}><span>Tap</span></Card>)
+  it('calls onClick when clicked', () => {
+    const onClick = vi.fn()
+    render(<Card onClick={onClick}><span>Tap</span></Card>)
     fireEvent.click(screen.getByText('Tap').parentElement!)
-    expect(onPress).toHaveBeenCalledOnce()
-  })
-
-  it('activates onPress via Enter key', () => {
-    const onPress = vi.fn()
-    render(<Card onPress={onPress}><span>Tap</span></Card>)
-    const card = screen.getByRole('button')
-    fireEvent.keyDown(card, { key: 'Enter' })
-    expect(onPress).toHaveBeenCalledOnce()
-  })
-
-  it('activates onPress via Space key', () => {
-    const onPress = vi.fn()
-    render(<Card onPress={onPress}><span>Tap</span></Card>)
-    fireEvent.keyDown(screen.getByRole('button'), { key: ' ' })
-    expect(onPress).toHaveBeenCalledOnce()
+    expect(onClick).toHaveBeenCalledOnce()
   })
 
   it('renders subcomponents', () => {

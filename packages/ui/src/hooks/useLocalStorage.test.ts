@@ -1,10 +1,9 @@
-import { act,renderHook } from '@testing-library/react'
-import { beforeEach,describe, expect, it } from 'vitest'
+import { act, renderHook } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
 
 import type { StorageAdapter } from './useLocalStorage'
 import { useLocalStorage } from './useLocalStorage'
 
-// ── in-memory storage adapter ──────────────────────────────────────────────
 function makeAdapter(initial: Record<string, string> = {}): StorageAdapter {
   const store = { ...initial }
   return {
@@ -27,7 +26,6 @@ describe('useLocalStorage', () => {
     const { result } = renderHook(() =>
       useLocalStorage('theme', 'light', adapter)
     )
-    // the useEffect is async, flush it
     await act(async () => {})
     expect(result.current[0]).toBe('dark')
   })
@@ -70,7 +68,6 @@ describe('useLocalStorage', () => {
     await act(async () => {})
     expect(result.current[0]).toBe('default')
 
-    // setValue should not throw when adapter is null
     act(() => { result.current[1]('changed') })
     expect(result.current[0]).toBe('changed')
   })

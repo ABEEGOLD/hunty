@@ -2,11 +2,11 @@
  * Unit tests for shared tokens and type exports.
  * Validates the structure and invariants of the design token objects.
  */
-import { describe, expect,it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import * as sharedIndex from '../index'
+import * as uiIndex from '../index'
 import { colors } from './colors'
-import { radius,spacing } from './spacing'
+import { radius, spacing } from './spacing'
 import { fontSizes, fontWeights, lineHeights } from './typography'
 
 // ── Colors ────────────────────────────────────────────────────────────────
@@ -98,7 +98,6 @@ describe('fontWeights token', () => {
 
 describe('lineHeights token', () => {
   it('all line-heights are greater than their matching font sizes', () => {
-    // every line-height key maps to a value larger than the same-key font size
     for (const key of Object.keys(fontSizes) as Array<keyof typeof fontSizes>) {
       if (key in lineHeights) {
         expect(lineHeights[key as keyof typeof lineHeights]).toBeGreaterThanOrEqual(fontSizes[key])
@@ -109,24 +108,24 @@ describe('lineHeights token', () => {
 
 // ── Barrel exports ────────────────────────────────────────────────────────
 
-describe('shared/index barrel', () => {
+describe('@hunty/ui barrel index', () => {
   it('re-exports colors', () => {
-    expect(sharedIndex.colors).toBeDefined()
+    expect(uiIndex.colors).toBeDefined()
   })
 
   it('re-exports spacing and radius', () => {
-    expect(sharedIndex.spacing).toBeDefined()
-    expect(sharedIndex.radius).toBeDefined()
+    expect(uiIndex.spacing).toBeDefined()
+    expect(uiIndex.radius).toBeDefined()
   })
 
   it('re-exports fontSizes, fontWeights, lineHeights', () => {
-    expect(sharedIndex.fontSizes).toBeDefined()
-    expect(sharedIndex.fontWeights).toBeDefined()
-    expect(sharedIndex.lineHeights).toBeDefined()
+    expect(uiIndex.fontSizes).toBeDefined()
+    expect(uiIndex.fontWeights).toBeDefined()
+    expect(uiIndex.lineHeights).toBeDefined()
   })
 
   it('re-exports hooks', () => {
-    expect(sharedIndex.useCountdown).toBeDefined()
-    expect(sharedIndex.useLocalStorage).toBeDefined()
+    expect(uiIndex.useCountdown).toBeDefined()
+    expect(uiIndex.useLocalStorage).toBeDefined()
   })
 })
