@@ -59,7 +59,7 @@ function LeaderboardTableComponent({
   const [isLoading, setIsLoading] = useState(initialLoading);
   const [error, setError] = useState<string | null>(null);
   const [activeSeason, setActiveSeason] = useState<ReturnType<typeof getActiveSeason>>(null);
-  const walletAddress = useWalletStore((s: { walletAddress: string }) => s.walletAddress);
+  const walletAddress = useWalletStore((state) => state.walletAddress);
 
   const fetchLeaderboard = useCallback(async () => {
     if (huntId === undefined) return;
