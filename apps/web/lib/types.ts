@@ -47,6 +47,8 @@ export type HuntStatus =
  */
 export type HuntDifficulty = "Easy" | "Medium" | "Hard" | "Expert";
 
+export type HuntAgeClassification = "all-ages" | "13-plus" | "16-plus" | "18-plus";
+
 export interface StoredHunt {
   id: number;
   title: string;
@@ -56,6 +58,8 @@ export interface StoredHunt {
   category?: DomainHuntCategory | HuntCategoryId;
   /** Overall hunt difficulty tag used in discovery filters. */
   difficulty?: HuntDifficulty;
+  /** Age suitability selected by the creator. Older hunts default to all ages. */
+  ageClassification?: HuntAgeClassification;
   status: HuntStatus;
   rewardType: "XLM" | "NFT" | "Both";
   /** When true, players must solve clues in order. */
@@ -98,6 +102,10 @@ export interface StoredHunt {
   invite?: HuntInvite;
   /** Optional game cover CID/URL for hunt cards and sharing previews. */
   coverImageCid?: string;
+  /** Optional map latitude for spatial discovery views. */
+  mapLatitude?: number;
+  /** Optional map longitude for spatial discovery views. */
+  mapLongitude?: number;
   /** Active editorial banner showcase at the top of the Arcade. */
   isFeaturedOfWeek?: boolean;
   /** Unix timestamp in seconds until a paid spotlight placement remains active. */
@@ -163,6 +171,10 @@ export interface Clue {
   question: string;
   answer: string;
   points: number;
+  /** Optional locale-specific question strings. The base `question` remains the fallback. */
+  questionTranslations?: Partial<Record<string, string>>;
+  /** Optional locale-specific hint strings. The base `hint` remains the fallback. */
+  hintTranslations?: Partial<Record<string, string>>;
   /**
    * Progressive hints array (up to 3). Takes precedence over the legacy
    * `hint` / `hintCost` fields when present.
@@ -192,6 +204,10 @@ export type ClueInfo = {
   id: number;
   question: string;
   points: number;
+  /** Optional locale-specific question strings. */
+  questionTranslations?: Partial<Record<string, string>>;
+  /** Optional locale-specific hint strings. */
+  hintTranslations?: Partial<Record<string, string>>;
   /** Progressive hints (up to 3). Supersedes the legacy `hint`/`hintCost` fields. */
   hints?: ClueHint[];
   /** @deprecated Use `hints[0]` instead. */
@@ -206,6 +222,8 @@ export interface ClueRow {
   question: string;
   answer: string;
   points: number;
+  questionTranslations?: Partial<Record<string, string>>;
+  hintTranslations?: Partial<Record<string, string>>;
   hints?: ClueHint[];
   /** @deprecated */
   hint?: string;
@@ -449,6 +467,7 @@ export interface HuntDraft {
   image?: string;
   sequential?: boolean;
   maxParticipants?: number;
+  ageClassification?: HuntAgeClassification;
 }
 
 /**

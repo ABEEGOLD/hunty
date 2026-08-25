@@ -70,6 +70,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     startTime: NOW_SECONDS - 86400,
     endTime: NOW_SECONDS + 7 * 86400,
     difficulty: "Easy",
+    mapLatitude: 40.7128,
+    mapLongitude: -74.006,
   },
   {
     id: 2,
@@ -87,6 +89,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     startTime: NOW_SECONDS - 2 * 86400,
     endTime: NOW_SECONDS + 3 * 86400,
     difficulty: "Hard",
+    mapLatitude: 37.7749,
+    mapLongitude: -122.4194,
   },
   {
     id: 3,
@@ -104,6 +108,8 @@ export const SEED_HUNTS: StoredHunt[] = [
     startTime: NOW_SECONDS - 10 * 86400,
     endTime: NOW_SECONDS - 5 * 86400,
     difficulty: "Expert",
+    mapLatitude: 51.5072,
+    mapLongitude: -0.1276,
   },
   {
     id: 4,
@@ -276,10 +282,28 @@ function validateClueDraft(clue: Omit<Clue, "id">, index: number): Omit<Clue, "i
     throw new Error(`Clue ${index + 1} points must be greater than 0.`);
   }
 
+  const questionTranslations = clue.questionTranslations
+    ? Object.fromEntries(
+        Object.entries(clue.questionTranslations)
+          .map(([locale, value]) => [locale, typeof value === "string" ? value.trim() : ""])
+          .filter(([, value]) => value.length > 0)
+      )
+    : undefined;
+
+  const hintTranslations = clue.hintTranslations
+    ? Object.fromEntries(
+        Object.entries(clue.hintTranslations)
+          .map(([locale, value]) => [locale, typeof value === "string" ? value.trim() : ""])
+          .filter(([, value]) => value.length > 0)
+      )
+    : undefined;
+
   return {
     ...clue,
     question,
     answer,
+    questionTranslations: Object.keys(questionTranslations ?? {}).length > 0 ? questionTranslations : undefined,
+    hintTranslations: Object.keys(hintTranslations ?? {}).length > 0 ? hintTranslations : undefined,
     hint: clue.hint?.trim() || undefined,
   };
 }
