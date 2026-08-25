@@ -39,6 +39,8 @@ interface HuntFormProps {
   onClueReorder?: () => void
 }
 
+const clueTranslationLocales = ["en", "es", "fr"] as const;
+
 const clueSchema = z.object({
   question: z.string().min(1, "Question is required"),
   answer: z.string().min(1, "Answer is required"),
@@ -47,6 +49,8 @@ const clueSchema = z.object({
   hintCost: z.number().min(0),
   difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
   mediaCid: z.string().optional(),
+  questionTranslations: z.record(z.string(), z.string()).optional(),
+  hintTranslations: z.record(z.string(), z.string()).optional(),
 });
 
 const cluesFormSchema = z.object({
@@ -85,7 +89,18 @@ export function HuntForm({
   } = useForm<CluesFormData>({
     resolver: zodResolver(cluesFormSchema),
     defaultValues: {
-      clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" }],
+      clues: [
+        {
+          question: "",
+          answer: "",
+          points: 10,
+          hint: "",
+          hintCost: 0,
+          mediaCid: "",
+          questionTranslations: { en: "", es: "", fr: "" },
+          hintTranslations: { en: "", es: "", fr: "" },
+        },
+      ],
     },
   });
 
@@ -138,7 +153,16 @@ export function HuntForm({
   };
 
   const addClueRow = () => {
-    append({ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" });
+    append({
+      question: "",
+      answer: "",
+      points: 10,
+      hint: "",
+      hintCost: 0,
+      mediaCid: "",
+      questionTranslations: { en: "", es: "", fr: "" },
+      hintTranslations: { en: "", es: "", fr: "" },
+    });
   };
 
   const removeClueRow = (index: number) => {
@@ -198,6 +222,16 @@ export function HuntForm({
         question: row.question.trim(),
         answer: row.answer.trim().toLowerCase(),
         points: row.points,
+        questionTranslations: Object.fromEntries(
+          clueTranslationLocales
+            .map((locale) => [locale, row.questionTranslations?.[locale]?.trim() ?? ""])
+            .filter(([, value]) => value.length > 0)
+        ),
+        hintTranslations: Object.fromEntries(
+          clueTranslationLocales
+            .map((locale) => [locale, row.hintTranslations?.[locale]?.trim() ?? ""])
+            .filter(([, value]) => value.length > 0)
+        ),
         hint: row.hint?.trim() || undefined,
         hintCost: row.hintCost,
         difficulty: row.difficulty,
@@ -234,7 +268,20 @@ export function HuntForm({
       }
 
       onCluesSaved?.(valid.length);
-      reset({ clues: [{ question: "", answer: "", points: 10, hint: "", hintCost: 0, mediaCid: "" }] });
+      reset({
+        clues: [
+          {
+            question: "",
+            answer: "",
+            points: 10,
+            hint: "",
+            hintCost: 0,
+            mediaCid: "",
+            questionTranslations: { en: "", es: "", fr: "" },
+            hintTranslations: { en: "", es: "", fr: "" },
+          },
+        ],
+      });
     } catch (error) {
       restoreHuntStoreSnapshot(snapshot);
       throw error;
@@ -552,6 +599,44 @@ export function HuntForm({
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
+                </div>
+                <div className="pl-6 space-y-2">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                    Translations
+                  </div>
+                  <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                    {clueTranslationLocales.map((locale) => (
+                      <div key={`${field.id}-translation-${locale}`} className="space-y-1">
+                        <div className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          {locale.toUpperCase()}
+                        </div>
+                        <Controller
+                          control={control}
+                          name={`clues.${index}.questionTranslations.${locale}`}
+                          render={({ field: f }) => (
+                            <Input
+                              placeholder={`Question (${locale})`}
+                              {...f}
+                              value={f.value ?? ""}
+                              className="pl-3 py-2 text-sm"
+                            />
+                          )}
+                        />
+                        <Controller
+                          control={control}
+                          name={`clues.${index}.hintTranslations.${locale}`}
+                          render={({ field: f }) => (
+                            <Input
+                              placeholder={`Hint (${locale})`}
+                              {...f}
+                              value={f.value ?? ""}
+                              className="pl-3 py-2 text-sm"
+                            />
+                          )}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex gap-2 items-center pl-6">
                   <Controller
