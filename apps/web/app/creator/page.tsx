@@ -21,6 +21,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,7 @@ const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
 import { Header } from "@/components/Header";
 import { RewardHistorySection } from "@/components/RewardHistorySection";
 import { DraftListPanel } from "@/components/DraftListPanel";
+import { CreatorProfileSettings } from "@/components/creator/CreatorProfileSettings";
 import { useWallet } from "@/lib/context/WalletContext";
 import { promoteHunt } from "@/lib/contracts/rewardManager";
 import {
@@ -267,6 +269,7 @@ export default function CreatorPage() {
             <HelpCircle className="w-3.5 h-3.5" />
             Take Tour
           </Button>
+          {publicKey && <CreatorProfileSettings address={publicKey} />}
         </h1>
         <p className="mb-6 text-slate-600">
           View and manage hunts you have created. Draft hunts open in Edit; Active hunts open Live
