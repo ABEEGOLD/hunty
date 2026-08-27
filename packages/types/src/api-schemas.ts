@@ -178,6 +178,37 @@ export const pushTokenDeleteBodySchema = z
 
 // ─── Moderation / Submit ─────────────────────────────────────────────────────
 
+// ─── Notification preferences ────────────────────────────────────────────────
+
+/** Preferences are a partial document on write; the API merges the patch with the saved document. */
+export const notificationPreferencesPatchSchema = z.object({
+  enabled: z.boolean().optional(),
+  huntEvents: z.boolean().optional(),
+  rewards: z.boolean().optional(),
+  social: z.boolean().optional(),
+  achievements: z.boolean().optional(),
+  rankImproved: z.boolean().optional(),
+  rankDropped: z.boolean().optional(),
+  overtaken: z.boolean().optional(),
+  weeklyDigest: z.boolean().optional(),
+  threshold: z.number().int().min(1).optional(),
+  pushEnabled: z.boolean().optional(),
+  pushHuntStart: z.boolean().optional(),
+  pushOvertake: z.boolean().optional(),
+  pushHuntCancelled: z.boolean().optional(),
+  pushPlayerRegistered: z.boolean().optional(),
+  pushFirstCompletion: z.boolean().optional(),
+})
+
+export const notificationPreferencesQuerySchema = z.object({
+  walletAddress: nonEmptyStringSchema,
+})
+
+export const notificationPreferencesBodySchema = z.object({
+  walletAddress: nonEmptyStringSchema,
+  preferences: notificationPreferencesPatchSchema,
+})
+
 export const moderationSubmitBodySchema = z.object({
   hunt: z
     .object({
@@ -430,6 +461,9 @@ export const apiSchemas = {
   pushTokenRegister: pushTokenRegisterBodySchema,
   achievementShowcase: achievementShowcaseBodySchema,
   pushTokenDelete: pushTokenDeleteBodySchema,
+  notificationPreferencesPatch: notificationPreferencesPatchSchema,
+  notificationPreferencesQuery: notificationPreferencesQuerySchema,
+  notificationPreferencesBody: notificationPreferencesBodySchema,
   moderationSubmitBody: moderationSubmitBodySchema,
   moderationSyncBody: moderationSyncBodySchema,
   moderationSyncQuery: moderationSyncQuerySchema,
