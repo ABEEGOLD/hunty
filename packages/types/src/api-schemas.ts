@@ -297,6 +297,19 @@ export const huntVersionsQuerySchema = z.object({
   actorAddress: nonEmptyStringSchema,
 })
 
+// ─── v1 / Hunts / [id] / Refund ──────────────────────────────────────────────
+
+/**
+ * POST /api/v1/hunts/[id]/refund
+ *
+ * Allows a hunt creator to reclaim the unclaimed reward balance once the hunt
+ * has ended AND the grace period (set at hunt creation) has elapsed.
+ */
+export const huntRefundBodySchema = z.object({
+  /** Stellar G-address of the creator requesting the refund. */
+  creatorAddress: stellarAddressSchema,
+})
+
 // ─── v1 / Hunts / [id] / Collaborators ───────────────────────────────────────
 
 export const collaboratorRoleSchema = z.enum(["editor", "viewer"]);
@@ -430,6 +443,28 @@ export const draftPatchBodySchema = z.object({
   recovered: z.boolean().optional(),
 });
 
+// ─── v1 / Hunts / [id] / Refund ──────────────────────────────────────────────
+
+/**
+ * POST /api/v1/hunts/[id]/refund
+ * Called by the creator after the grace period to reclaim unclaimed rewards.
+ * `creatorAddress` is verified against the hunt's creator on the server.
+ */
+export const huntRefundBodySchema = z.object({
+  creatorAddress: nonEmptyStringSchema,
+})
+
+// ─── v1 / Hunts / [id] / Sponsor ─────────────────────────────────────────────
+
+/**
+ * POST /api/v1/hunts/[id]/sponsor
+ * Allows a third-party wallet to add funds to an existing hunt's reward pool.
+ */
+export const huntSponsorBodySchema = z.object({
+  sponsorAddress: stellarAddressSchema,
+  amount: z.number().positive({ message: "amount must be a positive number" }),
+})
+
 // ─── Paymaster / Sponsor ─────────────────────────────────────────────────────
 
 export const paymasterSponsorBodySchema = z.object({
@@ -525,6 +560,7 @@ export const apiSchemas = {
   huntsBulkBody: huntsBulkBodySchema,
   huntArchiveBody: huntArchiveBodySchema,
   huntDeleteBody: huntDeleteBodySchema,
+  huntRefundBody: huntRefundBodySchema,
   collaboratorsBody: collaboratorsBodySchema,
   presencePingBody: presencePingBodySchema,
   presenceQuery: presenceQuerySchema,
@@ -542,6 +578,8 @@ export const apiSchemas = {
   draftPatchBody: draftPatchBodySchema,
   paymasterSponsorBody: paymasterSponsorBodySchema,
   paymasterAdminConfigBody: paymasterAdminConfigBodySchema,
+  huntRefundBody: huntRefundBodySchema,
+  huntSponsorBody: huntSponsorBodySchema,
   referralLeaderboardQuery: referralLeaderboardQuerySchema,
   referralTrackBody: referralTrackBodySchema,
   referralPayoutBody: referralPayoutBodySchema,
