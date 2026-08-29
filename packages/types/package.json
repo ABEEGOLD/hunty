@@ -16,6 +16,7 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest --run"
   },
+  "sideEffects": false,
   "peerDependencies": {
     "zod": "^4.0.0"
   },
