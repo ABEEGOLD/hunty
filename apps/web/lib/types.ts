@@ -538,7 +538,11 @@ export interface PlayerStats {
   lastUpdated: number;
 }
 
-export type CoverImageUploadState = "idle" | "uploading" | "succeeded" | "failed";
+export type CoverImageUploadState =
+  | "idle"
+  | "uploading"
+  | "succeeded"
+  | "failed";
 
 export interface PlayerProfile {
   address: string
@@ -732,7 +736,6 @@ export interface SeasonBadge {
 // ─── Hunt Feed ───────────────────────────────────────────────────────────────
 
 export type HuntFeedCategory = "trending" | "new" | "nearby" | "featured" | "following"
-
 
 // ─── Core Web Vitals ────────────────────────────────────────────────────────────
 
