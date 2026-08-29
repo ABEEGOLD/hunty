@@ -729,7 +729,7 @@ export interface SeasonBadge {
 
 // ─── Hunt Feed ───────────────────────────────────────────────────────────────
 
-export type HuntFeedCategory = "trending" | "new" | "nearby" | "featured"
+export type HuntFeedCategory = "trending" | "new" | "nearby" | "featured" | "following"
 
 
 // ─── Core Web Vitals ────────────────────────────────────────────────────────────
