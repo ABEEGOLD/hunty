@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
-import { Button } from "@/components/ui/button";
+import { Button } from "@hunty/ui";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
 import {
   getHuntClues,

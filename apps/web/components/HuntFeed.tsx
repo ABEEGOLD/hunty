@@ -565,7 +565,7 @@ export function HuntFeed({
             description={emptyState.description}
             action={{
               label: "Browse all hunts",
-              href: "/",
+              onPress: () => window.location.href = "/",
             }}
           />
         ) : (
