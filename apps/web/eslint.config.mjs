@@ -1,4 +1,4 @@
-import nextConfig from "@hunty/config/eslint/next";
+import nextConfig from "@hunty/config/eslint/next.mjs";
 
 import jsxA11y from "eslint-plugin-jsx-a11y";
 
@@ -10,7 +10,7 @@ const eslintConfig = [...nextConfig];
 eslintConfig.push({
   plugins: {
     "jsx-a11y": jsxA11y,
-    "i18next": (await import("eslint-plugin-i18next")).default,
+    i18next: (await import("eslint-plugin-i18next")).default,
   },
   rules: {
     // Direct console calls bypass the structured logger (@/lib/logger) and can leak
@@ -41,23 +41,53 @@ eslintConfig.push({
         ],
       },
     ],
-    "i18next/no-literal-string": ["warn", {
-      markupOnly: true,
-      ignoreAttribute: ["className", "id", "data-testid", "type", "variant", "size", "href", "src", "alt", "name", "value", "role", "target", "rel", "viewBox", "xmlns", "stroke", "strokeWidth", "strokeLinecap", "strokeLinejoin", "fill", "d", "cy", "cx", "r", "placeholder", "aria-label", "aria-hidden", "aria-expanded", "aria-controls", "aria-describedby", "aria-labelledby"]
-    }],
+    "i18next/no-literal-string": [
+      "warn",
+      {
+        markupOnly: true,
+        ignoreAttribute: [
+          "className",
+          "id",
+          "data-testid",
+          "type",
+          "variant",
+          "size",
+          "href",
+          "src",
+          "alt",
+          "name",
+          "value",
+          "role",
+          "target",
+          "rel",
+          "viewBox",
+          "xmlns",
+          "stroke",
+          "strokeWidth",
+          "strokeLinecap",
+          "strokeLinejoin",
+          "fill",
+          "d",
+          "cy",
+          "cx",
+          "r",
+          "placeholder",
+          "aria-label",
+          "aria-hidden",
+          "aria-expanded",
+          "aria-controls",
+          "aria-describedby",
+          "aria-labelledby",
+        ],
+      },
+    ],
   },
 });
 
 // Tests, e2e specs, and standalone scripts legitimately use console output
 // (test reporters, CLI progress) and aren't part of the runtime the logger covers.
 eslintConfig.push({
-  files: [
-    "**/__tests__/**",
-    "**/*.test.{ts,tsx}",
-    "**/*.spec.{ts,tsx}",
-    "e2e/**",
-    "scripts/**",
-  ],
+  files: ["**/__tests__/**", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "e2e/**", "scripts/**"],
   rules: {
     "no-console": "off",
   },

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { listPublicActiveHuntsByCursorOptimized } from "@/lib/db/queryOptimizer";
 import { ValidationError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
-import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { listPublicActiveHuntsByCursorOptimized } from "@/lib/db/queryOptimizer";
 import { getFollowing } from "@/lib/follows";
+import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { StoredHunt } from "@/lib/types";
 
 /**
@@ -34,14 +34,7 @@ export const GET = withErrorHandling(async (req: Request) => {
   const tag = searchParams.get("tag") || "";
   const remotePlayableParam = searchParams.get("remotePlayable");
   const remotePlayable =
-    remotePlayableParam === "true"
-      ? 
-      remotePlayableParam === "true"
-        ? ? 
-      true
-      : remotePlayableParam === "false"
-        ? false
-      : undefined;
+    remotePlayableParam === "true" ? true : remotePlayableParam === "false" ? false : undefined;
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
   if (
