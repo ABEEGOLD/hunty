@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { Button } from "@hunty/ui";
@@ -12,8 +11,19 @@ import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
+<<<<<<< HEAD
 import { resolveLocalizedText } from "@/lib/clueLocalization";
 import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
+=======
+import { Button } from "@hunty/ui";
+import { useHuntInfo } from "@/lib/hooks/useHuntContract";
+import { get_clue_info } from "@/lib/contracts/hunt";
+import {
+  getHuntClues,
+  getHuntProgress,
+  startHuntProgress,
+} from "@/lib/huntStore";
+>>>>>>> upstream/main
 import { recordHuntCompletion } from "@/lib/contracts/player-stats";
 import { markFirstHuntStep } from "@/lib/firstHuntGuide";
 import {
@@ -136,6 +146,8 @@ export function PlayGame({
 
   const solvedCount = solvedClues.size;
 
+  const huntInfoQuery = useHuntInfo(huntId);
+
   const {
     data: fetched = null as null | {
       clues: Hunt[];
@@ -147,9 +159,9 @@ export function PlayGame({
   } = useQuery({
     queryKey: queryKeys.hunts.clues(huntId),
     queryFn: async () => {
-      if (huntId == null) return null;
+      if (huntId == null || !huntInfoQuery.data) return null;
 
-      const huntInfo = await get_hunt(huntId);
+      const huntInfo = huntInfoQuery.data;
       const localClues = getHuntClues(huntId);
       const clues: Hunt[] = [];
 
@@ -190,8 +202,16 @@ export function PlayGame({
 
       return { clues, huntInfo };
     },
+<<<<<<< HEAD
     enabled: huntId != null,
     staleTime: Math.max(SOROBAN_READ_STALE_TIME_MS, queryCachePolicy.hunts.staleTime),
+=======
+    enabled: huntId != null && huntInfoQuery.data !== undefined,
+    staleTime: Math.max(
+      SOROBAN_READ_STALE_TIME_MS,
+      queryCachePolicy.hunts.staleTime
+    ),
+>>>>>>> upstream/main
     gcTime: queryCachePolicy.hunts.gcTime,
     refetchInterval: queryCachePolicy.hunts.refetchInterval,
     refetchIntervalInBackground: true,
