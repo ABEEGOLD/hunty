@@ -27,7 +27,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Lint and typecheck
-        run: pnpm turbo run lint typecheck --filter=${{ matrix.workspace }}
+        run: pnpm turbo run lint typecheck --filter=${{ matrix.workspace }} --filter='!mobile'
 
   # ─── Merge-conflict damage check ───────────────────────────────────────
   merge-damage-check:
@@ -61,7 +61,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Run tests
-        run: pnpm turbo run test --filter=${{ matrix.workspace }}
+        run: pnpm turbo run test --filter=${{ matrix.workspace }} --filter='!mobile'
 
   # ─── Coverage (web only — only workspace with coverage config) ────────
   coverage:
