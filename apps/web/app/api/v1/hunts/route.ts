@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { listPublicActiveHuntsByCursorOptimized } from "@/lib/db/queryOptimizer";
 import { ValidationError, AuthError } from "@/lib/api/errors";
 import { withErrorHandling } from "@/lib/api/withErrorHandling";
-import { getFollowing } from "@/lib/follows";
 import { getIP, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { getFollowing } from "@/lib/follows";
 import type { StoredHunt } from "@/lib/types";
 import { verifySignedMessage } from "@/lib/signature";
 import { submitHuntForModeration } from "@/lib/moderation/dbStore";
@@ -15,7 +15,7 @@ import { submitHuntForModeration } from "@/lib/moderation/dbStore";
  */
 export const GET = withErrorHandling(async (req: Request) => {
   const ip = getIP(req);
-  const { success, reset } = rateLimit(ip, { limit: 100, windowMs: 60 * 1000 });
+  const { success, reset } = ateLimit(ip, { limit: 100, windowMs: 60 * 1000 });
 
   if (!success) {
     return rateLimitResponse(reset);
@@ -39,8 +39,8 @@ export const GET = withErrorHandling(async (req: Request) => {
     remotePlayableParam === "true"
       ? true
       : remotePlayableParam === "false"
-      ? false
-      : undefined;
+        ? false
+        : undefined;
   const following = searchParams.get("following") ?? undefined;
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
@@ -97,7 +97,7 @@ export const GET = withErrorHandling(async (req: Request) => {
  */
 export const POST = withErrorHandling(async (req: Request) => {
   const ip = getIP(req);
-  const { success, reset } = rateLimit(ip, { limit: 20, windowMs: 60 * 1000 });
+  const { success, reset } = ateLimit(ip, { limit: 20, windowMs: 60 * 1000 });
   if (!success) return rateLimitResponse(reset);
 
   const wallet = req.headers.get("x-wallet-address")?.trim();
