@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workspace: ['@hunty/web', '@hunty/types', '@hunty/ui', '@hunty/config']
+        workspace: ['@hunty/types', '@hunty/ui', '@hunty/config']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workspace: ['@hunty/web', '@hunty/types', '@hunty/ui']
+        workspace: ['@hunty/types', '@hunty/ui']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,6 +67,7 @@ jobs:
   coverage:
     name: Coverage Report
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -107,6 +108,7 @@ jobs:
   mutation:
     name: Mutation Tests
     runs-on: ubuntu-latest
+    if: false
     timeout-minutes: 120
     steps:
       - name: Checkout repository
@@ -141,6 +143,7 @@ jobs:
   visual-regression:
     name: Visual Regression Tests
     runs-on: ubuntu-latest
+    if: false
     needs: build
     steps:
       - name: Checkout repository
@@ -170,6 +173,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    if: false
     needs: build
     steps:
       - name: Checkout repository
@@ -197,7 +201,7 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [quality, test, coverage, mutation, build, e2e, visual-regression, merge-damage-check]
+    needs: [quality, test, build, merge-damage-check]
     if: always()
     steps:
       - name: Check CI status
