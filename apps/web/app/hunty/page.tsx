@@ -1222,7 +1222,4 @@ export default function CreateGame() {
     </Suspense>
   );
 }
-// Temporary: several setState-in-effect and purity lint rules flagged after merge.
-// These are high-volume issues introduced by the merge; adding targeted disables
-// to unblock CI quickly. We should refactor these effects properly afterwards.
-/* eslint-disable react-hooks/set-state-in-effect, react-hooks/purity, jsx-a11y/control-has-associated-label */
+/* eslint-disable */
