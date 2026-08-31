@@ -19,8 +19,7 @@ export default function CreatorRecent() {
         setItems(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setLoading(false);
       });
   }, []);

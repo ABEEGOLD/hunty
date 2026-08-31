@@ -11,11 +11,8 @@ import {
   useRef,
 } from "react";
 
-import { migrateGuestProgressToWallet } from "@/lib/huntStore";
 import { useWalletMachine } from "@/lib/wallet/walletMachine";
-import { connectWalletProvider, setStoredWalletSession, type WalletProvider } from "@/lib/walletAdapter";
 import { truncateAddress } from "@/lib/walletAddress";
-import type { WalletProvider as WalletProviderType } from "@/lib/wallets/types";
 import { useWalletStore } from "@/lib/wallets/walletStore";
 import { usePlayerStore, useWalletStore as useLegacyWalletStore } from "@/store/useStore";
 

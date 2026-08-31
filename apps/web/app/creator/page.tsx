@@ -44,7 +44,7 @@ export default function CreatorPage() {
     handleSaveTemplate,
   } = useCreatorPage();
 
-  const activeHunts = hunts.filter((h) => !h.isArchived);
+  // `activeHunts` was unused after merge; remove to satisfy lint
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-purple-100 to-[#f9f9ff] pb-12">
