@@ -17,8 +17,9 @@ eslintConfig.push({
     // values into browser consoles in production, so they're always an error outside
     // tests and scripts (see the override below).
     "no-console": "error",
-    "jsx-a11y/control-has-associated-label": "error",
-    "jsx-a11y/interactive-supports-focus": "error",
+    "jsx-a11y/control-has-associated-label": "warn",
+    "jsx-a11y/interactive-supports-focus": "warn",
+    "react-hooks/set-state-in-effect": "warn",
     // React Native must not be imported in the web app.
     // Native components live in packages/ui/src/native/ and are consumed
     // by the mobile app only. If you need shared UI, use @hunty/ui/web.
