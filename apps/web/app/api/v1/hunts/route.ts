@@ -36,13 +36,12 @@ export const GET = withErrorHandling(async (req: Request) => {
   const tag = searchParams.get("tag") || "";
   const remotePlayableParam = searchParams.get("remotePlayable");
   const remotePlayable =
-<<<<<<< HEAD
-    remotePlayableParam === "true" ? true : remotePlayableParam === "false" ? false : undefined;
-=======
-    remotePlayableParam === "true" ? true :
-    remotePlayableParam === "false" ? false : undefined;
+    remotePlayableParam === "true"
+      ? true
+      : remotePlayableParam === "false"
+      ? false
+      : undefined;
   const following = searchParams.get("following") ?? undefined;
->>>>>>> upstream/main
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
   if (
@@ -98,7 +97,7 @@ export const GET = withErrorHandling(async (req: Request) => {
  */
 export const POST = withErrorHandling(async (req: Request) => {
   const ip = getIP(req);
-  const { success, reset } = ateLimit(ip, { limit: 20, windowMs: 60 * 1000 });
+  const { success, reset } = rateLimit(ip, { limit: 20, windowMs: 60 * 1000 });
   if (!success) return rateLimitResponse(reset);
 
   const wallet = req.headers.get("x-wallet-address")?.trim();

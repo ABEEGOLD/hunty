@@ -11,19 +11,10 @@ import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { HuntPageSkeletonLayout } from "@/components/LoadingSkeletons";
 import { PlayerProgressPanel } from "@/components/PlayerProgressPanel";
-<<<<<<< HEAD
 import { resolveLocalizedText } from "@/lib/clueLocalization";
-import { get_clue_info, get_hunt } from "@/lib/contracts/hunt";
-=======
-import { Button } from "@hunty/ui";
 import { useHuntInfo } from "@/lib/hooks/useHuntContract";
 import { get_clue_info } from "@/lib/contracts/hunt";
-import {
-  getHuntClues,
-  getHuntProgress,
-  startHuntProgress,
-} from "@/lib/huntStore";
->>>>>>> upstream/main
+import { getHuntClues, getHuntProgress, startHuntProgress } from "@/lib/huntStore";
 import { recordHuntCompletion } from "@/lib/contracts/player-stats";
 import { markFirstHuntStep } from "@/lib/firstHuntGuide";
 import {
@@ -202,16 +193,11 @@ export function PlayGame({
 
       return { clues, huntInfo };
     },
-<<<<<<< HEAD
-    enabled: huntId != null,
-    staleTime: Math.max(SOROBAN_READ_STALE_TIME_MS, queryCachePolicy.hunts.staleTime),
-=======
     enabled: huntId != null && huntInfoQuery.data !== undefined,
     staleTime: Math.max(
       SOROBAN_READ_STALE_TIME_MS,
       queryCachePolicy.hunts.staleTime
     ),
->>>>>>> upstream/main
     gcTime: queryCachePolicy.hunts.gcTime,
     refetchInterval: queryCachePolicy.hunts.refetchInterval,
     refetchIntervalInBackground: true,

@@ -13,15 +13,9 @@ import {
 
 import { migrateGuestProgressToWallet } from "@/lib/huntStore";
 import { useWalletMachine } from "@/lib/wallet/walletMachine";
-import {
-  connectWalletProvider,
-  setStoredWalletSession,
-  type WalletProvider,
-} from "@/lib/walletAdapter";
+import { connectWalletProvider, setStoredWalletSession, type WalletProvider } from "@/lib/walletAdapter";
 import { truncateAddress } from "@/lib/walletAddress";
-import { truncateAddress } from "@/lib/walletAddress";
-import type { WalletProvider } from "@/lib/wallets/types";
-import { useWalletStore } from "@/lib/wallets/walletStore";
+import type { WalletProvider as WalletProviderType } from "@/lib/wallets/types";
 import { useWalletStore } from "@/lib/wallets/walletStore";
 import { usePlayerStore, useWalletStore as useLegacyWalletStore } from "@/store/useStore";
 
@@ -93,57 +87,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
    * requestAccess() prompts if not yet on the allow list,
    * or returns immediately if the user already approved this app.
    */
-  const connect = useCallback(
-    async (provider: WalletProvider = "freighter"): Promise<{ error?: string }> => {
-      try {
-        if (provider === "freighter") {
-          const connResult = await isConnected();
-          if (!connResult.isConnected) {
-            return {
-              error: "Freighter extension not found. Please install it from freighter.app",
-            };
-          }
-
-          // requestAccess() returns { address: string, error?: string }
-          // error is a plain string per the Freighter API docs
-          const accessResult = await requestAccess();
-
-          if (accessResult.error) {
-            return { error: String(accessResult.error) };
-          }
-
-          const address = accessResult.address;
-          if (!address) {
-            return { error: "No public key returned. Please try again." };
-          }
-
-          setStoredWalletSession("freighter", address);
-          localStorage.setItem(STORAGE_KEY, address);
-          migrateGuestProgressToWallet(address);
-          setPublicKey(address);
-          setWalletProvider("freighter");
-          setConnected(true);
-          storeSetConnected(address, "freighter");
-          return {};
-        }
-
-        const address = await connectWalletProvider(provider);
-        setStoredWalletSession(provider, address);
-        localStorage.setItem(STORAGE_KEY, address);
-        migrateGuestProgressToWallet(address);
-        setPublicKey(address);
-        setWalletProvider(provider);
-        setConnected(true);
-        storeSetConnected(address, provider);
-        return {};
-      } catch (err) {
-        return {
-          error: err instanceof Error ? err.message : "Unexpected error during connection.",
-        };
-      }
-    },
-    []
-  );
+  
 
   // ── Connect wrapper (matches existing interface) ───────────────────
   // machineConnect handles all errors internally by dispatching CONNECT_ERROR.

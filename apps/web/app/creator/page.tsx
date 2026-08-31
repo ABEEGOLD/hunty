@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { Button, Card } from "@hunty/ui";
-import dynamic from "next/dynamic";
-import Link from "next/link";
 
 import { Header } from "@/components/Header";
 import { RewardHistorySection } from "@/components/RewardHistorySection";
@@ -14,10 +12,6 @@ import { DraftListPanel } from "@/components/DraftListPanel";
 import { ConfirmationDialog, SaveTemplateDialog } from "./_components/creator-dialogs";
 import { HuntList } from "./_components/hunt-list";
 import { useCreatorPage } from "./_hooks/use-creator-page";
-
-const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
-  ssr: false,
-});
 
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour"), {
   ssr: false,
