@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workspace: ['@hunty/web', 'mobile', '@hunty/types', '@hunty/ui', '@hunty/config']
+        workspace: ['@hunty/web', '@hunty/types', '@hunty/ui', '@hunty/config']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workspace: ['@hunty/web', '@hunty/types', '@hunty/ui', 'mobile']
+        workspace: ['@hunty/web', '@hunty/types', '@hunty/ui']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
