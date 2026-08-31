@@ -36,8 +36,11 @@ export const GET = withErrorHandling(async (req: Request) => {
   const tag = searchParams.get("tag") || "";
   const remotePlayableParam = searchParams.get("remotePlayable");
   const remotePlayable =
-    remotePlayableParam === "true" ? true :
-    remotePlayableParam === "false" ? false : undefined;
+    remotePlayableParam === "true"
+      ? true
+      : remotePlayableParam === "false"
+        ? false
+        : undefined;
   const following = searchParams.get("following") ?? undefined;
   const requestId = req.headers.get("x-request-id") ?? undefined;
 
