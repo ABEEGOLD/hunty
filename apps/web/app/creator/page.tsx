@@ -1,14 +1,14 @@
 "use client";
 
+import { Button, Card } from "@hunty/ui";
 import { Archive, ArrowLeft, HelpCircle, RefreshCw, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import { Button, Card } from "@hunty/ui";
-
+import { DraftListPanel } from "@/components/DraftListPanel";
 import { Header } from "@/components/Header";
 import { RewardHistorySection } from "@/components/RewardHistorySection";
-import { DraftListPanel } from "@/components/DraftListPanel";
+
 import { ConfirmationDialog, SaveTemplateDialog } from "./_components/creator-dialogs";
 import { HuntList } from "./_components/hunt-list";
 import { useCreatorPage } from "./_hooks/use-creator-page";
@@ -80,7 +80,6 @@ export default function CreatorPage() {
             <HelpCircle className="w-3.5 h-3.5" />
             Take Tour
           </Button>
-        
         </h1>
         <p className="mb-6 text-slate-600">
           View and manage hunts you have created. Draft hunts open in Edit; Active hunts open Live
@@ -285,4 +284,3 @@ export default function CreatorPage() {
     </div>
   );
 }
- 
