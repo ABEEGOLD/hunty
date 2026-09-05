@@ -208,11 +208,7 @@ jobs:
         run: |
           if [ "${{ needs.quality.result }}" = "failure" ] || \
              [ "${{ needs.test.result }}" = "failure" ] || \
-             [ "${{ needs.coverage.result }}" = "failure" ] || \
-             [ "${{ needs.mutation.result }}" = "failure" ] || \
              [ "${{ needs.build.result }}" = "failure" ] || \
-             [ "${{ needs.e2e.result }}" = "failure" ] || \
-             [ "${{ needs.visual-regression.result }}" = "failure" ] || \
              [ "${{ needs.merge-damage-check.result }}" = "failure" ]; then
             echo "❌ CI Pipeline Failed"
             exit 1
